@@ -9,6 +9,16 @@ auth = Blueprint('auth', __name__)
 def home():
     return render_template("login.html")
 
+#retorna para a pagina de login
+@auth.route('/login')
+def retonarlogin():
+    return render_template('login.html')
+
+#rota para entrada na pagina inicial 
+@auth.route('/inicio')
+def paginainicial():
+    return render_template("inicio.html")
+
 #login do usuario
 @auth.route("/login", methods=["POST"])
 def login():
@@ -24,15 +34,12 @@ def login():
 
     if user:
         session["usuario"] = user["email"]
-        return redirect(url_for("auth.dashboard"))
+        session["senha"] = user["senha"]
+        return redirect(url_for("auth.paginainicial"))
     else:
         flash("E-mail ou senha inválidos!")
-        return redirect(url_for("auth.home"))
-#retorna para a pagina de login
-@auth.route('/login')
-def retonarlogin():
-    return render_template('login.html') 
-
+        return redirect(url_for("auth.home")) 
+    
 #criação de cadastro
 @auth.route("/cadastro", methods=["GET", "POST"])
 def cadastro():

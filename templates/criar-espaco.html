@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Criar Espaço de Trabalho - FofoTech</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+  <script src="script.js" defer></script>
+</head>
+<body>
+
+<aside class="sidebar">
+  <h2>FofoTech</h2>
+  <ul>
+    <li><a href="pagina.html">Página Inicial</a></li>
+    <li>
+      <a href="#" id="workspaceLink">Espaço de Trabalho</a>
+      <ul class="submenu" id="workspaceSubmenu">
+        <li><a href="criar-espaco.html">Criar Espaço</a></li>
+      </ul>
+    </li>
+    <li><a href="projetos.html">Projetos</a></li>
+    <li><a href="#">Minhas Tarefas</a></li>
+    <li><a href="#">Perfil</a></li>
+  </ul>
+</aside>
+<main class="main">
+  <h1>Criar Espaço de Trabalho</h1>
+  <form id="formEspaco">
+    <input id="nomeEspaco" type="text" placeholder="Nome do Espaço de Trabalho" required>
+    <br>
+    <button type="submit">Salvar</button>
+    <button type="button" data-cancel="espaco">Cancelar</button>
+  </form>
+
+  <div id="listaEspacos" style="margin-top:20px; width:320px;"></div>
+</main>
+</body>
+</html>
