@@ -1,0 +1,13 @@
+# Evita subir o arquivo com senhas e dados sensíveis
+.env
+
+# Evita subir o ambiente virtual (venv)
+venv/
+
+# Evita caches do Python
+__pycache__/
+*.pyc
+
+# Arquivos temporários do VSCode ou do sistema
+.vscode/
+.DS_Store

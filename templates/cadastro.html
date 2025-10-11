@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FofoTech - Cadastro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="left">
+            <img src="https://cdn-icons-png.flaticon.com/512/4712/4712107.png" alt="logo" class="logo">
+            <h1>FofoTech</h1>
+        </div>
+        <div class="right">
+            <h2>Crie sua conta</h2>
+
+            <form method="POST" action="/cadastro"> 
+
+                <label for="nome">Seu Nome Completo</label>
+                <input type="text" id="nome" name="nome" required>
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" required>
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" required>
+
+                <label for="confirmar">Confirmar Senha</label>
+                <input type="password" id="confirmar" name="confirmar" required>
+                <button type="submit">Criar Conta</button>
+                    </form>
+        </div>
+    </div>
+</body>
+</html>
