@@ -14,11 +14,6 @@ def home():
 def retonarlogin():
     return render_template('login.html')
 
-#rota para entrada na pagina inicial 
-@auth.route('/inicio')
-def paginainicial():
-    return render_template("inicio.html")
-
 #login do usuario
 @auth.route("/login", methods=["POST"])
 def login():
@@ -27,18 +22,23 @@ def login():
 
     db = conectar()
     cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM usuarios WHERE email=%s AND senha=%s", (email, senha))
+    cursor.execute("SELECT email, senha, nome FROM usuarios WHERE email=%s AND senha=%s", (email, senha))
     user = cursor.fetchone()
     cursor.close()
     db.close()
 
     if user:
-        session["usuario"] = user["email"]
-        session["senha"] = user["senha"]
-        return redirect(url_for("auth.paginainicial"))
-    else:
-        flash("E-mail ou senha inválidos!")
-        return redirect(url_for("auth.home")) 
+        # 1. ARMAZENAR O NOME DO USUÁRIO NA SESSÃO
+        # Assumindo que o campo na tabela é 'nome'
+        session["logged_in"] = True # Adiciona um indicador de que está logado
+        session["usuario"] = user["email"] 
+        
+        # CHAVE CORRETA: O NOME COMPLETO do usuário
+        session["nome_usuario"] = user["nome"]  # <-- ESTA É A CHAVE!
+        
+        # Remova session["senha"] - Nunca armazene senhas na sessão por segurança!
+        
+        return redirect(url_for("work.rt_Espaco")) 
     
 #criação de cadastro
 @auth.route("/cadastro", methods=["GET", "POST"])
