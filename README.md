@@ -59,7 +59,7 @@ O **Fofotechs** busca equilibrar essas duas realidades, oferecendo uma ferrament
 | **Camada** | **Tecnologia / Ferramenta** |
 |-------------|-----------------------------|
 | Front-end | HTML5, CSS3, JavaScript |
-| Back-end | PHP (planejado) |
+| Back-end | Python |
 | Banco de Dados | MySQL |
 | Ferramentas de Apoio | Git, VS Code, Trello |
 | Futuras Integrações | Power BI, Google Calendar |
