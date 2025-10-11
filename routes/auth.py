@@ -28,6 +28,10 @@ def login():
     else:
         flash("E-mail ou senha inválidos!")
         return redirect(url_for("auth.home"))
+#retorna para a pagina de login
+@auth.route('/login')
+def retonarlogin():
+    return render_template('login.html') 
 
 #criação de cadastro
 @auth.route("/cadastro", methods=["GET", "POST"])
