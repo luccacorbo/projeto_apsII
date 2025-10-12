@@ -1,4 +1,4 @@
-# 🎯 Fofotechs – Organizador de Tarefas Gamificado
+# 🎯 FofoTechs – Organizador de Tarefas Gamificado
 
 ## 🧩 Visão Geral do Projeto
 O **Fofotechs** é um software web em desenvolvimento que combina **organização de tarefas** com **gamificação**, voltado especialmente para **jovens profissionais da Geração Z**.
