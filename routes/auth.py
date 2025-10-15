@@ -38,7 +38,7 @@ def login():
         
         # Remova session["senha"] - Nunca armazene senhas na sessão por segurança!
         
-        return redirect(url_for("work.rt_Espaco")) 
+        return redirect(url_for("home.rt_Espaco")) 
     
 #criação de cadastro
 @auth.route("/cadastro", methods=["GET", "POST"])
