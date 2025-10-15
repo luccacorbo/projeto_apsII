@@ -5,21 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Criar Espaço de Trabalho - FofoTech</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-  <script src="script.js" defer></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
 </head>
 <body>
 
 <aside class="sidebar">
   <h2>FofoTech</h2>
   <ul>
-    <li><a href="pagina.html">Página Inicial</a></li>
+    <li><a href="/home">Página Inicial</a></li>
     <li>
       <a href="#" id="workspaceLink">Espaço de Trabalho</a>
       <ul class="submenu" id="workspaceSubmenu">
-        <li><a href="criar-espaco.html">Criar Espaço</a></li>
+        <li><a href="/criar-espaco">Criar Espaço</a></li>
       </ul>
     </li>
-    <li><a href="projetos.html">Projetos</a></li>
     <li><a href="#">Minhas Tarefas</a></li>
     <li><a href="#">Perfil</a></li>
   </ul>
