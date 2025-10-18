@@ -22,7 +22,7 @@ def login():
 
     db = conectar()
     cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT email, senha, nome FROM usuarios WHERE email=%s AND senha=%s", (email, senha))
+    cursor.execute("SELECT email, senha, nome FROM usuario WHERE email=%s AND senha=%s", (email, senha))
     user = cursor.fetchone()
     cursor.close()
     db.close()
@@ -56,7 +56,7 @@ def cadastro():
         try:
             db = conectar()
             cursor = db.cursor()
-            cursor.execute("INSERT INTO usuarios (nome, email, senha) VALUES (%s, %s, %s)", (nome, email, senha))
+            cursor.execute("INSERT INTO usuario (nome, email, senha) VALUES (%s, %s, %s)", (nome, email, senha))
             db.commit()
             cursor.close()
             db.close()
