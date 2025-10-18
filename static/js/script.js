@@ -44,6 +44,10 @@ function configurarFormulariosSimples() {
     // botão cancelar dentro do form (procura data-cancel ou button[type="button"])
     var cancelEsp = formEspaco.querySelector('button[data-cancel="espaco"]') || formEspaco.querySelector('button[type="button"]');
     if (cancelEsp) cancelEsp.addEventListener('click', cancelarEspaco);
+      document.querySelector('[data-cancel="espaco"]').addEventListener('click', function() {
+    window.location.href = '/home';
+});
+ 
   }
 
   //criar Projeto
