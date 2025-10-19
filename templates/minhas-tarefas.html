@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/minhasTarefas.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="tarefas-container">
+    <header class="tarefas-header">
+        <h1>Minhas Tarefas</h1>
+        <div class="user-profile">
+            <span>Usuário</span>
+            <div class="profile-pic">U</div>
+        </div>
+    </header>
+
+    <!-- Filtros e Estatísticas -->
+    <div class="tarefas-info">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total de Tarefas</h3>
+                <span class="stat-number" id="total-tasks">0</span>
+            </div>
+            <div class="stat-card">
+                <h3>Pendentes</h3>
+                <span class="stat-number" id="pending-tasks">0</span>
+            </div>
+            <div class="stat-card">
+                <h3>Em Andamento</h3>
+                <span class="stat-number" id="progress-tasks">0</span>
+            </div>
+            <div class="stat-card">
+                <h3>Concluídas</h3>
+                <span class="stat-number" id="completed-tasks">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid de Tarefas -->
+    <div class="tarefas-grid" id="tarefas-grid">
+        <!-- Tarefas serão carregadas dinamicamente aqui -->
+    </div>
+
+    <!-- Modal para Detalhes da Tarefa -->
+    <div class="modal" id="task-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Detalhes da Tarefa</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="task-form">
+                    <input type="hidden" id="task-id">
+                    
+                    <div class="form-group">
+                        <label for="task-titulo">Título:</label>
+                        <input type="text" id="task-titulo" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="task-descricao">Descrição:</label>
+                        <textarea id="task-descricao" rows="4" readonly></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="task-atribuida-por">Atribuída por:</label>
+                        <input type="text" id="task-atribuida-por" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="task-data-criacao">Data de Criação:</label>
+                        <input type="text" id="task-data-criacao" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="task-prazo">Prazo:</label>
+                        <input type="text" id="task-prazo" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="task-status">Status:</label>
+                        <select id="task-status" onchange="updateTaskStatus()">
+                            <option value="pendente">Pendente</option>
+                            <option value="andamento">Em Andamento</option>
+                            <option value="concluida">Concluída</option>
+                            <option value="cancelada">Cancelada</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="task-comentarios">Comentários:</label>
+                        <textarea id="task-comentarios" rows="3" placeholder="Adicione comentários sobre o andamento..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                        <button type="button" class="btn btn-primary" onclick="saveTaskChanges()">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/minhasTarefas.js') }}"></script>
+{% endblock %}

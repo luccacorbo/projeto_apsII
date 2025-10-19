@@ -6,12 +6,12 @@
 }
 
 body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #ffffff 0%, #8aa3eb 100%);
+  color: #333;
   display: flex;
   height: 100vh;
-  background-color: #f3f7fb;
-  color: #333;
 }
-
 /*menu lateral */
 .sidebar {
   width: 230px;
