@@ -2,6 +2,7 @@ from flask import Flask
 from routes.auth import auth
 from routes.home import home
 from routes.workspace import work
+from routes.task import task
 from database import conectar
 
 app = Flask(__name__)
@@ -11,6 +12,8 @@ app.secret_key = "chave_secreta"
 app.register_blueprint(auth)
 app.register_blueprint(home)
 app.register_blueprint(work)
+app.register_blueprint(task)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

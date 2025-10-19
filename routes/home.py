@@ -13,12 +13,12 @@ def rt_Projeto():
     nome = session['nome_usuario']
     return render_template('inicio.html', nome_usuario=nome) # Envia a variável 'nome_usuario'
 
-@home.route('/criar-projeto')
-def criarProjeto():
-    return render_template('criar-projeto.html')
-
 # retonar para a pagina inicial 
 @home.route('/home')
 def retornaInicio():
     nome = session['nome_usuario']
     return render_template('inicio.html', nome_usuario=nome)
+
+@home.route('/tarefas')
+def minhasTarefas():
+    return render_template('minhas-tarefas.html')
