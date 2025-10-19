@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ projeto.nome }} - FofoTech</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/projeto.css') }}">
+</head>
+<body>
+    {% extends 'base.html' %}
+
+    {% block content %}
+    <div class="projeto-detalhes-container">
+        <!-- Header do Projeto -->
+        <div class="projeto-header">
+            <div class="projeto-info">
+                <h1>{{ projeto.nome }}</h1>
+                {% if projeto.descricao %}
+                <p class="projeto-descricao">{{ projeto.descricao }}</p>
+                {% endif %}
+                <div class="projeto-meta">
+                    <span>Criado por: {{ criador.nome }}</span>
+                    <span>•</span>
+                    <span>{{ projeto.data_criacao.strftime('%d/%m/%Y') }}</span>
+                </div>
+            </div>
+            
+            <div class="projeto-actions">
+                {% if eh_criador %}
+                <button class="btn btn-primary" onclick="abrirModalTarefa()">
+                    + Nova Tarefa
+                </button>
+                <button class="btn btn-secondary" onclick="abrirModalMembros()">
+                    👥 Membros
+                </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Kanban Board -->
+        <div class="kanban-board">
+            <!-- TO DO -->
+            <div class="kanban-column">
+                <div class="column-header">
+                    <h3>A Fazer</h3>
+                    <span class="task-count">{{ tarefas_todo|length }}</span>
+                </div>
+                <div class="tasks-list" id="todo-column" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    {% for tarefa in tarefas_todo %}
+                    <div class="task-card" draggable="true" ondragstart="drag(event)" data-task-id="{{ tarefa.id_tarefa }}">
+                        <div class="task-header">
+                            <h4>{{ tarefa.titulo }}</h4>
+                            <span class="priority-badge priority-{{ tarefa.prioridade }}">
+                                {{ tarefa.prioridade }}
+                            </span>
+                        </div>
+                        {% if tarefa.descricao %}
+                        <p class="task-description">{{ tarefa.descricao[:100] }}{% if tarefa.descricao|length > 100 %}...{% endif %}</p>
+                        {% endif %}
+                        <div class="task-footer">
+                            <small>Por: {{ tarefa.criador_nome }}</small>
+                            {% if tarefa.data_vencimento %}
+                            <small class="due-date {% if tarefa.vencida %}overdue{% endif %}">
+                                📅 {{ tarefa.data_vencimento.strftime('%d/%m/%Y') }}
+                            </small>
+                            {% endif %}
+                        </div>
+                        {% if eh_criador %}
+                        <div class="task-actions">
+                            <button onclick="editarTarefa({{ tarefa.id_tarefa }})">✏️</button>
+                            <button onclick="excluirTarefa({{ tarefa.id_tarefa }})">🗑️</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- DOING -->
+            <div class="kanban-column">
+                <div class="column-header">
+                    <h3>Fazendo</h3>
+                    <span class="task-count">{{ tarefas_doing|length }}</span>
+                </div>
+                <div class="tasks-list" id="doing-column" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    {% for tarefa in tarefas_doing %}
+                    <div class="task-card" draggable="true" ondragstart="drag(event)" data-task-id="{{ tarefa.id_tarefa }}">
+                        <!-- Mesma estrutura do TO DO -->
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- DONE -->
+            <div class="kanban-column">
+                <div class="column-header">
+                    <h3>Concluído</h3>
+                    <span class="task-count">{{ tarefas_done|length }}</span>
+                </div>
+                <div class="tasks-list" id="done-column" ondrop="drop(event)" ondragover="allowDrop(event)">
+                    {% for tarefa in tarefas_done %}
+                    <div class="task-card" draggable="true" ondragstart="drag(event)" data-task-id="{{ tarefa.id_tarefa }}">
+                        <!-- Mesma estrutura do TO DO -->
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nova Tarefa (apenas para criador) -->
+    {% if eh_criador %}
+    <div id="modalTarefa" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModalTarefa()">&times;</span>
+            <h2>Nova Tarefa</h2>
+            <form id="formTarefa" method="POST" action="{{ url_for('work.criar_tarefa', id_projeto=projeto.id_projeto) }}">
+                <input type="text" name="titulo" placeholder="Título da tarefa" required>
+                <textarea name="descricao" placeholder="Descrição (opcional)" rows="4"></textarea>
+                <select name="prioridade">
+                    <option value="baixa">Baixa Prioridade</option>
+                    <option value="media" selected>Média Prioridade</option>
+                    <option value="alta">Alta Prioridade</option>
+                </select>
+                <input type="date" name="data_vencimento">
+                <button type="submit">Criar Tarefa</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    {% endblock %}
+
+    <script src="{{ url_for('static', filename='js/projeto.js') }}"></script>
+</body>
+</html>
