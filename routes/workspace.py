@@ -3,37 +3,37 @@ from database import conectar
 
 work = Blueprint('work', __name__)
 
-@work.route('/criar-espaco', methods=['GET', 'POST'])
-def criar_espaco():
+@work.route('/criar-projeto', methods=['GET', 'POST'])
+def criar_projeto():
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
 
     if request.method == 'POST':
-        nome = request.form['nome']
-        cursor.execute("INSERT INTO espacos (nome) VALUES (%s)", (nome,))
+        titulo = request.form['titulo']
+        cursor.execute("INSERT INTO projeto (titulo) VALUES (%s)", (titulo,))
         conn.commit()
         return redirect(url_for('home.retornaInicio'))
 
     # busca todos os espaços para exibir na lateral
-    cursor.execute("SELECT * FROM espacos")
-    espacos = cursor.fetchall()
+    cursor.execute("SELECT * FROM projeto")
+    projeto = cursor.fetchall()
 
     cursor.close()
     conn.close()
-    return render_template('criar_espaco.html', espacos=espacos)
+    return render_template('criar-projeto.html', projeto=projeto)
 
 
 # rota para página de um espaço específico
-@work.route('/espaco/<int:id>')
-def visualizar_espaco(id):
+@work.route('/projeto/<int:id>')
+def visualizar_projeto(id):
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM espacos WHERE id = %s", (id,))
-    espaco = cursor.fetchone()
+    cursor.execute("SELECT * FROM projeto WHERE id = %s", (id,))
+    projeto = cursor.fetchone()
     cursor.close()
     conn.close()
 
-    if not espaco:
-        return "Espaço não encontrado", 404
+    if not projeto:
+        return "Projeto não encontrado", 404
 
-    return render_template('espaco.html', espaco=espaco)
+    return render_template('projeto.html', projeto=projeto)

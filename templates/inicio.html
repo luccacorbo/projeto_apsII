@@ -18,16 +18,16 @@
     <h1>Olá, {{ nome_usuario }}!</h1>
     
     {# Lógica para verificar se existem espaços #}
-    {% if not espacos %} 
-        <h2>Crie seu espaço de trabalho para começar.</h2>
-        <a href="{{ url_for('work.criar_espaco') }}" class="btn-link" role="button">Criar Espaço</a>
+    {% if not projeto %} 
+        <h2>Crie seu Projeto para começar.</h2>
+        <a href="{{ url_for('work.criar_projeto') }}" class="btn-link" role="button">Criar Projeto</a>
     {% else %}
-        <h2>Seus Espaços de Trabalho:</h2>
+        <h2>Seus Projetos:</h2>
         <ul>
-            {% for espaco in espacos %}
+            {% for projeto in projeto %}
                 <li>
-                    <a href="{{ url_for('work.visualizar_espaco', id=espaco.id) }}">
-                        {{ espaco.nome }}
+                    <a href="{{ url_for('work.visualizar_projeto', id=projeto.id) }}">
+                        {{ projeto.nome }}
                     </a>
                 </li>
             {% endfor %}

@@ -5,7 +5,7 @@ import mysql.connector
 home = Blueprint('home', __name__)
 
 @home.route('/inicio')
-def rt_Espaco():
+def rt_Projeto():
     if 'logged_in' not in session:
         return redirect(url_for('login'))
         
@@ -13,9 +13,9 @@ def rt_Espaco():
     nome = session['nome_usuario']
     return render_template('inicio.html', nome_usuario=nome) # Envia a variável 'nome_usuario'
 
-@home.route('/criar-espaco')
-def criarEspaco():
-    return render_template('criar-espaco.html')
+@home.route('/criar-projeto')
+def criarProjeto():
+    return render_template('criar-projeto.html')
 
 # retonar para a pagina inicial 
 @home.route('/home')

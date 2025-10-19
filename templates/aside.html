@@ -4,11 +4,11 @@
     <li><a href="{{ url_for('home.retornaInicio') }}">Página Inicial</a></li>
 
     <li>
-      <a href="#" id="workspaceLink">Espaço de Trabalho</a>
+      <a href="#" id="workspaceLink">Projeto</a>
       <ul class="submenu" id="workspaceSubmenu">
-        <li><a href="{{ url_for('work.criar_espaco') }}">Criar Espaço</a></li>
-        {% for e in espacos %}
-          <li><a href="{{ url_for('work.visualizar_espaco', id=e.id) }}">{{ e.nome }}</a></li>
+        <li><a href="{{ url_for('work.criar_projeto') }}">Criar Projeto</a></li>
+        {% for e in projeto %}
+          <li><a href="{{ url_for('work.visualizar_projeto', id=e.id) }}">{{ e.nome }}</a></li>
         {% endfor %}
       </ul>
     </li>

@@ -16,11 +16,11 @@ if __name__ == "__main__":
     app.run(debug=True)
 
 @app.context_processor
-def inject_espacos():
+def inject_projetos():
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM espacos")
-    espacos = cursor.fetchall()
+    cursor.execute("SELECT * FROM projeto")
+    projeto = cursor.fetchall()
     cursor.close()
     conn.close()
-    return dict(espacos=espacos)
+    return dict(projeto=projeto)
