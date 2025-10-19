@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', function() {
   configurarSubmenuSuave();
   configurarFormulariosSimples();
   // atualiza listas se houver (opcional)
-  if (typeof renderEspacos === 'function') renderEspacos();
   if (typeof renderProjetos === 'function') renderProjetos();
 });
 
@@ -55,21 +54,6 @@ function configurarSubmenuSuave() {
 
 // ========== CONFIGURAÇÃO DOS FORMULÁRIOS ==========
 function configurarFormulariosSimples() {
-  // Criar Espaço
-  var formEspaco = document.getElementById('formEspaco');
-  if (formEspaco) {
-    formEspaco.addEventListener('submit', function(e) {
-      e.preventDefault();
-      salvarEspacoSimples();
-    });
-    var cancelEsp = formEspaco.querySelector('button[data-cancel="espaco"]') || formEspaco.querySelector('button[type="button"]');
-    if (cancelEsp) cancelEsp.addEventListener('click', cancelarEspaco);
-    
-    document.querySelector('[data-cancel="espaco"]').addEventListener('click', function() {
-      window.location.href = '/home';
-    });
-  }
-
   // Criar Projeto
   var formProjeto = document.getElementById('formProjeto');
   if (formProjeto) {
@@ -79,125 +63,45 @@ function configurarFormulariosSimples() {
     });
     var cancelProj = formProjeto.querySelector('button[data-cancel="projeto"]') || formProjeto.querySelector('button[type="button"]');
     if (cancelProj) cancelProj.addEventListener('click', cancelarProjeto);
-  }
-
-  // Editar Projeto
-  var formEditar = document.getElementById('formEditar');
-  if (formEditar) {
-    formEditar.addEventListener('submit', function(e) {
-      e.preventDefault();
-      salvarEdicaoSimples();
+    
+    document.querySelector('[data-cancel="projeto"]').addEventListener('click', function() {
+      window.location.href = '/home';
     });
-    var cancelEdit = formEditar.querySelector('button[data-cancel="editar"]') || formEditar.querySelector('button[type="button"]');
-    if (cancelEdit) cancelEdit.addEventListener('click', cancelarEditar);
   }
 }
 
 // ========== FUNÇÕES DE SALVAR ==========
-function salvarEspacoSimples() {
-  var campo = document.getElementById('nomeEspaco');
+function salvarProjetoSimples() {
+  var campo = document.getElementById('nomeProjeto');
   var nome = campo ? campo.value.trim() : '';
 
   if (nome === '') {
-    mostrarMensagemTemporaria('Por favor, digite o nome do espaço!', 3000);
+    mostrarMensagemTemporaria('Por favor, digite o nome do projeto!', 3000);
     if (campo) campo.focus();
     return;
   }
 
-  var espacos = JSON.parse(localStorage.getItem('espacos') || '[]');
-  espacos.push({ nome: nome, criadoEm: new Date().toISOString() });
-  localStorage.setItem('espacos', JSON.stringify(espacos));
-
-  mostrarMensagemTemporaria('Espaço criado com sucesso!');
-  limparFormularioEspaco();
-  recolherSubmenu();
-  if (typeof renderEspacos === 'function') renderEspacos();
-}
-
-function salvarProjetoSimples() {
-  var nomeCampo = document.getElementById('nomeProjeto');
-  var descCampo = document.getElementById('descricaoProjeto');
-
-  var nome = nomeCampo ? nomeCampo.value.trim() : '';
-  var desc = descCampo ? descCampo.value.trim() : '';
-
-  if (nome === '') {
-    mostrarMensagemTemporaria('Por favor, digite o nome do projeto!', 3000);
-    if (nomeCampo) nomeCampo.focus();
-    return;
-  }
-
   var projetos = JSON.parse(localStorage.getItem('projetos') || '[]');
-  projetos.push({ nome: nome, desc: desc, progresso: 0, criadoEm: new Date().toISOString() });
+  projetos.push({ nome: nome, criadoEm: new Date().toISOString() });
   localStorage.setItem('projetos', JSON.stringify(projetos));
 
   mostrarMensagemTemporaria('Projeto criado com sucesso!');
   limparFormularioProjeto();
+  recolherSubmenu();
   if (typeof renderProjetos === 'function') renderProjetos();
 }
 
-function salvarEdicaoSimples() {
-  var idx = Number(localStorage.getItem('editarIndex'));
-  var nomeCampo = document.getElementById('editNomeProjeto');
-  var descCampo = document.getElementById('editDescricaoProjeto');
-
-  if (!isNaN(idx)) {
-    var projetos = JSON.parse(localStorage.getItem('projetos') || '[]');
-    if (projetos[idx]) {
-      projetos[idx].nome = nomeCampo ? nomeCampo.value.trim() : projetos[idx].nome;
-      projetos[idx].desc = descCampo ? descCampo.value.trim() : projetos[idx].desc;
-      localStorage.setItem('projetos', JSON.stringify(projetos));
-      mostrarMensagemTemporaria('Projeto editado com sucesso!');
-      limparFormularioEditar();
-      localStorage.removeItem('editarIndex');
-      if (typeof renderProjetos === 'function') renderProjetos();
-      return;
-    }
-  }
-
-  mostrarMensagemTemporaria('Projeto salvo com sucesso!');
-  limparFormularioEditar();
-}
-
 // ========== FUNÇÕES DE LIMPAR/CANCELAR ==========
-function cancelarEspaco() {
-  limparFormularioEspaco();
+function cancelarProjeto() {
+  limparFormularioProjeto();
   recolherSubmenu();
   mostrarMensagemTemporaria('Operação cancelada!');
 }
 
-function cancelarProjeto() {
-  limparFormularioProjeto();
-  mostrarMensagemTemporaria('Operação cancelada!');
-}
-
-function cancelarEditar() {
-  limparFormularioEditar();
-  mostrarMensagemTemporaria('Operação cancelada!');
-}
-
 // ========== FUNÇÕES AUXILIARES ==========
-function limparFormularioEspaco() {
-  var campo = document.getElementById('nomeEspaco');
-  if (campo) campo.value = '';
-}
-
 function limparFormularioProjeto() {
-  var n = document.getElementById('nomeProjeto');
-  var d = document.getElementById('descricaoProjeto');
-  var a = document.getElementById('atribuidoProjeto');
-  if (n) n.value = '';
-  if (d) d.value = '';
-  if (a) a.value = '';
-}
-
-function limparFormularioEditar() {
-  var n = document.getElementById('editNomeProjeto');
-  var d = document.getElementById('editDescricaoProjeto');
-  var a = document.getElementById('editAtribuidoProjeto');
-  if (n) n.value = '';
-  if (d) d.value = '';
-  if (a) a.value = '';
+  var campo = document.getElementById('nomeProjeto');
+  if (campo) campo.value = '';
 }
 
 function recolherSubmenu() {
