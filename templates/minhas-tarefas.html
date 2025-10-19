@@ -8,10 +8,13 @@
 {% block content %}
 <div class="tarefas-container">
     <header class="tarefas-header">
-        <h1>Minhas Tarefas</h1>
+        <h1>Minhas Tarefas </h1>
         <div class="user-profile">
-            <span>Usuário</span>
-            <div class="profile-pic">U</div>
+            <span></span>
+            <span>{{ session.usuario_nome or 'Usuário' }}</span>
+            <div class="profile-pic" id="profile-pic">
+                {{ (session.usuario_nome or 'U')[0] | upper }}
+            </div>
         </div>
     </header>
 
