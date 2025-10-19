@@ -1,49 +1,63 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Criar Espaço de Trabalho - FofoTech</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-  <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Projeto - FofoTech</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/criar-projeto.css') }}">
 </head>
 <body>
+    {% extends 'base.html' %}
 
-{% extends 'base.html' %}
+    {% block content %}
+    <div class="criar-projeto-container">
+        <div class="criar-projeto-card">
+            <div class="card-header">
+                <h1>Criar Novo Projeto</h1>
+                <p>Preencha os dados abaixo para criar um novo projeto</p>
+            </div>
+            
+            <form action="{{ url_for('work.criar_projeto') }}" method="POST" class="projeto-form">
+                <div class="form-group">
+                    <label for="nome_projeto">Nome do Projeto *</label>
+                    <input 
+                        type="text" 
+                        id="nome_projeto" 
+                        name="nome_projeto" 
+                        placeholder="Digite o nome do projeto" 
+                        required
+                        maxlength="100"
+                    >
+                    <span class="char-count">0/100</span>
+                </div>
 
-{% block title %}Criar Projeto - FofoTech{% endblock %}
+                <div class="form-group">
+                    <label for="descricao_projeto">Descrição</label>
+                    <textarea 
+                        id="descricao_projeto" 
+                        name="descricao_projeto" 
+                        placeholder="Descreva o objetivo do projeto (opcional)" 
+                        rows="4"
+                        maxlength="500"
+                    ></textarea>
+                    <span class="char-count">0/500</span>
+                </div>
 
-{% block content %}
-    <h1>Criar Projeto</h1>
-
-    <form id="formProjeto" method="POST" action="/criar-projeto">
-        <input
-            title="titulo" type="text" 
-            type="text" 
-            placeholder="Nome do novo Projeto" 
-            required
-        >
-        <br>
-        <button type="submit">Salvar</button>
-        <button type="button" data-cancel="projeto" onclick="window.location.href='/home'">Cancelar</button>
-    </form>
-
-    <div id="listaProjetos" style="margin-top:20px; width:320px;">
-        {% if projetos %}
-            <h3>Projetos Existentes:</h3>
-            <ul>
-                {% for projetos in projetos %}
-                    <li>{{ projetos[1] }}</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Nenhum Projeto Criado Ainda.</p>
-        {% endif %}
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="btn-icon">✓</span>
+                        Criar Projeto
+                    </button>
+                    <a href="{{ url_for('home.retornaInicio') }}" class="btn btn-secondary">
+                        <span class="btn-icon">×</span>
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
-{% endblock %}
+    {% endblock %}
 
-
-  <div id="listaProjetos" style="margin-top:20px; width:320px;"></div>
-</main>
+    <script src="{{ url_for('static', filename='js/criar-projeto.js') }}"></script>
 </body>
 </html>
