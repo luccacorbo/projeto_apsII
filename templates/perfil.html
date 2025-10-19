@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="perfil-container">
+    <header class="perfil-header">
+        <h1>Meu Perfil</h1>
+        <div class="user-profile">
+            <span>{{ session.usuario_nome or 'Usuário' }}</span>
+            <div class="profile-pic" id="profile-pic">
+                {{ (session.usuario_nome or 'U')[0] | upper }}
+            </div>
+        </div>
+    </header>
+
+    <div class="perfil-content">
+        <!-- Card de Informações Pessoais -->
+        <div class="profile-card">
+            <div class="card-header">
+                <h2>Informações Pessoais</h2>
+                <button class="btn-edit" onclick="toggleEditMode()" id="edit-btn">
+                    <span>✏️</span> Editar
+                </button>
+            </div>
+            
+            <form id="profile-form" class="profile-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="user-nome">Nome Completo</label>
+                        <input type="text" id="user-nome" name="nome" 
+                               value="{{ session.usuario_nome or '' }}" 
+                               readonly class="form-input">
+                        <span class="error-message" id="nome-error"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="user-email">E-mail</label>
+                        <input type="email" id="user-email" name="email" 
+                               value="{{ session.usuario_email or '' }}" 
+                               readonly class="form-input">
+                        <span class="error-message" id="email-error"></span>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="user-senha">Nova Senha (deixe em branco para manter a atual)</label>
+                        <input type="password" id="user-senha" name="senha" 
+                               placeholder="Digite uma nova senha" 
+                               readonly class="form-input">
+                        <span class="error-message" id="senha-error"></span>
+                        <div class="password-strength" id="password-strength">
+                            <div class="strength-bar"></div>
+                            <span class="strength-text">Força da senha</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="user-confirmar-senha">Confirmar Nova Senha</label>
+                        <input type="password" id="user-confirmar-senha" name="confirmar_senha" 
+                               placeholder="Confirme a nova senha" 
+                               readonly class="form-input">
+                        <span class="error-message" id="confirmar-senha-error"></span>
+                    </div>
+                </div>
+                
+                <div class="form-actions" id="form-actions" style="display: none;">
+                    <button type="button" class="btn btn-secondary" onclick="cancelEdit()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="loading-spinner" id="loading-spinner" style="display: none;"></span>
+                        Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Card de Estatísticas -->
+        <div class="stats-card">
+            <div class="card-header">
+                <h2>Estatísticas</h2>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="total-tarefas">0</span>
+                        <span class="stat-label">Total de Tarefas</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="tarefas-pendentes">0</span>
+                        <span class="stat-label">Pendentes</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="tarefas-concluidas">0</span>
+                        <span class="stat-label">Concluídas</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="dias-ativo">0</span>
+                        <span class="stat-label">Dias Ativo</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação -->
+<div class="modal" id="confirmation-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Alterações Salvas</h2>
+            <span class="close" onclick="closeConfirmationModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Suas informações foram atualizadas com sucesso!</p>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="closeConfirmationModal()">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/perfil.js') }}"></script>
+{% endblock %}
