@@ -253,3 +253,9 @@ window.onclick = function(event) {
         closeModal();
     }
 }
+
+function recolherSubmenu() {
+  var submenu = document.getElementById('workspaceSubmenu');
+  if (!submenu) return;
+  submenu.style.maxHeight = '0px';
+}
