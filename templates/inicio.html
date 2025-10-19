@@ -10,26 +10,32 @@
 <body>
 
    
-  <aside class="sidebar">
-  <h2>FofoTech</h2>
-  <ul>
-    <li><a href="/home">Página Inicial</a></li>
-    <li>
-      <a href="#" id="workspaceLink">Espaço de Trabalho</a>
-      <ul class="submenu" id="workspaceSubmenu">
-        <li><a href="/criar-espaco">Criar Espaço</a></li>
-      </ul>
-    </li>
-    <li><a href="#">Minhas Tarefas</a></li>
-    <li><a href="#">Perfil</a></li>
-  </ul>
-</aside>
+ {% extends 'base.html' %}
 
-  
-  <main class="main">
+{% block title %}Página Inicial - FofoTech{% endblock %}
+
+{% block content %}
     <h1>Olá, {{ nome_usuario }}!</h1>
-    <h2>Crie seu espaço de trabalho para começar.</h2>
-   <button onclick="window.location.href='/criar-espaco'">Criar Espaço</button>
+    
+    {# Lógica para verificar se existem espaços #}
+    {% if not espacos %} 
+        <h2>Crie seu espaço de trabalho para começar.</h2>
+        <a href="{{ url_for('work.criar_espaco') }}" class="btn-link" role="button">Criar Espaço</a>
+    {% else %}
+        <h2>Seus Espaços de Trabalho:</h2>
+        <ul>
+            {% for espaco in espacos %}
+                <li>
+                    <a href="{{ url_for('work.visualizar_espaco', id=espaco.id) }}">
+                        {{ espaco.nome }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %} 
+    
+{% endblock %}
+
 
 </body>
 </html>

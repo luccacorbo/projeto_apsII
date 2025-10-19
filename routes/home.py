@@ -19,6 +19,6 @@ def criarEspaco():
 
 # retonar para a pagina inicial 
 @home.route('/home')
-def retornaInico():
+def retornaInicio():
     nome = session['nome_usuario']
     return render_template('inicio.html', nome_usuario=nome)
