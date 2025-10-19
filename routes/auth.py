@@ -41,6 +41,11 @@ def login():
                 session['usuario_nome'] = usuario['nome']
                 session['usuario_email'] = usuario['email']
                 print("✅ Login bem-sucedido!")
+
+                session['user_id'] = usuario['id_usuario']
+                session['user_name'] = usuario['nome']
+                session['nome_usuario'] = usuario['nome']
+
                 return render_template('inicio.html')
             else:
                 print("❌ Email ou senha incorretos")

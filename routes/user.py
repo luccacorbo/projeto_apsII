@@ -123,7 +123,7 @@ def api_atualizar_perfil():
         else:
             # Se não, manter senha atual
             cursor.execute('''
-                UPDATE usuarios 
+                UPDATE usuario 
                 SET nome = %s, email = %s
                 WHERE id = %s
             ''', (nome, email, usuario_id))

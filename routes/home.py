@@ -16,8 +16,17 @@ def rt_Projeto():
 # retonar para a pagina inicial 
 @home.route('/home')
 def retornaInicio():
-    nome = session['nome_usuario']
-    return render_template('inicio.html', nome_usuario=nome)
+    # Verificar se o usuário está logado
+    if 'user_id' not in session:
+        return redirect('/login')
+    
+    # Buscar o nome da sessão (agora deve existir)
+    nome_usuario = session.get('user_name', 'Usuário')
+    # ou use: nome_usuario = session.get('nome_usuario', 'Usuário')
+    
+    # Renderizar o template passando a variável
+    return render_template('inicio.html', nome_usuario=nome_usuario)
+
 
 @home.route('/tarefas')
 def minhasTarefas():
