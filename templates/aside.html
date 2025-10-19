@@ -4,7 +4,7 @@
     <li><a href="{{ url_for('home.retornaInicio') }}">Página Inicial</a></li>
 
     <li>
-      <a href="#" id="workspaceLink">Projeto</a>
+      <a href="#" class="menu-link" onclick="toggleSubmenu(event)"><span class="arrow">▼</span>Projetos
       <ul class="submenu" id="workspaceSubmenu">
         <li><a href="{{ url_for('work.criar_projeto') }}">Criar Projeto</a></li>
         {% for e in projeto %}
