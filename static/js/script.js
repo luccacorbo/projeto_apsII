@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function() {
   configurarSubmenuSuave();
   configurarFormulariosSimples();
@@ -7,50 +6,71 @@ document.addEventListener('DOMContentLoaded', function() {
   if (typeof renderProjetos === 'function') renderProjetos();
 });
 
-//submenu abrir/fechar
+// ========== FUNÇÃO DE MENSAGEM TEMPORÁRIA ==========
+function mostrarMensagemTemporaria(mensagem, tempo = 2000) {
+  const mensagemEl = document.createElement('div');
+  mensagemEl.textContent = mensagem;
+  mensagemEl.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #4CAF50;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 5px;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      font-family: Arial, sans-serif;
+  `;
+  
+  document.body.appendChild(mensagemEl);
+  
+  setTimeout(() => {
+      if (mensagemEl.parentNode) {
+          document.body.removeChild(mensagemEl);
+      }
+  }, tempo);
+}
+
+// ========== CONFIGURAÇÃO DO SUBMENU ==========
 function configurarSubmenuSuave() {
   var link = document.getElementById('workspaceLink');
   var submenu = document.getElementById('workspaceSubmenu');
 
-  if (!link || !submenu) return; // se não existir nessa página, sai
+  if (!link || !submenu) return;
 
-  // Usa apenas maxHeight para animação — evita conflitos com display:none
   submenu.style.overflow = 'hidden';
-  submenu.style.maxHeight = '0px';       // estado inicial: fechado
+  submenu.style.maxHeight = '0px';
   submenu.style.transition = 'max-height 250ms ease';
 
-  //ao clicar no link, alterna entre aberto/fechado
   link.addEventListener('click', function(e) {
     e.preventDefault();
-    //se estiver fechado -> abrir
     if (submenu.style.maxHeight === '0px' || submenu.style.maxHeight === '') {
       submenu.style.maxHeight = submenu.scrollHeight + 'px';
     } else {
-      // fechar
       submenu.style.maxHeight = '0px';
     }
   });
 }
 
-//config form 
+// ========== CONFIGURAÇÃO DOS FORMULÁRIOS ==========
 function configurarFormulariosSimples() {
-  //criar Espaço
+  // Criar Espaço
   var formEspaco = document.getElementById('formEspaco');
   if (formEspaco) {
     formEspaco.addEventListener('submit', function(e) {
       e.preventDefault();
       salvarEspacoSimples();
     });
-    // botão cancelar dentro do form (procura data-cancel ou button[type="button"])
     var cancelEsp = formEspaco.querySelector('button[data-cancel="espaco"]') || formEspaco.querySelector('button[type="button"]');
     if (cancelEsp) cancelEsp.addEventListener('click', cancelarEspaco);
-      document.querySelector('[data-cancel="espaco"]').addEventListener('click', function() {
-    window.location.href = '/home';
-});
- 
+    
+    document.querySelector('[data-cancel="espaco"]').addEventListener('click', function() {
+      window.location.href = '/home';
+    });
   }
 
-  //criar Projeto
+  // Criar Projeto
   var formProjeto = document.getElementById('formProjeto');
   if (formProjeto) {
     formProjeto.addEventListener('submit', function(e) {
@@ -61,7 +81,7 @@ function configurarFormulariosSimples() {
     if (cancelProj) cancelProj.addEventListener('click', cancelarProjeto);
   }
 
-  // editar Projeto
+  // Editar Projeto
   var formEditar = document.getElementById('formEditar');
   if (formEditar) {
     formEditar.addEventListener('submit', function(e) {
@@ -73,25 +93,23 @@ function configurarFormulariosSimples() {
   }
 }
 
-//função salvar
+// ========== FUNÇÕES DE SALVAR ==========
 function salvarEspacoSimples() {
   var campo = document.getElementById('nomeEspaco');
   var nome = campo ? campo.value.trim() : '';
 
   if (nome === '') {
-    alert('Por favor, digite o nome do espaço!');
+    mostrarMensagemTemporaria('Por favor, digite o nome do espaço!', 3000);
     if (campo) campo.focus();
     return;
   }
 
-  // salva no localStorage (opcional)
   var espacos = JSON.parse(localStorage.getItem('espacos') || '[]');
   espacos.push({ nome: nome, criadoEm: new Date().toISOString() });
   localStorage.setItem('espacos', JSON.stringify(espacos));
 
-  alert('Criado com sucesso!');
+  mostrarMensagemTemporaria('Espaço criado com sucesso!');
   limparFormularioEspaco();
-  // recolhe submenu (volta ao estado inicial)
   recolherSubmenu();
   if (typeof renderEspacos === 'function') renderEspacos();
 }
@@ -104,7 +122,7 @@ function salvarProjetoSimples() {
   var desc = descCampo ? descCampo.value.trim() : '';
 
   if (nome === '') {
-    alert('Por favor, digite o nome do projeto!');
+    mostrarMensagemTemporaria('Por favor, digite o nome do projeto!', 3000);
     if (nomeCampo) nomeCampo.focus();
     return;
   }
@@ -113,13 +131,12 @@ function salvarProjetoSimples() {
   projetos.push({ nome: nome, desc: desc, progresso: 0, criadoEm: new Date().toISOString() });
   localStorage.setItem('projetos', JSON.stringify(projetos));
 
-  alert('Criado com sucesso!');
+  mostrarMensagemTemporaria('Projeto criado com sucesso!');
   limparFormularioProjeto();
   if (typeof renderProjetos === 'function') renderProjetos();
 }
 
 function salvarEdicaoSimples() {
-  
   var idx = Number(localStorage.getItem('editarIndex'));
   var nomeCampo = document.getElementById('editNomeProjeto');
   var descCampo = document.getElementById('editDescricaoProjeto');
@@ -130,7 +147,7 @@ function salvarEdicaoSimples() {
       projetos[idx].nome = nomeCampo ? nomeCampo.value.trim() : projetos[idx].nome;
       projetos[idx].desc = descCampo ? descCampo.value.trim() : projetos[idx].desc;
       localStorage.setItem('projetos', JSON.stringify(projetos));
-      alert('Criado com sucesso!');
+      mostrarMensagemTemporaria('Projeto editado com sucesso!');
       limparFormularioEditar();
       localStorage.removeItem('editarIndex');
       if (typeof renderProjetos === 'function') renderProjetos();
@@ -138,28 +155,28 @@ function salvarEdicaoSimples() {
     }
   }
 
-
-  alert('Criado com sucesso!');
+  mostrarMensagemTemporaria('Projeto salvo com sucesso!');
   limparFormularioEditar();
 }
 
-// função de limpar/cancelar
+// ========== FUNÇÕES DE LIMPAR/CANCELAR ==========
 function cancelarEspaco() {
   limparFormularioEspaco();
   recolherSubmenu();
-  alert('Operação cancelada!');
+  mostrarMensagemTemporaria('Operação cancelada!');
 }
 
 function cancelarProjeto() {
   limparFormularioProjeto();
-  alert('Operação cancelada!');
+  mostrarMensagemTemporaria('Operação cancelada!');
 }
 
 function cancelarEditar() {
   limparFormularioEditar();
-  alert('Operação cancelada!');
+  mostrarMensagemTemporaria('Operação cancelada!');
 }
 
+// ========== FUNÇÕES AUXILIARES ==========
 function limparFormularioEspaco() {
   var campo = document.getElementById('nomeEspaco');
   if (campo) campo.value = '';
@@ -183,7 +200,6 @@ function limparFormularioEditar() {
   if (a) a.value = '';
 }
 
-// recolher submenu
 function recolherSubmenu() {
   var submenu = document.getElementById('workspaceSubmenu');
   if (!submenu) return;

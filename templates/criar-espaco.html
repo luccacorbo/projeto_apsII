@@ -9,28 +9,40 @@
 </head>
 <body>
 
-<aside class="sidebar">
-  <h2>FofoTech</h2>
-  <ul>
-    <li><a href="/home">Página Inicial</a></li>
-    <li>
-      <a href="#" id="workspaceLink">Espaço de Trabalho</a>
-      <ul class="submenu" id="workspaceSubmenu">
-        <li><a href="/criar-espaco">Criar Espaço</a></li>
-      </ul>
-    </li>
-    <li><a href="#">Minhas Tarefas</a></li>
-    <li><a href="#">Perfil</a></li>
-  </ul>
-</aside>
-<main class="main">
-  <h1>Criar Espaço de Trabalho</h1>
-  <form id="formEspaco">
-    <input id="nomeEspaco" type="text" placeholder="Nome do Espaço de Trabalho" required>
-    <br>
-    <button type="submit">Salvar</button>
-    <button type="button" data-cancel="espaco">Cancelar</button>
-  </form>
+{% extends 'base.html' %}
+
+{% block title %}Criar Espaço de Trabalho - FofoTech{% endblock %}
+
+{% block content %}
+    <h1>Criar Espaço de Trabalho</h1>
+
+    <form id="formEspaco" method="POST" action="/criar_espaco">
+        <input 
+            id="nomeEspaco" 
+            name="nomeEspaco" 
+            type="text" 
+            placeholder="Nome do Espaço de Trabalho" 
+            required
+        >
+        <br>
+        <button type="submit">Salvar</button>
+        <button type="button" data-cancel="espaco" onclick="window.location.href='/home'">Cancelar</button>
+    </form>
+
+    <div id="listaEspacos" style="margin-top:20px; width:320px;">
+        {% if espacos %}
+            <h3>Espaços Existentes:</h3>
+            <ul>
+                {% for espaco in espacos %}
+                    <li>{{ espaco[1] }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Nenhum espaço criado ainda.</p>
+        {% endif %}
+    </div>
+{% endblock %}
+
 
   <div id="listaEspacos" style="margin-top:20px; width:320px;"></div>
 </main>
