@@ -157,29 +157,6 @@ function limparFormularioProjeto() {
   if (campo) campo.value = '';
 }
 
-function toggleSubmenu(event) {
-  event.preventDefault();
-  
-  var submenu = document.getElementById('workspaceSubmenu');
-  if (!submenu) return;
-  
-  // Alterna entre none e block
-  if (submenu.style.display === 'block') {
-    submenu.style.display = 'none';
-  } else {
-    submenu.style.display = 'block';
-  }
-}
-
-// Fechar ao clicar fora
-document.addEventListener('click', function(event) {
-  var submenu = document.getElementById('workspaceSubmenu');
-  var menuLink = document.querySelector('[onclick*="toggleSubmenu"]');
-  
-  if (submenu && !menuLink.contains(event.target) && !submenu.contains(event.target)) {
-    submenu.style.display = 'none';
-  }
-});
 // ========== FUNÇÕES PARA MENSAGENS DE LOGIN/CADASTRO ==========
 
 // Função para mostrar mensagem de login bem-sucedido
