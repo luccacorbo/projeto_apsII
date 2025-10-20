@@ -41,23 +41,29 @@ function carregarProjetos() {
 
 // Função para toggle do submenu
 function toggleSubmenu(event) {
-    event.preventDefault();
-    const menuItem = event.target.closest('.menu-item');
-    if (!menuItem) return;
-    
-    const submenu = menuItem.querySelector('.submenu');
-    const arrow = event.target.querySelector('.arrow');
-    
-    if (!submenu || !arrow) return;
-    
-    if (submenu.style.display === 'block') {
-        submenu.style.display = 'none';
-        arrow.textContent = '▼';
-    } else {
-        submenu.style.display = 'block';
-        arrow.textContent = '▲';
-    }
+  event.preventDefault();
+  
+  var submenu = document.getElementById('workspaceSubmenu');
+  if (!submenu) return;
+  
+  // Alterna entre none e block
+  if (submenu.style.display === 'block') {
+    submenu.style.display = 'none';
+  } else {
+    submenu.style.display = 'block';
+  }
 }
+
+// Fechar ao clicar fora
+document.addEventListener('click', function(event) {
+  var submenu = document.getElementById('workspaceSubmenu');
+  var menuLink = document.querySelector('[onclick*="toggleSubmenu"]');
+  
+  if (submenu && !menuLink.contains(event.target) && !submenu.contains(event.target)) {
+    submenu.style.display = 'none';
+  }
+});
+
 
 // Carregar projetos quando a página carregar
 document.addEventListener('DOMContentLoaded', function() {
