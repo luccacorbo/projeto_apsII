@@ -9,13 +9,18 @@
 <div class="perfil-container">
     <header class="perfil-header">
         <h1>Meu Perfil</h1>
-        <div class="user-profile">
-            <span>{{ primeiro_nome }}</span>
-            <div class="profile-pic" id="profile-pic">
-                {{ primeiro_nome[0] | upper }}
+        <div class="header-actions">
+            <div class="user-profile">
+                <div class="profile-pic" id="profile-pic">
+                    {{ primeiro_nome[0] | upper }}
+                </div>
+                <span>{{ primeiro_nome }}</span>
             </div>
-        </div> 
-
+            <!-- Botão de Sair ao lado do usuário -->
+            <a href="{{ url_for('auth.logout') }}" class="btn-logout" onclick="return confirm('Tem certeza que deseja sair?')">
+                🚪 Sair
+            </a>
+        </div>
     </header>
 
     <div class="perfil-content">
