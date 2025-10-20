@@ -1,3 +1,6 @@
+{% extends 'base.html' %}
+
+{% block content %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -7,9 +10,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/projeto.css') }}">
 </head>
 <body>
-    {% extends 'base.html' %}
-
-    {% block content %}
     <div class="projeto-detalhes-container">
         <!-- Header do Projeto -->
         <div class="projeto-header">
@@ -27,13 +27,30 @@
             
             <div class="projeto-actions">
                 {% if eh_criador %}
-                <button class="btn btn-primary" onclick="abrirModalTarefa()">
-                    + Nova Tarefa
-                </button>
-                <button class="btn btn-secondary" onclick="abrirModalMembros()">
-                    👥 Membros
-                </button>
+                <button class="btn btn-primary" onclick="abrirModalTarefa()">+ Nova Tarefa</button>
+                <button class="btn btn-secondary" onclick="abrirModalMembros()">👥 Gerenciar Membros</button>
+                <button class="btn btn-danger" onclick="excluirProjeto()">🗑️ Excluir Projeto</button>
                 {% endif %}
+            </div>
+        </div>
+
+        <!-- Estatísticas Rápidas -->
+        <div class="projeto-stats">
+            <div class="stat-card">
+                <h3>A Fazer</h3>
+                <span class="stat-number">{{ tarefas_todo|length }}</span>
+            </div>
+            <div class="stat-card">
+                <h3>Fazendo</h3>
+                <span class="stat-number">{{ tarefas_doing|length }}</span>
+            </div>
+            <div class="stat-card">
+                <h3>Concluído</h3>
+                <span class="stat-number">{{ tarefas_done|length }}</span>
+            </div>
+            <div class="stat-card">
+                <h3>Membros</h3>
+                <span class="stat-number">{{ membros|length + 1 }}</span>
             </div>
         </div>
 
@@ -50,19 +67,17 @@
                     <div class="task-card" draggable="true" ondragstart="drag(event)" data-task-id="{{ tarefa.id_tarefa }}">
                         <div class="task-header">
                             <h4>{{ tarefa.titulo }}</h4>
-                            <span class="priority-badge priority-{{ tarefa.prioridade }}">
-                                {{ tarefa.prioridade }}
-                            </span>
+                            <span class="priority-badge priority-{{ tarefa.prioridade }}">{{ tarefa.prioridade }}</span>
                         </div>
                         {% if tarefa.descricao %}
-                        <p class="task-description">{{ tarefa.descricao[:100] }}{% if tarefa.descricao|length > 100 %}...{% endif %}</p>
+                        <p class="task-description">
+                            {{ tarefa.descricao[:100] }}{% if tarefa.descricao|length > 100 %}...{% endif %}
+                        </p>
                         {% endif %}
                         <div class="task-footer">
                             <small>Por: {{ tarefa.criador_nome }}</small>
                             {% if tarefa.data_vencimento %}
-                            <small class="due-date {% if tarefa.vencida %}overdue{% endif %}">
-                                📅 {{ tarefa.data_vencimento.strftime('%d/%m/%Y') }}
-                            </small>
+                            <small class="due-date">📅 {{ tarefa.data_vencimento.strftime('%d/%m/%Y') }}</small>
                             {% endif %}
                         </div>
                         {% if eh_criador %}
@@ -85,7 +100,27 @@
                 <div class="tasks-list" id="doing-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                     {% for tarefa in tarefas_doing %}
                     <div class="task-card" draggable="true" ondragstart="drag(event)" data-task-id="{{ tarefa.id_tarefa }}">
-                        <!-- Mesma estrutura do TO DO -->
+                        <div class="task-header">
+                            <h4>{{ tarefa.titulo }}</h4>
+                            <span class="priority-badge priority-{{ tarefa.prioridade }}">{{ tarefa.prioridade }}</span>
+                        </div>
+                        {% if tarefa.descricao %}
+                        <p class="task-description">
+                            {{ tarefa.descricao[:100] }}{% if tarefa.descricao|length > 100 %}...{% endif %}
+                        </p>
+                        {% endif %}
+                        <div class="task-footer">
+                            <small>Por: {{ tarefa.criador_nome }}</small>
+                            {% if tarefa.data_vencimento %}
+                            <small class="due-date">📅 {{ tarefa.data_vencimento.strftime('%d/%m/%Y') }}</small>
+                            {% endif %}
+                        </div>
+                        {% if eh_criador %}
+                        <div class="task-actions">
+                            <button onclick="editarTarefa({{ tarefa.id_tarefa }})">✏️</button>
+                            <button onclick="excluirTarefa({{ tarefa.id_tarefa }})">🗑️</button>
+                        </div>
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
@@ -100,7 +135,27 @@
                 <div class="tasks-list" id="done-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                     {% for tarefa in tarefas_done %}
                     <div class="task-card" draggable="true" ondragstart="drag(event)" data-task-id="{{ tarefa.id_tarefa }}">
-                        <!-- Mesma estrutura do TO DO -->
+                        <div class="task-header">
+                            <h4>{{ tarefa.titulo }}</h4>
+                            <span class="priority-badge priority-{{ tarefa.prioridade }}">{{ tarefa.prioridade }}</span>
+                        </div>
+                        {% if tarefa.descricao %}
+                        <p class="task-description">
+                            {{ tarefa.descricao[:100] }}{% if tarefa.descricao|length > 100 %}...{% endif %}
+                        </p>
+                        {% endif %}
+                        <div class="task-footer">
+                            <small>Por: {{ tarefa.criador_nome }}</small>
+                            {% if tarefa.data_vencimento %}
+                            <small class="due-date">📅 {{ tarefa.data_vencimento.strftime('%d/%m/%Y') }}</small>
+                            {% endif %}
+                        </div>
+                        {% if eh_criador %}
+                        <div class="task-actions">
+                            <button onclick="editarTarefa({{ tarefa.id_tarefa }})">✏️</button>
+                            <button onclick="excluirTarefa({{ tarefa.id_tarefa }})">🗑️</button>
+                        </div>
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
@@ -108,29 +163,90 @@
         </div>
     </div>
 
-    <!-- Modal Nova Tarefa (apenas para criador) -->
+    <!-- Modal Nova Tarefa -->
     {% if eh_criador %}
     <div id="modalTarefa" class="modal">
         <div class="modal-content">
             <span class="close" onclick="fecharModalTarefa()">&times;</span>
             <h2>Nova Tarefa</h2>
-            <form id="formTarefa" method="POST" action="{{ url_for('work.criar_tarefa', id_projeto=projeto.id_projeto) }}">
+            <!-- 🔧 CORREÇÃO AQUI -->
+            <form id="formTarefa" method="POST" action="{{ url_for('task.criar_tarefa', id_projeto=projeto.id_projeto) }}">
                 <input type="text" name="titulo" placeholder="Título da tarefa" required>
                 <textarea name="descricao" placeholder="Descrição (opcional)" rows="4"></textarea>
+                
+                <label>Prioridade:</label>
                 <select name="prioridade">
                     <option value="baixa">Baixa Prioridade</option>
                     <option value="media" selected>Média Prioridade</option>
                     <option value="alta">Alta Prioridade</option>
                 </select>
+                
+                <label>Data de Vencimento:</label>
                 <input type="date" name="data_vencimento">
-                <button type="submit">Criar Tarefa</button>
+                
+                <label>Responsável:</label>
+                <select name="id_responsavel">
+                    <option value="{{ session['user_id'] }}">Eu</option>
+                    {% for membro in membros %}
+                    <option value="{{ membro.id_usuario }}">{{ membro.nome }}</option>
+                    {% endfor %}
+                </select>
+                
+                <button type="submit" class="btn btn-primary">Criar Tarefa</button>
             </form>
         </div>
     </div>
     {% endif %}
 
-    {% endblock %}
+    <!-- Modal Gerenciar Membros -->
+    {% if eh_criador %}
+    <div id="modalMembros" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModalMembros()">&times;</span>
+            <h2>Gerenciar Membros</h2>
+            
+            <div class="add-member-form">
+                <h3>Adicionar Membro</h3>
+                <div class="input-group">
+                    <input type="email" id="emailMembro" placeholder="Email do usuário">
+                    <button onclick="adicionarMembro()" class="btn btn-primary">Adicionar</button>
+                </div>
+            </div>
+            
+            <div class="members-list">
+                <h3>Membros do Projeto</h3>
+                <div class="member-item creator">
+                    <span>{{ criador.nome }} (Criador)</span>
+                </div>
+                {% for membro in membros %}
+                <div class="member-item">
+                    <span>{{ membro.nome }} - {{ membro.email }}</span>
+                    <button onclick="removerMembro({{ membro.id_usuario }})" class="btn btn-danger btn-sm">Remover</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
+    <!-- Modal Confirmar Exclusão -->
+    {% if eh_criador %}
+    <div id="modalExcluirProjeto" class="modal">
+        <div class="modal-content">
+            <h2>Confirmar Exclusão</h2>
+            <p>Tem certeza que deseja excluir o projeto <strong>"{{ projeto.nome }}"</strong>?</p>
+            <p class="warning-text">⚠️ Esta ação não pode ser desfeita! Todas as tarefas e dados serão perdidos.</p>
+            <div class="modal-actions">
+                <button onclick="fecharModalExcluir()" class="btn btn-secondary">Cancelar</button>
+                <form id="formExcluirProjeto" method="POST" action="{{ url_for('work.excluir_projeto', id_projeto=projeto.id_projeto) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Sim, Excluir Projeto</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
     <script src="{{ url_for('static', filename='js/projeto.js') }}"></script>
 </body>
 </html>
+{% endblock %}

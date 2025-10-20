@@ -3,13 +3,16 @@
   <ul>
     <li><a href="{{ url_for('home.retornaInicio') }}">Página Inicial</a></li>
 
-    <li>
-      <a href="#" class="menu-link" onclick="toggleSubmenu(event)"><span class="arrow">▼</span>Projetos
+    <li class="menu-item">
+      <a href="#" class="menu-link" onclick="toggleSubmenu(event)">
+        <span class="arrow">▼</span>Projetos
+      </a>
       <ul class="submenu" id="workspaceSubmenu">
-        <li><a href="{{ url_for('work.criar_projeto') }}">Criar Projeto</a></li>
-        {% for e in projeto %}
-          <li><a href="{{ url_for('work.visualizar_projeto', id=e.id) }}">{{ e.nome }}</a></li>
-        {% endfor %}
+        <li><a href="{{ url_for('work.criar_projeto') }}">+ Criar Projeto</a></li>
+        <!-- Lista de projetos será carregada via JavaScript -->
+        <div id="lista-projetos">
+          <li class="loading">Carregando projetos...</li>
+        </div>
       </ul>
     </li>
 
@@ -17,3 +20,4 @@
     <li><a href="{{ url_for('home.meuPerfil') }}">Perfil</a></li>
   </ul>
 </aside>
+<script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
