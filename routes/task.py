@@ -7,10 +7,10 @@ task = Blueprint('task', __name__)
 @task.route('/api/tarefas')
 def api_tarefas():
     """API para buscar tarefas do usuário"""
-    if 'usuario_id' not in session:
+    if 'user_id' not in session:
         return jsonify({'error': 'Usuário não logado'}), 401
     
-    usuario_id = session['usuario_id']
+    id_usuario = session['user_id']
     
     connection = conectar()
     if not connection:
@@ -20,10 +20,12 @@ def api_tarefas():
         cursor = connection.cursor(dictionary=True)
         
         cursor.execute('''
-            SELECT * FROM tarefas 
-            WHERE usuario_id = %s 
-            ORDER BY data_criacao DESC
-        ''', (usuario_id,))
+            SELECT t.*, p.nome as projeto_nome 
+            FROM tarefas t 
+            JOIN projetos p ON t.id_projeto = p.id_projeto 
+            WHERE p.id_criador = %s OR t.id_responsavel = %s
+            ORDER BY t.data_criacao DESC
+        ''', (id_usuario, id_usuario))
         
         tarefas = cursor.fetchall()
         
@@ -42,10 +44,11 @@ def api_tarefas():
     finally:
         close_db_connection(connection)
 
-@task.route('/api/tarefas/<int:tarefa_id>', methods=['PUT'])
-def api_atualizar_tarefa(tarefa_id):
+
+@task.route('/api/tarefas/<int:id_tarefa>', methods=['PUT'])
+def api_atualizar_tarefa(id_tarefa):
     """API para atualizar uma tarefa"""
-    if 'usuario_id' not in session:
+    if 'user_id' not in session:
         return jsonify({'error': 'Usuário não logado'}), 401
     
     dados = request.get_json()
@@ -59,16 +62,18 @@ def api_atualizar_tarefa(tarefa_id):
     try:
         cursor = connection.cursor()
         
+        # CORREÇÃO: Use 'user_id' da session e verifique se o usuário tem permissão
+        # A consulta original usava 'id_usuario' que não existe na session
         cursor.execute('''
             UPDATE tarefas 
             SET status = %s, comentarios = %s
-            WHERE id = %s AND usuario_id = %s
-        ''', (novo_status, comentarios, tarefa_id, session['usuario_id']))
+            WHERE id_tarefa = %s AND id_responsavel = %s
+        ''', (novo_status, comentarios, id_tarefa, session['user_id']))
         
         connection.commit()
         
         if cursor.rowcount == 0:
-            return jsonify({'error': 'Tarefa não encontrada'}), 404
+            return jsonify({'error': 'Tarefa não encontrada ou você não tem permissão para editá-la'}), 404
         
         return jsonify({'message': 'Tarefa atualizada com sucesso'})
         
@@ -76,3 +81,5 @@ def api_atualizar_tarefa(tarefa_id):
         print(f"Erro MySQL: {e}")
         connection.rollback()
         return jsonify({'error': 'Erro ao atualizar tarefa'}), 500
+    finally:
+        close_db_connection(connection)

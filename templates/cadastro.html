@@ -15,6 +15,12 @@
         </div>
         <div class="right">
             <h2>Crie sua Conta</h2>
+             <!-- ⚠️ ADICIONAR: Mensagem de erro -->
+            {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+            {% endif %}
 
             <form method="POST" action="/cadastro"> 
 
