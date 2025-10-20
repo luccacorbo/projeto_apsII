@@ -49,7 +49,7 @@ def retornaInicio():
     # 4. RENDERIZA O TEMPLATE, ENVIANDO AS VARIÁVEIS CORRETAS
     return render_template('inicio.html', 
                            primeiro_nome=primeiro_nome, 
-                           projetos=projetos)
+                           id_projetos=projetos)
 
 @home.route('/tarefas')
 def minhasTarefas():
