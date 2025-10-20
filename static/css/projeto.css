@@ -1,28 +1,15 @@
+@charset "UTF-8";
 /* ================================
    Estilo Principal - projeto.css
    Inspirado em: minhasTarefas.css e perfil.css
 ================================ */
-
-/* Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #ffffff 0%, #8aa3eb 100%);
-    color: #333;
-    min-height: 100vh;
-    line-height: 1.6;
-}
 
 /* Container principal */
 .projeto-detalhes-container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
+    min-height: 100vh;
 }
 
 /* ================================
@@ -47,6 +34,7 @@ body {
     background: linear-gradient(135deg, #667eea, #764ba2);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .projeto-descricao {
@@ -67,6 +55,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+    margin-left: 40px;
 }
 
 /* Botões */
@@ -77,6 +66,7 @@ body {
     cursor: pointer;
     font-weight: 600;
     transition: all 0.3s ease;
+    font-family: inherit;
 }
 
 .btn-primary {
@@ -103,6 +93,7 @@ body {
 .btn-danger {
     background: linear-gradient(135deg, #e74c3c, #c0392b);
     color: white;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
 }
 
 .btn-danger:hover {
@@ -141,22 +132,25 @@ body {
     font-size: 0.95rem;
     font-weight: 600;
     text-transform: uppercase;
+    margin-bottom: 10px;
 }
 
 .stat-number {
     font-size: 2.2rem;
     font-weight: 700;
     color: #2c3e50;
-    margin-top: 10px;
+    display: block;
 }
 
 /* ================================
-   Kanban Board
+   Kanban Board - CORRIGIDO
 ================================ */
 .kanban-board {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    display: flex;
     gap: 25px;
+    margin-bottom: 40px;
+    align-items: stretch;
+    justify-content: space-between;
 }
 
 .kanban-column {
@@ -166,6 +160,11 @@ body {
     padding: 20px;
     border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    min-height: 600px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Permite que as colunas se ajustem */
 }
 
 .column-header {
@@ -175,28 +174,41 @@ body {
     margin-bottom: 15px;
     padding-bottom: 10px;
     border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+    flex-shrink: 0;
 }
 
 .column-header h3 {
     color: #2c3e50;
     font-size: 1.2rem;
+    margin: 0;
 }
 
 .task-count {
     font-weight: 700;
     color: #667eea;
+    font-size: 0.9rem;
 }
 
 /* Cards de Tarefas */
+.tasks-list {
+    flex: 1;
+    min-height: 500px;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
 .task-card {
     background: white;
     border-radius: 10px;
     padding: 15px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 12px;
+    margin-bottom: 0;
     border-left: 6px solid #667eea;
     cursor: grab;
     transition: all 0.3s ease;
+    position: relative;
 }
 
 .task-card:hover {
@@ -204,10 +216,22 @@ body {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
+.task-card:active {
+    cursor: grabbing;
+}
+
 .task-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.task-header h4 {
+    margin: 0;
+    flex: 1;
+    color: #2c3e50;
+    font-size: 1rem;
 }
 
 .priority-badge {
@@ -227,6 +251,7 @@ body {
     color: #7f8c8d;
     margin: 10px 0;
     font-size: 0.9rem;
+    line-height: 1.4;
 }
 
 .task-footer {
@@ -235,6 +260,12 @@ body {
     align-items: center;
     font-size: 0.85rem;
     color: #95a5a6;
+    margin-top: 10px;
+}
+
+.due-date {
+    color: #e74c3c;
+    font-weight: 600;
 }
 
 /* Ações dentro da tarefa */
@@ -243,6 +274,8 @@ body {
     gap: 6px;
     justify-content: flex-end;
     margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .task-actions button {
@@ -251,10 +284,27 @@ body {
     cursor: pointer;
     font-size: 1rem;
     transition: 0.2s;
+    padding: 4px;
 }
 
 .task-actions button:hover {
     transform: scale(1.2);
+}
+
+/* Estados vazios */
+.tasks-list:empty {
+    min-height: 200px;
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #95a5a6;
+    font-style: italic;
+}
+
+.tasks-list:empty::after {
+    content: "Sem tarefas";
 }
 
 /* ================================
@@ -283,6 +333,7 @@ body {
     animation: slideIn 0.3s ease;
     padding: 30px;
     position: relative;
+    overflow: hidden;
 }
 
 .close {
@@ -292,6 +343,9 @@ body {
     font-size: 2rem;
     cursor: pointer;
     color: #555;
+    background: none;
+    border: none;
+    line-height: 1;
 }
 
 .close:hover {
@@ -301,6 +355,7 @@ body {
 .modal-content h2 {
     color: #2c3e50;
     margin-bottom: 20px;
+    font-size: 1.5rem;
 }
 
 /* ================================
@@ -315,6 +370,7 @@ form input, form textarea, form select {
     margin-bottom: 15px;
     background: white;
     transition: all 0.3s ease;
+    font-family: inherit;
 }
 
 form input:focus,
@@ -323,6 +379,53 @@ form select:focus {
     outline: none;
     border-color: #667eea;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+form label {
+    display: block;
+    margin-bottom: 8px;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+/* ================================
+   Estilos para lista de membros
+================================ */
+.members-list {
+    margin-top: 20px;
+}
+
+.member-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.member-item.creator {
+    background: rgba(102, 126, 234, 0.1);
+    font-weight: bold;
+}
+
+.add-member-form {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.input-group input {
+    flex: 1;
+    margin-bottom: 0;
 }
 
 /* ================================
@@ -341,6 +444,17 @@ form select:focus {
 /* ================================
    Responsividade
 ================================ */
+@media (max-width: 1024px) {
+    .kanban-board {
+        flex-wrap: wrap;
+    }
+    
+    .kanban-column {
+        flex: 1 1 calc(50% - 12px);
+        min-width: 300px;
+    }
+}
+
 @media (max-width: 768px) {
     .projeto-header {
         flex-direction: column;
@@ -349,14 +463,55 @@ form select:focus {
     }
 
     .projeto-actions {
+        margin-left: 0;
         justify-content: center;
     }
 
     .kanban-board {
-        grid-template-columns: 1fr;
+        flex-direction: column;
+    }
+    
+    .kanban-column {
+        flex: 1 1 100%;
     }
 
     .btn {
         width: 100%;
     }
+
+    .modal-content {
+        margin: 10% auto;
+        width: 95%;
+        padding: 20px;
+    }
+
+    .input-group {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .projeto-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .kanban-column {
+        padding: 15px;
+    }
+    
+    .projeto-detalhes-container {
+        padding: 10px;
+    }
+}
+
+/* Estados de drag and drop */
+.tasks-list.drag-over {
+    background: rgba(102, 126, 234, 0.1);
+    border: 2px dashed #667eea;
+    border-radius: 10px;
+}
+
+.task-card.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
 }

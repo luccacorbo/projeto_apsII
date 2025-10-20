@@ -23,35 +23,7 @@ function fecharModalExcluir() {
     document.getElementById('modalExcluirProjeto').style.display = 'none';
 }
 
-// Drag and Drop
-function allowDrop(ev) {
-    ev.preventDefault();
-}
-
-function drag(ev) {
-    ev.dataTransfer.setData("text", ev.target.dataset.taskId);
-}
-
-function drop(ev) {
-    ev.preventDefault();
-    const taskId = ev.dataTransfer.getData("text");
-    const newStatus = ev.target.id.split('-')[0]; // 'todo', 'doing', 'done'
-    
-    // Atualizar status no servidor
-    fetch(`/projeto/{{ projeto.id_projeto }}/tarefa/${taskId}/status`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: newStatus })
-    }).then(response => {
-        if (response.ok) {
-            location.reload(); // Recarregar para ver as mudanças
-        }
-    });
-}
-
-// Adicionar membro
+// Funções para membros
 function adicionarMembro() {
     const email = document.getElementById('emailMembro').value;
     
@@ -60,7 +32,7 @@ function adicionarMembro() {
         return;
     }
     
-    fetch(`/projeto/{{ projeto.id_projeto }}/membros`, {
+    fetch(`/projeto/${getProjetoId()}/membros`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -75,64 +47,171 @@ function adicionarMembro() {
         } else {
             alert('Erro: ' + data.error);
         }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao adicionar membro');
     });
 }
 
-// Fechar modais ao clicar fora
-window.onclick = function(event) {
-    const modals = document.getElementsByClassName('modal');
-    for (let modal of modals) {
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    }
-}
-
-// Adicione estas funções ao seu projeto.js
-
-// Excluir tarefa
-function excluirTarefa(tarefaId) {
-    if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
-        fetch(`/projeto/{{ projeto.id_projeto }}/tarefa/${tarefaId}/excluir`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Erro ao excluir tarefa: ' + data.error);
-            }
-        });
-    }
-}
-
-// Remover membro
 function removerMembro(usuarioId) {
     if (confirm('Tem certeza que deseja remover este membro do projeto?')) {
-        fetch(`/projeto/{{ projeto.id_projeto }}/membros/${usuarioId}/remover`, {
+        fetch(`/projeto/${getProjetoId()}/membros/${usuarioId}/remover`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Membro removido com sucesso!');
-                location.reload();
-            } else {
-                alert('Erro ao remover membro: ' + data.error);
-            }
-        });
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Membro removido com sucesso!');
+            location.reload();
+        } else {
+            alert('Erro ao remover membro: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao remover membro');
+    });
     }
 }
 
-// Editar tarefa (função básica - você pode expandir)
+// Funções para tarefas
 function editarTarefa(tarefaId) {
     alert('Funcionalidade de edição em desenvolvimento! Tarefa ID: ' + tarefaId);
-    // Aqui você pode implementar um modal de edição similar ao de criação
 }
+
+function excluirTarefa(tarefaId) {
+    if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
+        fetch(`/projeto/${getProjetoId()}/tarefa/${tarefaId}/excluir`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Tarefa excluída com sucesso!');
+            location.reload();
+        } else {
+            alert('Erro ao excluir tarefa: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao excluir tarefa');
+    });
+    }
+}
+
+// Drag and Drop Functions
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+
+function handleDragEnter(ev) {
+    ev.preventDefault();
+    ev.currentTarget.classList.add('drag-over');
+}
+
+function handleDragLeave(ev) {
+    ev.preventDefault();
+    ev.currentTarget.classList.remove('drag-over');
+}
+
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.dataset.taskId);
+    ev.target.classList.add('dragging');
+}
+
+function drop(ev) {
+    ev.preventDefault();
+    ev.currentTarget.classList.remove('drag-over');
+    
+    const taskId = ev.dataTransfer.getData("text");
+    const tasksList = ev.currentTarget;
+    
+    // Remove dragging class from all task cards
+    document.querySelectorAll('.task-card.dragging').forEach(el => {
+        el.classList.remove('dragging');
+    });
+    
+    // Get the status from data-status attribute
+    const newStatus = tasksList.getAttribute('data-status');
+    
+    if (!newStatus) {
+        console.error('Status não encontrado na coluna');
+        alert('Erro: Coluna não configurada corretamente');
+        return;
+    }
+    
+    console.log(`Movendo tarefa ${taskId} para status: ${newStatus}`);
+    
+    // Atualizar status no servidor
+    fetch(`/projeto/${getProjetoId()}/tarefa/${taskId}/status`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro na resposta do servidor: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            console.log('Status atualizado com sucesso');
+            location.reload();
+        } else {
+            alert('Erro ao atualizar tarefa: ' + (data.message || data.error || 'Erro desconhecido'));
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao atualizar tarefa: ' + error.message);
+        location.reload();
+    });
+}
+
+// Helper function to get projeto ID from URL
+function getProjetoId() {
+    const url = window.location.pathname;
+    const matches = url.match(/\/projeto\/(\d+)/);
+    return matches ? matches[1] : null;
+}
+
+// Fechar modais ao clicar fora
+document.addEventListener('DOMContentLoaded', function() {
+    window.onclick = function(event) {
+        const modals = document.getElementsByClassName('modal');
+        for (let modal of modals) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    };
+    
+    // Debug: verificar configuração das colunas
+    console.log('=== CONFIGURAÇÃO DAS COLUNAS ===');
+    const colunas = document.querySelectorAll('.tasks-list');
+    colunas.forEach(coluna => {
+        console.log('Coluna:', coluna.id, 'Status:', coluna.getAttribute('data-status'));
+    });
+});
+
+// Remove drag-over class when drag ends
+document.addEventListener('dragend', function() {
+    document.querySelectorAll('.tasks-list.drag-over').forEach(el => {
+        el.classList.remove('drag-over');
+    });
+    document.querySelectorAll('.task-card.dragging').forEach(el => {
+        el.classList.remove('dragging');
+    });
+});
