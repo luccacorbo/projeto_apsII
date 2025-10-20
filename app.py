@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, session
 from routes.auth import auth
 from routes.home import home
 from routes.workspace import work
@@ -17,15 +17,16 @@ app.register_blueprint(task)
 app.register_blueprint(user)
 
 
+@app.context_processor
+def inject_user():
+    user_data = {}
+    if 'user_id' in session:
+        user_data = {
+            'user_id': session.get('user_id'),
+            'user_name': session.get('user_name'),
+            'usuario_nome': session.get('usuario_nome')
+        }
+    return user_data
+
 if __name__ == "__main__":
     app.run(debug=True)
-
-@app.context_processor
-def inject_projetos():
-    conn = conectar()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM projeto")
-    projeto = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return dict(projeto=projeto)

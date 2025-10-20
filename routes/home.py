@@ -16,17 +16,32 @@ def rt_Projeto():
 # retonar para a pagina inicial 
 @home.route('/home')
 def retornaInicio():
-    # Verificar se o usuário está logado
+    # ⚠️ VERIFICAÇÃO DE LOGIN
     if 'user_id' not in session:
         return redirect('/login')
     
-    # Buscar o nome da sessão (agora deve existir)
-    nome_usuario = session.get('user_name', 'Usuário')
-    # ou use: nome_usuario = session.get('nome_usuario', 'Usuário')
+    connection = conectar()
+    projetos = []
     
-    # Renderizar o template passando a variável
-    return render_template('inicio.html', nome_usuario=nome_usuario)
-
+    if connection:
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute("""
+                SELECT * FROM projetos 
+                WHERE id_criador = %s 
+                ORDER BY data_criacao DESC
+            """, (session['user_id'],))
+            projetos = cursor.fetchall()
+            cursor.close()
+        except Exception as e:
+            print(f"Erro ao buscar projetos: {e}")
+        finally:
+            connection.close()
+    
+    nome_usuario = session.get('user_name', 'Usuário')
+    return render_template('inicio.html', 
+                         nome_usuario=nome_usuario, 
+                         projetos=projetos)
 
 @home.route('/tarefas')
 def minhasTarefas():
