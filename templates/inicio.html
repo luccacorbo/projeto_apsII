@@ -1,32 +1,25 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Página Inicial - FofoTech</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-  <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
-</head>
-<body>
-
-   
- {% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block title %}Página Inicial - FofoTech{% endblock %}
 
 {% block content %}
-    <h1>Olá, {{ nome_usuario }}!</h1>
     
-    {# Lógica para verificar se existem espaços #}
-    {% if not projeto %} 
+    {# Exibe a mensagem de boas-vindas com o primeiro nome #}
+    <h1>Olá, {{ primeiro_nome }}!</h1>
+    
+    {# Verifica se a lista de projetos está vazia #}
+    {% if not projetos %} 
         <h2>Crie seu Projeto para começar.</h2>
+        {# Supondo que você tenha uma rota para criar projetos em um blueprint 'work' #}
         <a href="{{ url_for('work.criar_projeto') }}" class="btn-link" role="button">Criar Projeto</a>
     {% else %}
         <h2>Seus Projetos:</h2>
         <ul>
-            {% for projeto in projeto %}
+            {# Faz um loop na lista de projetos enviada pelo Flask #}
+            {% for projeto in projetos %}
                 <li>
-                    <a href="{{ url_for('work.visualizar_projeto', id=projeto.id) }}">
+                    {# Supondo que o link para visualizar um projeto use o id_projeto #}
+                    <a href="{{ url_for('work.visualizar_projeto', id=projeto.id_projeto) }}">
                         {{ projeto.nome }}
                     </a>
                 </li>
@@ -35,7 +28,3 @@
     {% endif %} 
     
 {% endblock %}
-
-
-</body>
-</html>

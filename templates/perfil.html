@@ -10,11 +10,12 @@
     <header class="perfil-header">
         <h1>Meu Perfil</h1>
         <div class="user-profile">
-            <span>{{ session.usuario_nome or 'Usuário' }}</span>
+            <span>{{ primeiro_nome }}</span>
             <div class="profile-pic" id="profile-pic">
-                {{ (session.usuario_nome or 'U')[0] | upper }}
+                {{ primeiro_nome[0] | upper }}
             </div>
-        </div>
+        </div> 
+
     </header>
 
     <div class="perfil-content">
