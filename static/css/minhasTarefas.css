@@ -460,6 +460,7 @@ body {
     animation: slideIn 0.3s ease;
     border: 1px solid rgba(255, 255, 255, 0.3);
     position: relative;
+    overflow: hidden; /* Adicionado para conter o header */
 }
 
 @keyframes slideIn {
@@ -468,20 +469,22 @@ body {
 }
 
 .modal-header {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #5276e2, #7089d2);
     padding: 25px 30px;
-    color: white;
+    color: rgb(255, 255, 255);
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: sticky;
     top: 0;
     z-index: 10;
+    border-radius: 20px 20px 0 0; /* Ajustado para combinar com o modal-content */
 }
 
 .modal-header h2 {
     font-size: 1.5rem;
     font-weight: 600;
+    margin: 0;
 }
 
 .close {
@@ -766,12 +769,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #888888, #888888);
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #5a6fd8, #6a4190);
+    background: linear-gradient(135deg, #888888, #888888);
 }
 
 /* Notificações */
