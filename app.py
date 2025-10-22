@@ -4,6 +4,7 @@ from routes.home import home
 from routes.workspace import work
 from routes.task import task
 from routes.user import user
+from routes.tabuleiro import tabuleiro
 from database import conectar
 
 app = Flask(__name__)
@@ -15,6 +16,7 @@ app.register_blueprint(home)
 app.register_blueprint(work)
 app.register_blueprint(task)
 app.register_blueprint(user)
+app.register_blueprint(tabuleiro)
 
 
 @app.context_processor
@@ -27,6 +29,15 @@ def inject_user():
             'usuario_nome': session.get('usuario_nome')
         }
     return user_data
+
+
+@app.route('/')
+def inicio():
+    return render_template('inicio.html', nome_usuario=nome_usuario)
+
+@app.route('/tabuleiro')
+def tabuleiro():
+    return render_template('tabuleiro.html')
 
 if __name__ == "__main__":
     app.run(debug=True)

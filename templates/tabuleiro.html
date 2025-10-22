@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tabuleiro de Recompensas</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tabuleiro.css') }}">
+</head>
+<body>
+
+  {% include 'aside.html' %}
+
+  <h1>Tabuleiro de Recompensas</h1>
+  <p class="sub">Seu boneco anda conforme você rola o dado!</p>
+
+  <!-- TABULEIRO -->
+  <div id="tabuleiro" class="tabuleiro"></div>
+
+  <!-- DADO 2D -->
+  <div class="dado-wrap">
+    <div id="dado" class="dado-2d">–</div>
+    <p class="resultado">Dado: <span id="res-num">–</span></p>
+  </div>
+
+  <div class="actions">
+    <button class="btn" onclick="rolarDado()">Rolar Dado</button>
+    <button class="btn" onclick="abrirModal('adicionar')">Adicionar Recompensa</button>
+    <button class="btn warn" onclick="abrirModal('editar')">Editar Recompensas</button>
+    <button id="btnRecomecar" class="btn" onclick="recomecar()">Recomeçar</button>
+  </div>
+
+  <!-- MODAL ADICIONAR -->
+  <div id="modal-adicionar" class="modal">
+    <div class="modal-card" style="width:420px; text-align:center; padding:20px 24px; border-radius:14px;">
+      <div class="modal-head" style="justify-content:center;">
+        <h3 style="margin:0;">Adicionar Recompensa</h3>
+      </div>
+      <div class="modal-body" style="padding-top:10px;">
+        <form method="POST" action="/tabuleiro/adicionar_recompensa">
+          <div class="row" style="flex-direction:column; gap:10px;">
+            <input type="text" name="titulo" placeholder="Título" required>
+            <input type="text" name="descricao" placeholder="Descrição" required>
+            <input type="number" name="posicao" min="1" max="30" placeholder="Casa (1 a 30)" required>
+          </div>
+          <div class="right" style="justify-content:center; margin-top:15px; gap:10px;">
+            <button type="submit" class="btn">Salvar</button>
+            <button type="button" class="btn danger" onclick="fecharModal('adicionar')">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR -->
+  <div id="modal-editar" class="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>Editar recompensas</h3>
+        <span class="pill">{{ recompensas|length }} itens</span>
+      </div>
+      <div class="modal-body">
+        {% if recompensas and recompensas|length > 0 %}
+          {% for r in recompensas %}
+          <form class="row" method="POST" action="/tabuleiro/editar_recompensa/{{ r.id_recompensa }}">
+            <input type="text" name="titulo" value="{{ r.titulo }}" required>
+            <input type="text" name="descricao" value="{{ r.descricao }}" required>
+            <input type="number" name="posicao" value="{{ r.posicao }}" min="1" max="30" required style="flex:0 0 120px">
+            <button class="btn" type="submit">Salvar</button>
+            <button class="btn danger" formaction="/tabuleiro/excluir/{{ r.id_recompensa }}">Excluir</button>
+          </form>
+          <div class="hr"></div>
+          {% endfor %}
+        {% else %}
+          <p>Nenhuma recompensa cadastrada.</p>
+        {% endif %}
+      </div>
+      <div class="right">
+        <button class="btn" onclick="fecharModal('editar')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PARABÉNS -->
+  <div id="modal-ganhou" class="modal">
+    <div class="modal-card">
+      <div class="modal-head"><h3>Parabéns!</h3></div>
+      <div class="modal-body">
+        <p id="textoRecompensa">Você ganhou uma recompensa!</p>
+      </div>
+      <div class="right">
+        <button class="btn" onclick="fecharModal('ganhou')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Passa os dados do Flask -->
+  <script>
+    const recompensas = {{ recompensas | tojson }};
+  </script>
+  <script src="{{ url_for('static', filename='js/tabuleiro.js') }}"></script>
+</body>
+</html>
