@@ -25,11 +25,14 @@
             <button class="btn btn-primary" onclick="abrirModalTarefa()">+ Nova Tarefa</button>
             <button class="btn btn-secondary" onclick="abrirModalMembros()">👥 Gerenciar Membros</button>
             <button class="btn btn-danger" onclick="excluirProjeto()">🗑️ Excluir Projeto</button>
+            {% else %}
+            <!-- Espaço reservado para manter layout -->
+            <div style="height: 40px; visibility: hidden;"></div>
             {% endif %}
         </div>
     </div>
 
-    <!-- Estatísticas Rápidas -->
+    <!-- Estatísticas Rápidas - SEMPRE 4 CARDS EM GRID 2x2 -->
     <div class="projeto-stats">
         <div class="stat-card">
             <h3>Pendentes</h3>
@@ -49,7 +52,7 @@
         </div>
     </div>
 
-    <!-- Kanban Board - CORRIGIDO -->
+    <!-- Kanban Board - SEMPRE 3 COLUNAS -->
     <div class="kanban-board">
         <!-- PENDENTES -->
         <div class="kanban-column">
