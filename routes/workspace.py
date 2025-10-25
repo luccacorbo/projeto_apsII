@@ -54,13 +54,15 @@ def api_meus_projetos():
     connection = conectar()
     cursor = connection.cursor(dictionary=True)
     
-    # Buscar projetos onde o usuário é criador ou membro
+    # Buscar projetos onde o usuário é criador OU membro
     cursor.execute("""
-        SELECT p.* 
-        FROM projetos p 
-        WHERE p.id_criador = %s
-        ORDER BY p.data_criacao DESC
-    """, (session['user_id'],))
+    SELECT DISTINCT p.*
+    FROM projetos p
+    LEFT JOIN projeto_membros pm ON p.id_projeto = pm.id_projeto
+    WHERE p.id_criador = %s OR pm.id_usuario = %s
+    ORDER BY p.data_criacao DESC
+""", (session['user_id'], session['user_id']))
+
     
     projetos = cursor.fetchall()
     cursor.close()
