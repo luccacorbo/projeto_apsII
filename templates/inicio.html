@@ -2,29 +2,90 @@
 
 {% block title %}Página Inicial - FofoTech{% endblock %}
 
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/inicio.css') }}">
+{% endblock %}
+
 {% block content %}
-    
-    {# Exibe a mensagem de boas-vindas com o primeiro nome #}
-    <h1>Olá, {{ primeiro_nome }}!</h1>
-    
-    {# Verifica se a lista de projetos está vazia #}
-    {% if not projetos %} 
-        <h2>Crie seu Projeto para começar.</h2>
-        {# Supondo que você tenha uma rota para criar projetos em um blueprint 'work' #}
-        <a href="{{ url_for('work.criar_projeto') }}" class="btn-link" role="button">Criar Projeto</a>
-    {% else %}
-        <h2>Seus Projetos:</h2>
-        <ul>
-            {# Faz um loop na lista de projetos enviada pelo Flask #}
+<div class="inicio-container">
+    {# Header com boas-vindas #}
+    <header class="inicio-header">
+        <h1>Olá, {{ primeiro_nome }}!</h1>
+        <p>Gerencie seus projetos e tarefas de forma simples</p>
+    </header>
+
+    {# Seção de projetos #}
+    <section class="projetos-section">
+        <div class="section-header">
+            <div class="section-left">
+                <h2>Meus Projetos</h2>
+            </div>
+            <span class="projetos-count">{{ projetos|length }} projeto(s)</span>
+        </div>
+
+        {% if not projetos %}
+        {# Estado vazio - quando não há projetos #}
+        <div class="empty-state">
+            <div class="empty-icon">📁</div>
+            <h3>Nenhum projeto encontrado</h3><br>
+            <p>Crie seu primeiro projeto</p><br>
+
+            <a href="{{ url_for('work.criar_projeto') }}" class="btn btn-primary">
+                Criar Primeiro Projeto
+            </a>
+        </div>
+        {% else %}
+        {# Grid de cards dos projetos #}
+        <div class="projetos-grid">
             {% for projeto in projetos %}
-                <li>
-                    {# Supondo que o link para visualizar um projeto use o id_projeto #}
-                    <a href="{{ url_for('work.visualizar_projeto', id=projeto.id_projeto) }}">
-                        {{ projeto.nome }}
-                    </a>
-                </li>
+            <div class="projeto-card" onclick="abrirProjeto({{ projeto.id_projeto }})">
+                <div class="card-header">
+                    <h3 class="projeto-titulo">{{ projeto.nome }}</h3>
+                    <span class="projeto-status status-ativo">Ativo</span>
+                </div>
+                
+                <div class="card-body">
+                    {% if projeto.descricao %}
+                    <p class="projeto-descricao">
+                        {{ projeto.descricao[:120] }}{% if projeto.descricao|length > 120 %}...{% endif %}
+                    </p>
+                    {% else %}
+                    <p class="projeto-descricao sem-descricao">
+                        Nenhuma descrição fornecida
+                    </p>
+                    {% endif %}
+                    
+                    <div class="projeto-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">👤 Criador:</span>
+                            <span class="meta-value">{{ projeto.criador_nome }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">📅 Criado em:</span>
+                            <span class="meta-value">{{ projeto.data_criacao.strftime('%d/%m/%Y') }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); abrirProjeto({{ projeto.id_projeto }})">
+                        🔍 Ver Projeto
+                    </button>
+                    {% if projeto.eh_criador == 1 %}
+                    <span class="badge-criador">Dono</span>
+                    {% else %}
+                    <span class="badge-membro">Membro</span>
+                    {% endif %}
+                </div>
+            </div>
             {% endfor %}
-        </ul>
-    {% endif %} 
-    
+        </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/inicio.js') }}"></script>
 {% endblock %}
