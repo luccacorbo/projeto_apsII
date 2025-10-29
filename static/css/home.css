@@ -8,11 +8,14 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, #ffffff 0%, #8aa3eb 100%);
+  background-attachment: fixed; /* 🔹 FIX: Fundo fixo ao rolar */
   color: #333;
   display: flex;
-  height: 100vh;
+  min-height: 100vh; /* 🔹 FIX: Altura mínima em vez de fixa */
+  overflow-x: hidden; /* 🔹 ADD: Previne scroll horizontal */
 }
-/*menu lateral */
+
+/* Menu lateral FIXO */
 .sidebar {
   width: 230px;
   background-color: #d6e6ff;
@@ -20,6 +23,12 @@ body {
   border-right: 3px solid #aac9ff;
   display: flex;
   flex-direction: column;
+  position: fixed; /* 🔹 FIX: Torna o menu fixo */
+  height: 100vh; /* 🔹 FIX: Ocupa 100% da altura da tela */
+  overflow-y: auto; /* 🔹 ADD: Scroll apenas se necessário */
+  z-index: 1000; /* 🔹 ADD: Garante que fique acima do conteúdo */
+  left: 0;
+  top: 0;
 }
 
 .sidebar h2 {
@@ -61,14 +70,15 @@ body {
   transition: max-height 0.3s ease;
 }
 
-/* principal */
+/* Área principal CORRIGIDA */
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  margin-left: 230px; /* 🔹 FIX: Compensa a largura do sidebar fixo */
+  width: calc(100% - 230px); /* 🔹 FIX: Largura total menos sidebar */
+  min-height: 100vh; /* 🔹 ADD: Garante altura mínima */
+  background: inherit; /* 🔹 ADD: Herda o fundo do body */
 }
 
 h1 {
@@ -116,4 +126,22 @@ button {
 
 button:hover {
   background-color: #1f4287;
+}
+
+/* 🔹 ADD: Responsividade para telas menores */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+    transform: translateX(-100%); /* Menu recolhido por padrão */
+    transition: transform 0.3s ease;
+  }
+  
+  .sidebar.active {
+    transform: translateX(0); /* Menu visível */
+  }
+  
+  .main {
+    margin-left: 0;
+    width: 100%;
+  }
 }
