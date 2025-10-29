@@ -40,7 +40,7 @@ def api_perfil():
 
 @user.route('/api/perfil/estatisticas')
 def api_perfil_estatisticas():
-    """API para buscar estatísticas do usuário"""
+    """API para buscar estatísticas do usuário - APENAS tarefas onde é RESPONSÁVEL"""
     if 'user_id' not in session:
         return jsonify({'error': 'Usuário não logado'}), 401
     
@@ -53,21 +53,25 @@ def api_perfil_estatisticas():
     try:
         cursor = connection.cursor(dictionary=True)
         
-        # CORREÇÕES: Use os nomes corretos das colunas
-        # Total de tarefas - CORREÇÃO: use id_responsavel ou id_usuario conforme sua estrutura
+        # ✅ CORREÇÃO: Buscar APENAS tarefas onde o usuário é o RESPONSÁVEL
+        # Total de tarefas - onde usuário é responsável
         cursor.execute('SELECT COUNT(*) as total FROM tarefas WHERE id_responsavel = %s', (usuario_id,))
         total_tarefas = cursor.fetchone()['total']
         
-        # Tarefas pendentes
-        cursor.execute('SELECT COUNT(*) as total FROM tarefas WHERE id_responsavel = %s AND status = "pendente"', (usuario_id,))
+        # ✅ CORREÇÃO: Usar os status corretos (todo, doing, done)
+        # Tarefas pendentes (status = 'todo')
+        cursor.execute('SELECT COUNT(*) as total FROM tarefas WHERE id_responsavel = %s AND status = "todo"', (usuario_id,))
         tarefas_pendentes = cursor.fetchone()['total']
         
-        # Tarefas concluídas
-        cursor.execute('SELECT COUNT(*) as total FROM tarefas WHERE id_responsavel = %s AND status = "concluida"', (usuario_id,))
+        # Tarefas em andamento (status = 'doing')
+        cursor.execute('SELECT COUNT(*) as total FROM tarefas WHERE id_responsavel = %s AND status = "doing"', (usuario_id,))
+        tarefas_andamento = cursor.fetchone()['total']
+        
+        # Tarefas concluídas (status = 'done')
+        cursor.execute('SELECT COUNT(*) as total FROM tarefas WHERE id_responsavel = %s AND status = "done"', (usuario_id,))
         tarefas_concluidas = cursor.fetchone()['total']
         
-        # Dias ativo (exemplo simples)
-        # CORREÇÃO: Use o nome correto da tabela e coluna
+        # Dias ativo
         cursor.execute('SELECT data_cadastro FROM usuario WHERE id_usuario = %s', (usuario_id,))
         resultado = cursor.fetchone()
         
@@ -75,21 +79,24 @@ def api_perfil_estatisticas():
         if resultado and resultado['data_cadastro']:
             from datetime import datetime
             data_cadastro = resultado['data_cadastro']
+            if isinstance(data_cadastro, str):
+                data_cadastro = datetime.strptime(data_cadastro, '%Y-%m-%d %H:%M:%S')
             dias_ativo = (datetime.now() - data_cadastro).days
         
         return jsonify({
             'total_tarefas': total_tarefas,
             'tarefas_pendentes': tarefas_pendentes,
+            'tarefas_andamento': tarefas_andamento,
             'tarefas_concluidas': tarefas_concluidas,
             'dias_ativo': dias_ativo
         })
         
     except Exception as e:
-        print(f"Erro MySQL: {e}")
+        print(f"❌ Erro MySQL nas estatísticas do perfil: {e}")
         return jsonify({'error': 'Erro ao buscar estatísticas'}), 500
     finally:
         close_db_connection(connection)
-
+        
 @user.route('/api/perfil', methods=['PUT'])
 def api_atualizar_perfil():
     """API para atualizar perfil do usuário"""

@@ -247,3 +247,56 @@ def excluir_tarefa(id_projeto, id_tarefa):
     finally:
         if connection:
             close_db_connection(connection)
+
+@task.route('/api/minhas-tarefas')
+def api_minhas_tarefas():
+    """API para buscar APENAS tarefas onde o usuário é o RESPONSÁVEL"""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Usuário não logado'}), 401
+    
+    id_usuario = session['user_id']
+    
+    connection = conectar()
+    if not connection:
+        return jsonify({'error': 'Erro de conexão com o banco'}), 500
+    
+    try:
+        cursor = connection.cursor(dictionary=True)
+        
+        cursor.execute('''
+            SELECT 
+                t.id_tarefa,
+                t.titulo,
+                t.descricao,
+                t.prioridade,
+                t.status,
+                t.data_criacao,
+                t.data_vencimento,
+                t.id_projeto,
+                t.id_responsavel,
+                p.nome as projeto_nome,
+                u.nome as responsavel_nome
+            FROM tarefas t 
+            JOIN projetos p ON t.id_projeto = p.id_projeto 
+            LEFT JOIN usuario u ON t.id_responsavel = u.id_usuario
+            WHERE t.id_responsavel = %s  -- ⚠️ APENAS tarefas onde usuário é responsável
+            ORDER BY t.data_criacao DESC
+        ''', (id_usuario,))
+        
+        tarefas = cursor.fetchall()
+        
+        # Converter datetime para string
+        for tarefa in tarefas:
+            if tarefa['data_criacao'] and isinstance(tarefa['data_criacao'], (datetime, date)):
+                tarefa['data_criacao'] = tarefa['data_criacao'].strftime('%Y-%m-%d %H:%M:%S')
+            if tarefa['data_vencimento'] and isinstance(tarefa['data_vencimento'], (datetime, date)):
+                tarefa['data_vencimento'] = tarefa['data_vencimento'].strftime('%Y-%m-%d')
+        
+        print(f"✅ Minhas Tarefas (responsável): {len(tarefas)}")
+        return jsonify(tarefas)
+        
+    except Exception as e:
+        print(f"❌ Erro MySQL na API de minhas tarefas: {e}")
+        return jsonify({'error': f'Erro ao buscar tarefas: {str(e)}'}), 500
+    finally:
+        close_db_connection(connection)

@@ -12,7 +12,7 @@ async function carregarTarefasDoBackend() {
     try {
         mostrarLoading(true);
         
-        const response = await fetch('/api/tarefas');
+        const response = await fetch('/api/minhas-tarefas');
         
         if (!response.ok) {
             throw new Error(`Erro ${response.status}: ${response.statusText}`);
