@@ -1,14 +1,12 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from database import conectar  # Supondo que você tenha este arquivo para a conexão
+from database import conectar
 import mysql.connector
 
 home = Blueprint('home', __name__)
 
-# Rota para a página inicial (landing page), pode ser diferente da home do usuário logado.
 @home.route('/inicio')
 def rt_Projeto():
     if 'logged_in' in session:
-        # Se o usuário estiver logado, talvez seja melhor redirecioná-lo para /home
         return redirect(url_for('home.retornaInicio'))
     return render_template('inicio.html')
 
@@ -19,60 +17,71 @@ def retornaInicio():
     if 'user_id' not in session:
         return redirect('/login')
     
-    # 2. BUSCA DE PROJETOS NO BANCO DE DADOS
+    # 2. BUSCA DE PROJETOS NO BANCO DE DADOS - CORREÇÃO AQUI
     connection = conectar()
     projetos = []
     
     if connection:
         try:
             cursor = connection.cursor(dictionary=True)
-            # Busca os projetos que o usuário criou
+            
+            # ✅ CORREÇÃO: Buscar projetos onde usuário é CRIADOR OU MEMBRO
             cursor.execute("""
-                SELECT * FROM projetos 
-                WHERE id_criador = %s 
-                ORDER BY data_criacao DESC
-            """, (session['user_id'],))
+                SELECT DISTINCT 
+                    p.id_projeto,
+                    p.nome,
+                    p.descricao,
+                    p.data_criacao,
+                    u.nome as criador_nome,
+                    u.id_usuario as id_criador,
+                    -- Identificar se o usuário atual é o criador
+                    CASE 
+                        WHEN p.id_criador = %s THEN 1 
+                        ELSE 0 
+                    END as eh_criador
+                FROM projetos p
+                JOIN usuario u ON p.id_criador = u.id_usuario
+                LEFT JOIN projeto_membros pm ON p.id_projeto = pm.id_projeto
+                WHERE p.id_criador = %s OR pm.id_usuario = %s
+                ORDER BY p.data_criacao DESC
+            """, (session['user_id'], session['user_id'], session['user_id']))
+            
             projetos = cursor.fetchall()
             cursor.close()
+            
+            print(f"✅ Projetos encontrados: {len(projetos)}")  # Debug
+            
         except Exception as e:
-            print(f"Erro ao buscar projetos: {e}")
+            print(f"❌ Erro ao buscar projetos: {e}")
         finally:
             connection.close()
     
     # 3. EXTRAÇÃO DO PRIMEIRO NOME
-    # Pega o nome completo da sessão (ex: "Allan Vieira Siqueira")
     nome_completo = session.get('user_name', 'Usuário') 
-    
-    # Divide o nome pelo espaço e pega a primeira parte (ex: "Allan")
     primeiro_nome = nome_completo.split(' ')[0]
 
-    # 4. RENDERIZA O TEMPLATE, ENVIANDO AS VARIÁVEIS CORRETAS
+    # 4. RENDERIZA O TEMPLATE - CORREÇÃO AQUI
+    # ✅ CORREÇÃO: Enviar 'projetos' em vez de 'id_projetos'
     return render_template('inicio.html', 
                            primeiro_nome=primeiro_nome, 
-                           id_projetos=projetos)
+                           projetos=projetos)  # ← NOME CORRETO DA VARIÁVEL
 
 @home.route('/tarefas')
 def minhasTarefas():
-    # Aqui também seria bom adicionar a verificação de login
     if 'user_id' not in session:
         return redirect('/login')
     
-    # --- MUDANÇA ADICIONADA AQUI ---
     nome_completo = session.get('user_name', 'Visitante')
     primeiro_nome = nome_completo.split(' ')[0]
-    # --- FIM DA MUDANÇA ---
 
     return render_template('minhas-tarefas.html', primeiro_nome=primeiro_nome)
 
 @home.route('/perfil')
 def meuPerfil():
-    # E aqui também
     if 'user_id' not in session:
         return redirect('/login')
 
-    # --- MUDANÇA ADICIONADA AQUI ---
     nome_completo = session.get('user_name', 'Visitante')
     primeiro_nome = nome_completo.split(' ')[0]
-    # --- FIM DA MUDANÇA ---
 
     return render_template('perfil.html', primeiro_nome=primeiro_nome)
