@@ -1,63 +1,59 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Criar Projeto - FofoTech</title>
+{% extends 'base.html' %}
+
+{% block styles %}
+    {{ super() }}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/criar-projeto.css') }}">
-</head>
-<body>
-    {% extends 'base.html' %}
+{% endblock %}
 
-    {% block content %}
-    <div class="criar-projeto-container">
-        <div class="criar-projeto-card">
-            <div class="card-header">
-                <h1>Criar Novo Projeto</h1>
-                <p>Preencha os dados abaixo para criar um novo projeto</p>
-            </div>
-            
-            <form action="{{ url_for('work.criar_projeto') }}" method="POST" class="projeto-form">
-                <div class="form-group">
-                    <label for="nome_projeto">Nome do Projeto *</label>
-                    <input 
-                        type="text" 
-                        id="nome_projeto" 
-                        name="nome_projeto" 
-                        placeholder="Digite o nome do projeto" 
-                        required
-                        maxlength="100"
-                    >
-                    <span class="char-count">0/100</span>
-                </div>
-
-                <div class="form-group">
-                    <label for="descricao_projeto">Descrição</label>
-                    <textarea 
-                        id="descricao_projeto" 
-                        name="descricao_projeto" 
-                        placeholder="Descreva o objetivo do projeto (opcional)" 
-                        rows="4"
-                        maxlength="500"
-                    ></textarea>
-                    <span class="char-count">0/500</span>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">
-                        <span class="btn-icon">✓</span>
-                        Criar Projeto
-                    </button>
-                    <a href="{{ url_for('home.retornaInicio') }}" class="btn btn-secondary">
-                        <span class="btn-icon">×</span>
-                        Cancelar
-                    </a>
-                </div>
-            </form>
+{% block content %}
+<div class="criar-projeto-container">
+    <div class="criar-projeto-card">
+        <div class="card-header">
+            <h1>Criar Novo Projeto</h1>
+            <p>Preencha os dados abaixo para criar um novo projeto</p>
         </div>
-    </div>
-    {% endblock %}
+        
+        <form action="{{ url_for('work.criar_projeto') }}" method="POST" class="projeto-form">
+            <div class="form-group">
+                <label for="nome_projeto">Nome do Projeto *</label>
+                <input 
+                    type="text" 
+                    id="nome_projeto" 
+                    name="nome_projeto" 
+                    placeholder="Digite o nome do projeto" 
+                    required
+                    maxlength="100"
+                >
+                <span class="char-count">0/100</span>
+            </div>
 
-    <script src="{{ url_for('static', filename='js/criar-projeto.js') }}"></script>
-</body>
-</html>
+            <div class="form-group">
+                <label for="descricao_projeto">Descrição</label>
+                <textarea 
+                    id="descricao_projeto" 
+                    name="descricao_projeto" 
+                    placeholder="Descreva o objetivo do projeto (opcional)" 
+                    rows="4"
+                    maxlength="500"
+                ></textarea>
+                <span class="char-count">0/500</span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span class="btn-icon">✓</span>
+                    Criar Projeto
+                </button>
+                <a href="{{ url_for('home.retornaInicio') }}" class="btn btn-secondary">
+                    <span class="btn-icon">×</span>
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/criar-projeto.js') }}"></script>
+{% endblock %}
