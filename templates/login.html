@@ -14,6 +14,13 @@
             <p class="welcome">Bem-vindo!<br>Vamos conquistar suas tarefas pendentes!</p>
         </div>
         <div class="right">
+
+                {% if error %}
+                <div class="error-message">
+                    {{ error }}
+                </div>
+                {% endif %}
+
             <form method="POST" action="/login">
                 <h2>Entrar</h2>
                 <label for="email">E-mail</label>
