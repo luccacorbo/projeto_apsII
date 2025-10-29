@@ -226,7 +226,7 @@
     <div class="modal-content">
         <h2>Confirmar Exclusão</h2>
         <p>Tem certeza que deseja excluir o projeto <strong>"{{ projeto.nome }}"</strong>?</p>
-        <p class="warning-text">⚠️ Esta ação não pode ser desfeita! Todas as tarefas e dados serão perdidos.</p>
+        <p class="warning-text">⚠️ Esta ação não pode ser desfeita! Todas as tarefas e dados serão perdidos.</p><br>
         <div class="modal-actions">
             <button type="button" onclick="fecharModalExcluir()" class="btn btn-secondary">Cancelar</button>
             <form id="formExcluirProjeto" method="POST" action="{{ url_for('work.excluir_projeto', id_projeto=projeto.id_projeto) }}" style="display: inline;">
