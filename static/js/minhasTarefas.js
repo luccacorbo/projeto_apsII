@@ -64,7 +64,7 @@ function carregarTarefas() {
 function criarCardTarefa(tarefa) {
     const card = document.createElement('div');
     card.className = `tarefa-card status-${tarefa.status} prioridade-${tarefa.prioridade || 'media'}`;
-    card.onclick = () => abrirModalTarefa(tarefa.id_tarefa);
+    card.onclick = () => abrirPaginaTarefa(tarefa.id_tarefa);
     
     const statusIcon = getStatusIcon(tarefa.status);
     const prioridadeBadge = getPrioridadeBadge(tarefa.prioridade || 'media');
@@ -101,82 +101,9 @@ function criarCardTarefa(tarefa) {
     return card;
 }
 
-// Função para abrir modal com detalhes da tarefa
-function abrirModalTarefa(tarefaId) {
-    const tarefa = tarefas.find(t => t.id_tarefa === tarefaId);
-    if (!tarefa) return;
-
-    document.getElementById('task-id').value = tarefa.id_tarefa;
-    document.getElementById('task-titulo').value = tarefa.titulo || '';
-    document.getElementById('task-descricao').value = tarefa.descricao || '';
-    document.getElementById('task-projeto').value = tarefa.projeto_nome || '';
-    document.getElementById('task-prioridade').value = formatarPrioridade(tarefa.prioridade);
-    document.getElementById('task-responsavel').value = tarefa.responsavel_nome || 'Você';
-    document.getElementById('task-data-criacao').value = tarefa.data_criacao ? formatarDataCompleta(tarefa.data_criacao) : '';
-    document.getElementById('task-data-vencimento').value = tarefa.data_vencimento ? formatarData(tarefa.data_vencimento) : 'Sem prazo';
-    document.getElementById('task-status').value = tarefa.status || 'todo';
-    document.getElementById('task-comentarios').value = tarefa.comentarios || '';
-
-    // Atualizar estilo do status
-    updateStatusStyle();
-
-    document.getElementById('task-modal').style.display = 'block';
-}
-
-// Função para atualizar estilo do status no modal
-function updateStatusStyle() {
-    const statusSelect = document.getElementById('task-status');
-    statusSelect.className = `status-${statusSelect.value}`;
-}
-
-// Função para fechar modal
-function closeModal() {
-    document.getElementById('task-modal').style.display = 'none';
-}
-
-// Função para salvar alterações da tarefa
-async function saveTaskChanges() {
-    const tarefaId = parseInt(document.getElementById('task-id').value);
-    const novoStatus = document.getElementById('task-status').value;
-    const comentarios = document.getElementById('task-comentarios').value;
-
-    try {
-        const response = await fetch(`/api/tarefas/${tarefaId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                status: novoStatus,
-                comentarios: comentarios
-            })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error || 'Erro ao atualizar tarefa');
-        }
-
-        // Atualizar a tarefa localmente
-        const tarefaIndex = tarefas.findIndex(t => t.id_tarefa === tarefaId);
-        if (tarefaIndex !== -1) {
-            tarefas[tarefaIndex].status = novoStatus;
-            tarefas[tarefaIndex].comentarios = comentarios;
-            
-            // Atualizar interface
-            carregarTarefas();
-            atualizarEstatisticas();
-            closeModal();
-            
-            mostrarNotificacao('Tarefa atualizada com sucesso!', 'success');
-            mostrarConfirmacao();
-        }
-        
-    } catch (error) {
-        console.error('Erro:', error);
-        mostrarNotificacao(`Erro ao atualizar tarefa: ${error.message}`, 'error');
-    }
+// Função para abrir página de detalhes da tarefa
+function abrirPaginaTarefa(tarefaId) {
+    window.location.href = `/tarefa/${tarefaId}`;
 }
 
 // Função para atualizar estatísticas
@@ -242,15 +169,6 @@ function formatarStatus(status) {
     return statusMap[status] || status;
 }
 
-function formatarPrioridade(prioridade) {
-    const prioridadeMap = {
-        'alta': 'Alta',
-        'media': 'Média',
-        'baixa': 'Baixa'
-    };
-    return prioridadeMap[prioridade] || 'Média';
-}
-
 function formatarData(dataString) {
     if (!dataString) return 'Não definido';
     
@@ -260,20 +178,6 @@ function formatarData(dataString) {
             return 'Data inválida';
         }
         return data.toLocaleDateString('pt-BR');
-    } catch (error) {
-        return 'Data inválida';
-    }
-}
-
-function formatarDataCompleta(dataString) {
-    if (!dataString) return 'Não definida';
-    
-    try {
-        const data = new Date(dataString);
-        if (isNaN(data.getTime())) {
-            return 'Data inválida';
-        }
-        return data.toLocaleString('pt-BR');
     } catch (error) {
         return 'Data inválida';
     }
@@ -330,32 +234,3 @@ function mostrarNotificacao(mensagem, tipo) {
         }
     }, 5000);
 }
-
-function mostrarConfirmacao() {
-    document.getElementById('confirmation-modal').style.display = 'block';
-}
-
-function closeConfirmationModal() {
-    document.getElementById('confirmation-modal').style.display = 'none';
-}
-
-// Event Listeners
-window.onclick = function(event) {
-    const modal = document.getElementById('task-modal');
-    const confirmModal = document.getElementById('confirmation-modal');
-    
-    if (event.target === modal) {
-        closeModal();
-    }
-    if (event.target === confirmModal) {
-        closeConfirmationModal();
-    }
-}
-
-// Tecla ESC para fechar modais
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        closeModal();
-        closeConfirmationModal();
-    }
-});

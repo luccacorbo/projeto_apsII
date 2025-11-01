@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tarefa.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="tarefa-detalhes-container">
+    <div class="tarefa-header-section">
+        <button onclick="window.history.back()" class="voltar-btn">
+            ← Voltar
+        </button>
+        <h1 class="page-title">Detalhes da Tarefa</h1>
+    </div>
+
+    <div class="tarefa-content">
+        <!-- Card Principal da Tarefa -->
+        <div class="tarefa-card status-{{ tarefa.status }}">
+            <div class="tarefa-header">
+                <h2 class="tarefa-titulo">{{ tarefa.titulo or 'Sem título' }}</h2>
+                <div class="tarefa-meta">
+                    <span class="status-badge status-{{ tarefa.status }}">
+                        {{ formatar_status(tarefa.status or 'todo') }}
+                    </span><br>
+                    
+                    <span class="prioridade-badge prioridade-{{ tarefa.prioridade or 'media' }}">
+                        {{ (tarefa.prioridade or 'media') | upper }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="tarefa-info-grid">
+                <div class="info-item">
+                    <span class="info-label">Projeto:</span>
+                    <span class="info-value">{{ tarefa.projeto_nome or 'Projeto não encontrado' }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Responsável:</span>
+                    <span class="info-value">{{ tarefa.responsavel_nome or 'Você' }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Data de Criação:</span>
+                    <span class="info-value">{{ formatar_data_completa(tarefa.data_criacao) if tarefa.data_criacao else 'Não definida' }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Prazo:</span>
+                    <span class="info-value">{{ formatar_data(tarefa.data_vencimento) if tarefa.data_vencimento else 'Sem prazo' }}</span>
+                </div>
+            </div>
+
+            <div class="descricao-section">
+                <h3 class="section-title">Descrição</h3>
+                <div class="descricao-content">
+                    {{ tarefa.descricao or 'Sem descrição' }}
+                </div>
+            </div>
+
+            <div class="status-update-section">
+                <h3 class="section-title">Atualizar Status</h3>
+                <div class="status-form">
+                    <select id="status" name="status" class="status-select">
+                        <option value="todo" {% if tarefa.status == 'todo' %}selected{% endif %}>📝 Pendente</option>
+                        <option value="doing" {% if tarefa.status == 'doing' %}selected{% endif %}>🔄 Em Andamento</option>
+                        <option value="done" {% if tarefa.status == 'done' %}selected{% endif %}>✅ Concluída</option>
+                    </select>
+                    <button type="button" class="btn-salvar" onclick="salvarAlteracoes()">
+                        Salvar Alterações
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Único para Comentários e Arquivos -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <h3 class="section-title">Chat da Tarefa</h3>
+            </div>
+
+            <!-- Área de Mensagens (Comentários e Uploads) -->
+            <div class="chat-messages" id="chat-messages">
+                <div class="loading-chat">
+                    <div class="loading-spinner"></div>
+                    <p>Carregando chat...</p>
+                </div>
+            </div>
+
+            <!-- Área de Input -->
+            <div class="chat-input-section">
+                <!-- Formulário de Comentário -->
+                <div class="comentario-input">
+                    <textarea 
+                        id="novo-comentario-texto" 
+                        class="comentario-textarea" 
+                        placeholder="Digite seu comentário..."
+                        maxlength="1000"
+                        rows="3"
+                    ></textarea>
+                    <div class="comentario-actions">
+                        <div class="caracteres-restantes">
+                            <span id="contador-caracteres">1000</span> caracteres restantes
+                        </div>
+                        <button type="button" class="btn-enviar" onclick="adicionarComentario()">
+                            📝 Enviar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upload de Arquivo -->
+                <div class="arquivo-upload">
+                    <div class="upload-header">
+                        <span class="upload-title">Anexar arquivo</span>
+                        <small>Tipos permitidos: PDF, imagens, documentos (max. 16MB)</small>
+                    </div>
+                    <div class="upload-controls">
+                        <input 
+                            type="file" 
+                            id="arquivo-upload" 
+                            class="file-input"
+                            accept=".txt,.pdf,.png,.jpg,.jpeg,.gif,.doc,.docx,.xls,.xlsx,.zip,.rar"
+                        >
+                        <button type="button" class="btn-upload" onclick="uploadArquivo()">
+                            Upload
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/tarefa.js') }}"></script>
+{% endblock %}
