@@ -10,9 +10,18 @@ class EmailService:
         self.smtp_port = int(os.getenv('SMTP_PORT', 587))
         self.sender_email = os.getenv('EMAIL_USER')
         self.sender_password = os.getenv('EMAIL_PASSWORD')
+        
+        # Verificar se as variáveis de ambiente estão configuradas
+        if not self.sender_email or not self.sender_password:
+            print("⚠️  AVISO: Variáveis de email não configuradas no .env")
     
     def enviar_convite_projeto(self, email_convidado, nome_convidado, nome_projeto, nome_convidante, token_convite):
         """Envia email de convite para participar de um projeto"""
+        
+        # Verificar se as credenciais estão configuradas
+        if not self.sender_email or not self.sender_password:
+            print("❌ Credenciais de email não configuradas")
+            return False
         
         # URL para aceitar o convite
         url_aceitacao = f"http://localhost:5000/convite/aceitar/{token_convite}"
@@ -61,7 +70,9 @@ class EmailService:
         """
         
         try:
-            # Configurar mensagem usando EmailMessage (mais moderna)
+            print(f"📧 Tentando enviar convite para: {email_convidado}")
+            
+            # Configurar mensagem usando EmailMessage
             msg = EmailMessage()
             msg['Subject'] = assunto
             msg['From'] = self.sender_email
@@ -79,8 +90,119 @@ class EmailService:
             print(f"✅ Email de convite enviado para: {email_convidado}")
             return True
             
+        except smtplib.SMTPAuthenticationError as e:
+            print(f"❌ Erro de autenticação: {e}")
+            print("💡 SOLUÇÃO: Verifique se:")
+            print("   - A verificação em duas etapas está ativada")
+            print("   - Você está usando uma SENHA DE APP (não a senha normal)")
+            print("   - As credenciais no arquivo .env estão corretas")
+            return False
         except Exception as e:
             print(f"❌ Erro ao enviar email: {e}")
+            return False
+
+    def enviar_redefinicao_senha(self, email_usuario, nome_usuario, token_redefinicao):
+        """Envia email para redefinição de senha"""
+        
+        # Verificar se as credenciais estão configuradas
+        if not self.sender_email or not self.sender_password:
+            print("❌ Credenciais de email não configuradas")
+            return False
+        
+        # URL para redefinir senha
+        url_redefinicao = f"http://localhost:5000/redefinir-senha/{token_redefinicao}"
+        
+        assunto = "🔐 Redefinição de Senha - FofoTech"
+        
+        # Corpo do email em HTML
+        mensagem_html = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                <h2 style="color: #4F46E5; text-align: center;">Redefinição de Senha</h2>
+                
+                <p>Olá <strong>{nome_usuario}</strong>,</p>
+                
+                <p>Recebemos uma solicitação para redefinir a senha da sua conta FofoTech.</p>
+                
+                <p>Para criar uma nova senha, clique no botão abaixo:</p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="{url_redefinicao}" 
+                       style="background-color: #4F46E5; color: white; padding: 12px 24px; 
+                              text-decoration: none; border-radius: 5px; font-weight: bold;
+                              display: inline-block;">
+                        🔑 Redefinir Senha
+                    </a>
+                </div>
+                
+                <p><strong>⚠️ Atenção:</strong> Este link expira em 1 hora por motivos de segurança.</p>
+                
+                <p>Se o botão não funcionar, copie e cole este link no seu navegador:</p>
+                <p style="word-break: break-all; color: #4F46E5;">{url_redefinicao}</p>
+                
+                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+                
+                <p style="font-size: 12px; color: #666;">
+                    Se você não solicitou a redefinição de senha, ignore este email.<br>
+                    Sua senha atual continuará a mesma.
+                </p>
+                
+                <p style="font-size: 12px; color: #999; text-align: center;">
+                    Equipe FofoTech
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Versão texto simples (fallback)
+        mensagem_texto = f"""
+        Redefinição de Senha - FofoTech
+        
+        Olá {nome_usuario},
+        
+        Recebemos uma solicitação para redefinir a senha da sua conta FofoTech.
+        
+        Para criar uma nova senha, acesse:
+        {url_redefinicao}
+        
+        Este link expira em 1 hora por motivos de segurança.
+        
+        Se você não solicitou a redefinição de senha, ignore este email.
+        Sua senha atual continuará a mesma.
+        
+        Equipe FofoTech
+        """
+        
+        try:
+            print(f"📧 Tentando enviar email de redefinição para: {email_usuario}")
+            
+            # Configurar mensagem usando EmailMessage
+            msg = EmailMessage()
+            msg['Subject'] = assunto
+            msg['From'] = self.sender_email
+            msg['To'] = email_usuario
+            
+            # Definir conteúdo alternativo (texto e HTML)
+            msg.set_content(mensagem_texto)
+            msg.add_alternative(mensagem_html, subtype='html')
+            
+            # Enviar email
+            with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
+                server.starttls()
+                server.login(self.sender_email, self.sender_password)
+                server.send_message(msg)
+            
+            print(f"✅ Email de redefinição enviado para: {email_usuario}")
+            return True
+            
+        except smtplib.SMTPAuthenticationError as e:
+            print(f"❌ Erro de autenticação: {e}")
+            print("💡 SOLUÇÃO: Verifique as credenciais no arquivo .env")
+            return False
+        except Exception as e:
+            print(f"❌ Erro ao enviar email de redefinição: {e}")
             return False
 
 def gerar_token_convite():

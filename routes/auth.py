@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, session, redirect
 from database import conectar, close_db_connection, hash_password, check_password
 import secrets
 from datetime import datetime, timedelta
+from .email_service import EmailService  # NOVA IMPORTACAO
 
 auth = Blueprint('auth', __name__)
 
@@ -143,7 +144,7 @@ def logout():
     return redirect('/login')
 
 # ====================================================
-# ROTAS DE RECUPERAÇÃO DE SENHA (NOVAS ADIÇÕES)
+# ROTAS DE RECUPERAÇÃO DE SENHA (ATUALIZADAS COM EMAIL REAL)
 # ====================================================
 
 # ----------------------------------------------------
@@ -157,7 +158,7 @@ def esqueci_minha_senha():
     return render_template('esqueci_senha.html', error=error_message, success=success_message)
 
 # ----------------------------------------------------
-# Rota 2: Gerar Token e Simular Envio de E-mail
+# Rota 2: Gerar Token e Enviar E-mail Real
 # ----------------------------------------------------
 @auth.route('/enviar-reset-link', methods=['POST'])
 def enviar_reset_link():
@@ -171,7 +172,7 @@ def enviar_reset_link():
         cursor = connection.cursor(dictionary=True)
         
         # 1. Buscar o usuário pelo e-mail
-        cursor.execute('SELECT id_usuario, nome FROM usuario WHERE email = %s', (email,))
+        cursor.execute('SELECT id_usuario, nome, email FROM usuario WHERE email = %s', (email,))
         usuario = cursor.fetchone()
         
         # 2. Segurança: MENSAGEM GENÉRICA, independente de o e-mail existir ou não
@@ -182,6 +183,8 @@ def enviar_reset_link():
             return redirect(f'/esqueci-minha-senha?success={mensagem_sucesso}')
 
         user_id = usuario['id_usuario']
+        nome_usuario = usuario['nome']
+        email_usuario = usuario['email']
         
         # 3. Gerar Token e Expiração
         token = secrets.token_urlsafe(32)
@@ -198,17 +201,22 @@ def enviar_reset_link():
         )
         connection.commit()
         
-        # 5. Montar o Link de Redefinição
-        reset_link = f"{request.host_url}redefinir-senha/{token}"
+        # 5. ENVIAR E-MAIL REAL (substituindo a simulação)
+        email_service = EmailService()
+        email_enviado = email_service.enviar_redefinicao_senha(
+            email_usuario, 
+            nome_usuario, 
+            token
+        )
         
-        # 6. SIMULAR O ENVIO DE E-MAIL (No localhost, imprimiremos no console)
-        print("-" * 50)
-        print(f"✅ E-mail de redefinição SIMULADO para: {email}")
-        print(f"🔑 Token Gerado: {token}")
-        print(f"🔗 LINK DE REDEFINIÇÃO: {reset_link}")
-        print("-" * 50)
+        if email_enviado:
+            print(f"✅ Email de redefinição enviado com sucesso para: {email_usuario}")
+        else:
+            print(f"❌ Falha ao enviar email para: {email_usuario}")
+            # Mesmo com falha no email, retornamos mensagem genérica por segurança
+            return redirect(f'/esqueci-minha-senha?success={mensagem_sucesso}')
 
-        # 7. Redireciona com a mensagem de sucesso genérica
+        # 6. Redireciona com a mensagem de sucesso genérica
         return redirect(f'/esqueci-minha-senha?success={mensagem_sucesso}')
 
     except Exception as e:
