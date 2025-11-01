@@ -107,6 +107,11 @@ function excluirTarefa(tarefaId) {
     }
 }
 
+// Função para redirecionar para a página da tarefa
+function redirecionarParaTarefa(tarefaId) {
+    window.location.href = `/tarefa/${tarefaId}`;
+}
+
 // Drag and Drop Functions
 function allowDrop(ev) {
     ev.preventDefault();
@@ -187,8 +192,20 @@ function getProjetoId() {
     return matches ? matches[1] : null;
 }
 
-// Fechar modais ao clicar fora
+// Fechar modais ao clicar fora e adicionar event listeners para tarefas
 document.addEventListener('DOMContentLoaded', function() {
+    // Adicionar clique nos cards de tarefa
+    document.addEventListener('click', function(event) {
+        const taskCard = event.target.closest('.task-card');
+        if (taskCard && !event.target.closest('.task-actions')) {
+            const taskId = taskCard.dataset.taskId;
+            if (taskId) {
+                redirecionarParaTarefa(taskId);
+            }
+        }
+    });
+
+    // Fechar modais ao clicar fora
     window.onclick = function(event) {
         const modals = document.getElementsByClassName('modal');
         for (let modal of modals) {
