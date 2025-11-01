@@ -224,6 +224,25 @@
                 <button type="button" onclick="removerMembro({{ membro.id_usuario }})" class="btn btn-danger btn-sm">Remover</button>
             </div>
             {% endfor %}
+            <!-- Adicione esta seção após a lista de membros no modal de membros -->
+            <div class="convites-pendentes">
+                <h3>Convites Pendentes</h3>
+                {% if convites_pendentes %}
+                    {% for convite in convites_pendentes %}
+                    <div class="convite-item">
+                        <span>{{ convite.nome }} - {{ convite.email }}</span>
+                        <small>(Convite expira: {{ convite.data_expiracao.strftime('%d/%m/%Y') }})</small>
+                        <button type="button" 
+                                onclick="cancelarConvite({{ convite.id_convite }})" 
+                                class="btn btn-danger btn-sm">
+                            Cancelar
+                        </button>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="no-convites">Nenhum convite pendente</p>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
