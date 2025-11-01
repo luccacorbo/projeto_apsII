@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FofoTech - Login</title>
+    <title>FofoTech - Recuperar Senha</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
 <body>
@@ -11,32 +11,24 @@
         <div class="left">
             <img src="https://cdn-icons-png.flaticon.com/512/4712/4712107.png" alt="logo" class="logo">
             <h1>FofoTech</h1>
-            <p class="welcome">Bem-vindo!<br>Vamos conquistar suas tarefas pendentes!</p>
+            <p class="welcome">Sem problemas!<br>Vamos recuperar seu acesso.</p>
         </div>
         <div class="right">
-                {% if success %}
-                <div class="success-message">
-                    {{ success }}
-                </div>
-                {% endif %}
+            <form method="POST" action="/enviar-reset-link">
+                <h2>Recuperar Senha</h2>
+                <p>Informe seu e-mail para enviarmos o link de redefinição.</p>
 
                 {% if error %}
-                <div class="error-message">
-                    {{ error }}
-                </div>
+                <div class="error-message">{{ error }}</div>
+                {% elif success %}
+                <div class="success-message">{{ success }}</div>
                 {% endif %}
 
-            <form method="POST" action="/login">
-                <h2>Entrar</h2>
                 <label for="email">E-mail</label>
                 <input type="email" name="email" required>
                 
-                <label for="senha">Senha</label>
-                <input type="password" name="senha" required>
-                
-                <button type="submit">Entrar</button>
-                <a href="/esqueci-minha-senha">Esqueceu a senha?</a>
-                <p>Não tem conta? <a href="cadastro">Cadastrar</a></p>
+                <button type="submit">Enviar Link de Redefinição</button>
+                <p><a href="/login">Voltar para o Login</a></p>
             </form>
         </div>
     </div>

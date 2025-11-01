@@ -1,8 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
   verificarMensagemPersistente();
   verificarMensagensEspecificas();
-  configurarValidacaoClientSide(); // Mudei o nome da função
-  verificarMensagensServidor(); // Nova função para mensagens do Flask
+  verificarMensagensSucesso(); // <-- NOVA CHAMADA AQUI
+  configurarValidacaoClientSide();
+  verificarMensagensServidor(); 
   configurarInterceptacaoLogout();
 });
 
@@ -11,7 +12,8 @@ function mostrarMensagemTemporaria(mensagem, tipo = 'sucesso', tempo = 3000) {
   const mensagemEl = document.createElement('div');
   mensagemEl.textContent = mensagem;
   
-  const corFundo = tipo === 'sucesso' ? '#4CAF50' : '#ae2f26ff';
+  // Inclui tipo 'success' e 'info' para mensagens mais suaves
+  const corFundo = tipo === 'sucesso' || tipo === 'info' ? '#4CAF50' : '#ae2f26ff'; 
   
   mensagemEl.style.cssText = `
       position: fixed;
@@ -67,6 +69,7 @@ function verificarMensagemPersistente() {
 function configurarValidacaoClientSide() {
   const formLogin = document.querySelector('form[action*="login"]');
   const formCadastro = document.querySelector('form[action*="cadastro"]');
+  const formRedefinir = document.querySelector('form[action*="redefinir-senha"]'); // NOVO FORM
   
   // Configurar formulário de LOGIN - SEM preventDefault
   if (formLogin) {
@@ -117,12 +120,34 @@ function configurarValidacaoClientSide() {
       mostrarMensagemTemporaria('Criando sua conta...', 'sucesso', 1000);
     });
   }
+
+  // Configurar formulário de REDEFINIR SENHA (NOVO)
+  if (formRedefinir) {
+      formRedefinir.addEventListener('submit', function(e) {
+          const novaSenha = formRedefinir.querySelector('input[name="nova_senha"]');
+          const confirmarSenha = formRedefinir.querySelector('input[name="confirmar_senha"]');
+          
+          if (novaSenha.value !== confirmarSenha.value) {
+              e.preventDefault();
+              mostrarMensagemTemporaria('As senhas não coincidem!', 'erro', 3000);
+              return;
+          }
+
+          if (novaSenha.value.length < 6) {
+              e.preventDefault();
+              mostrarMensagemTemporaria('A senha deve ter pelo menos 6 caracteres!', 'erro', 3000);
+              return;
+          }
+          
+          mostrarMensagemTemporaria('Redefinindo sua senha...', 'sucesso', 1000);
+      });
+  }
 }
 
 // ========== DETECTAR MENSAGENS DO SERVIDOR (FLASK) ==========
 function verificarMensagensServidor() {
   // Verificar se há elementos de erro do Flask
-  const errorElement = document.querySelector('.error, .alert-danger, [class*="error"]');
+  const errorElement = document.querySelector('.error-message, .alert-danger, [class*="error"]');
   
   if (errorElement && errorElement.textContent.trim()) {
     const mensagem = errorElement.textContent.trim();
@@ -131,6 +156,33 @@ function verificarMensagensServidor() {
     setTimeout(() => {
       mostrarMensagemTemporaria(mensagem, 'erro', 4000);
     }, 500);
+  }
+
+  // Verificar se há elementos de sucesso do Flask
+  const successElement = document.querySelector('.success-message');
+  
+  if (successElement && successElement.textContent.trim()) {
+    const mensagem = successElement.textContent.trim();
+    
+    // Mostrar como mensagem temporária também (apenas se não for lida pela função verificarMensagensSucesso)
+    if (!new URLSearchParams(window.location.search).get('success')) {
+        setTimeout(() => {
+            mostrarMensagemTemporaria(mensagem, 'sucesso', 4000);
+        }, 500);
+    }
+  }
+}
+
+// ========== DETECTAR MENSAGENS DE SUCESSO DO SERVIDOR VIA URL (NOVO) ==========
+function verificarMensagensSucesso() {
+  const urlParams = new URLSearchParams(window.location.search);
+  
+  // Captura a mensagem de sucesso após redefinição de senha ou outra ação
+  if (urlParams.get('success')) {
+    const mensagem = urlParams.get('success');
+    mostrarMensagemTemporaria(mensagem, 'sucesso', 5000);
+    // Limpa o parâmetro da URL
+    window.history.replaceState({}, document.title, window.location.pathname);
   }
 }
 
@@ -152,9 +204,16 @@ function verificarMensagensEspecificas() {
     mostrarMensagemTemporaria('Sua sessão expirou. Faça login novamente.', 'erro', 5000);
     window.history.replaceState({}, document.title, window.location.pathname);
   }
+  
+  // Captura mensagens de erro da URL (útil para redirecionamentos com erro)
+  if (urlParams.get('error')) {
+    const mensagem = urlParams.get('error');
+    mostrarMensagemTemporaria(mensagem, 'erro', 5000);
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
 }
 
-// ========== VERIFICAÇÃO DE USUÁRIO LOGADO ==========
+// ========== VERIFICAÇÃO DE USUÁRIO LOGADO (MANTIDO) ==========
 function verificarUsuarioLogado() {
   const loginRecente = sessionStorage.getItem('loginRecente');
   
@@ -171,7 +230,7 @@ function verificarUsuarioLogado() {
   }
 }
 
-// ========== INTERCEPTAÇÃO DE LINKS DE LOGOUT ==========
+// ========== INTERCEPTAÇÃO DE LINKS DE LOGOUT (MANTIDO) ==========
 function configurarInterceptacaoLogout() {
   document.addEventListener('click', function(e) {
     const target = e.target.closest('a[href*="logout"]');
@@ -191,6 +250,3 @@ function configurarInterceptacaoLogout() {
     }
   });
 }
-
-// ========== REMOVA AS FUNÇÕES DE FETCH (não são mais necessárias) ==========
-// Delete as funções enviarLogin() e enviarCadastro() completamente

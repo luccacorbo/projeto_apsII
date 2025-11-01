@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FofoTech - Redefinir Senha</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="left">
+            <img src="https://cdn-icons-png.flaticon.com/512/4712/4712107.png" alt="logo" class="logo">
+            <h1>FofoTech</h1>
+            <p class="welcome">Quase lá!<br>Escolha uma nova senha.</p>
+        </div>
+        <div class="right">
+            <form method="POST" action="/redefinir-senha/{{ token }}">
+                <h2>Nova Senha</h2>
+                
+                {% if error %}
+                <div class="error-message">{{ error }}</div>
+                {% endif %}
+
+                <label for="nova_senha">Nova Senha</label>
+                <input type="password" name="nova_senha" required minlength="6">
+                
+                <label for="confirmar_senha">Confirmar Senha</label>
+                <input type="password" name="confirmar_senha" required minlength="6">
+                
+                <button type="submit">Redefinir Senha</button>
+            </form>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
