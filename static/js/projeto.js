@@ -232,3 +232,27 @@ document.addEventListener('dragend', function() {
         el.classList.remove('dragging');
     });
 });
+
+function cancelarConvite(conviteId) {
+    if (confirm('Tem certeza que deseja cancelar este convite?')) {
+        fetch(`/projeto/${getProjetoId()}/convite/${conviteId}/cancelar`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Convite cancelado com sucesso!');
+                location.reload();
+            } else {
+                alert('Erro ao cancelar convite: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao cancelar convite');
+        });
+    }
+}

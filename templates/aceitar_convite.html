@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aceitar Convite - FofoTe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .convite-container {
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .convite-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .convite-header {
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .convite-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .convite-content {
+            padding: 40px;
+        }
+        
+        .convite-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .convite-info h2 {
+            color: #374151;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .projeto-nome {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #4F46E5;
+            margin: 15px 0;
+        }
+        
+        .convite-actions {
+            text-align: center;
+        }
+        
+        .btn-large {
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #4F46E5;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #4338CA;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #10B981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .convite-nota {
+            margin-top: 15px;
+            color: #6B7280;
+            font-size: 14px;
+        }
+        
+        .loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .success-message {
+            background: #D1FAE5;
+            color: #065F46;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="convite-container">
+        <div class="convite-card">
+            <div class="convite-header">
+                <h1>🎉 Convite para Projeto</h1>
+            </div>
+            
+            <div class="convite-content">
+                <div class="convite-info">
+                    <h2>Você foi convidado para o projeto:</h2>
+                    <div class="projeto-nome">{{ convite.projeto_nome }}</div>
+                    <p>Convidado por: <strong>{{ convite.convidante_nome }}</strong></p>
+                </div>
+                
+                <div class="convite-actions">
+                    <button id="btnAceitar" class="btn btn-primary btn-large">
+                        ✅ Aceitar Convite
+                    </button>
+                    <p class="convite-nota">
+                        Ao aceitar, você terá acesso completo ao projeto e suas tarefas.
+                    </p>
+                </div>
+                
+                <div id="mensagemSucesso" class="success-message" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('btnAceitar').addEventListener('click', function() {
+            const btn = this;
+            btn.disabled = true;
+            btn.classList.add('loading');
+            btn.textContent = 'Processando...';
+            
+            fetch(`/convite/aceitar/{{ convite.token }}/confirmar`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    btn.textContent = '✅ Convite Aceito!';
+                    btn.classList.remove('btn-primary', 'loading');
+                    btn.classList.add('btn-success');
+                    
+                    document.getElementById('mensagemSucesso').style.display = 'block';
+                    document.getElementById('mensagemSucesso').textContent = data.message;
+                    
+                    setTimeout(() => {
+                        if (data.projeto_id) {
+                            window.location.href = `/projeto/${data.projeto_id}`;
+                        } else {
+                            window.location.href = '/home';
+                        }
+                    }, 2000);
+                } else {
+                    btn.disabled = false;
+                    btn.classList.remove('loading');
+                    btn.textContent = '✅ Aceitar Convite';
+                    alert('Erro: ' + data.error);
+                }
+            })
+            .catch(error => {
+                btn.disabled = false;
+                btn.classList.remove('loading');
+                btn.textContent = '✅ Aceitar Convite';
+                alert('Erro ao processar convite: ' + error.message);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify
 from database import conectar
+from .email_service import EmailService, gerar_token_convite, calcular_expiracao
+import os
 
 work = Blueprint('work', __name__)
 
@@ -54,14 +56,14 @@ def api_meus_projetos():
     connection = conectar()
     cursor = connection.cursor(dictionary=True)
     
-    # Buscar projetos onde o usuário é criador OU membro
+    # Buscar projetos onde o usuário é criador OU membro (com convite aceito)
     cursor.execute("""
     SELECT DISTINCT p.*
     FROM projetos p
     LEFT JOIN projeto_membros pm ON p.id_projeto = pm.id_projeto
-    WHERE p.id_criador = %s OR pm.id_usuario = %s
+    WHERE (p.id_criador = %s OR (pm.id_usuario = %s AND pm.data_aceitacao IS NOT NULL))
     ORDER BY p.data_criacao DESC
-""", (session['user_id'], session['user_id']))
+    """, (session['user_id'], session['user_id']))
 
     
     projetos = cursor.fetchall()
@@ -95,10 +97,10 @@ def visualizar_projeto(id_projeto):
     if not projeto:
         return "Projeto não encontrado", 404
     
-    # Verificar se usuário é membro do projeto
+    # Verificar se usuário tem acesso ao projeto (criador OU membro com convite aceito)
     cursor.execute("""
         SELECT 1 FROM projeto_membros 
-        WHERE id_projeto = %s AND id_usuario = %s
+        WHERE id_projeto = %s AND id_usuario = %s AND data_aceitacao IS NOT NULL
         UNION
         SELECT 1 FROM projetos 
         WHERE id_projeto = %s AND id_criador = %s
@@ -135,19 +137,27 @@ def visualizar_projeto(id_projeto):
     """, (id_projeto,))
     tarefas_done = cursor.fetchall()
     
-    # Buscar membros do projeto
+    # Buscar membros do projeto (apenas os que aceitaram o convite)
     cursor.execute("""
         SELECT u.id_usuario, u.nome, u.email
         FROM projeto_membros pm
         JOIN usuario u ON pm.id_usuario = u.id_usuario
-        WHERE pm.id_projeto = %s
+        WHERE pm.id_projeto = %s AND pm.data_aceitacao IS NOT NULL
     """, (id_projeto,))
     membros = cursor.fetchall()
+    
+    # Buscar convites pendentes
+    cursor.execute("""
+        SELECT cp.*, u.nome, u.email
+        FROM convite_projeto cp
+        JOIN usuario u ON cp.id_usuario = u.id_usuario
+        WHERE cp.id_projeto = %s AND cp.data_expiracao > NOW()
+    """, (id_projeto,))
+    convites_pendentes = cursor.fetchall()
     
     cursor.close()
     connection.close()
     
-    # CORREÇÃO AQUI: usar 'eh_criador' em vez de 'id_criador'
     eh_criador = projeto['id_criador'] == session['user_id']
     
     return render_template('projeto.html',
@@ -156,10 +166,10 @@ def visualizar_projeto(id_projeto):
                          tarefas_doing=tarefas_doing,
                          tarefas_done=tarefas_done,
                          membros=membros,
-                         eh_criador=eh_criador,  # ← Nome correto da variável
-                         criador={'nome': projeto['criador_nome']})  # ← Criar objeto criador
+                         convites_pendentes=convites_pendentes,
+                         eh_criador=eh_criador,
+                         criador={'nome': projeto['criador_nome']})
 
-# Nova rota para adicionar membros
 @work.route('/projeto/<int:id_projeto>/membros', methods=['POST'])
 def adicionar_membro(id_projeto):
     if 'user_id' not in session:
@@ -186,21 +196,65 @@ def adicionar_membro(id_projeto):
     if not usuario:
         return jsonify({'error': 'Usuário não encontrado'}), 404
     
-    # Verificar se já é membro
-    cursor.execute("SELECT 1 FROM projeto_membros WHERE id_projeto = %s AND id_usuario = %s", 
-                   (id_projeto, usuario['id_usuario']))
+    # Verificar se já é membro (aceito)
+    cursor.execute("""
+        SELECT 1 FROM projeto_membros 
+        WHERE id_projeto = %s AND id_usuario = %s AND data_aceitacao IS NOT NULL
+    """, (id_projeto, usuario['id_usuario']))
+    
     if cursor.fetchone():
         return jsonify({'error': 'Usuário já é membro do projeto'}), 400
     
-    # Adicionar como membro
-    cursor.execute("INSERT INTO projeto_membros (id_projeto, id_usuario) VALUES (%s, %s)", 
-                   (id_projeto, usuario['id_usuario']))
+    # Verificar se já existe convite pendente
+    cursor.execute("""
+        SELECT 1 FROM convite_projeto 
+        WHERE id_projeto = %s AND id_usuario = %s AND data_expiracao > NOW()
+    """, (id_projeto, usuario['id_usuario']))
+    
+    if cursor.fetchone():
+        return jsonify({'error': 'Já existe um convite pendente para este usuário'}), 400
+    
+    # Gerar token e data de expiração
+    token = gerar_token_convite()
+    data_expiracao = calcular_expiracao()
+    
+    # Criar convite
+    cursor.execute("""
+        INSERT INTO convite_projeto (id_projeto, id_usuario, token, data_expiracao, id_convidante)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (id_projeto, usuario['id_usuario'], token, data_expiracao, session['user_id']))
+    
+    # Buscar informações para o email
+    cursor.execute("SELECT nome FROM projetos WHERE id_projeto = %s", (id_projeto,))
+    projeto_info = cursor.fetchone()
+    
+    cursor.execute("SELECT nome FROM usuario WHERE id_usuario = %s", (session['user_id'],))
+    convidante_info = cursor.fetchone()
     
     connection.commit()
     cursor.close()
     connection.close()
     
-    return jsonify({'success': True, 'membro': {'nome': usuario['nome'], 'email': email_membro}})
+    # Enviar email de convite
+    email_service = EmailService()
+    email_enviado = email_service.enviar_convite_projeto(
+        email_membro,
+        usuario['nome'],
+        projeto_info['nome'],
+        convidante_info['nome'],
+        token
+    )
+    
+    if email_enviado:
+        return jsonify({
+            'success': True, 
+            'message': 'Convite enviado com sucesso! O usuário receberá um email para aceitar o convite.'
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'error': 'Convite criado, mas houve um erro ao enviar o email. O usuário pode aceitar pelo link posteriormente.'
+        })
 
 @work.route('/projeto/<int:id_projeto>/tarefa/<int:id_tarefa>/status', methods=['POST'])
 def atualizar_status_tarefa(id_projeto, id_tarefa):
@@ -249,8 +303,6 @@ def remover_membro(id_projeto, id_usuario):
         print(f"❌ Erro ao remover membro: {e}")
         return jsonify({'error': 'Erro interno'}), 500
 
-#rota para excluir o projeto
-
 @work.route('/projeto/<int:id_projeto>/excluir', methods=['POST'])
 def excluir_projeto(id_projeto):
     if 'user_id' not in session:
@@ -273,3 +325,113 @@ def excluir_projeto(id_projeto):
     connection.close()
     
     return redirect('/home')
+
+# ====================================
+# ROTAS PARA SISTEMA DE CONVITES
+# ====================================
+
+@work.route('/convite/aceitar/<token>')
+def aceitar_convite(token):
+    """Página para aceitar convite de projeto"""
+    connection = conectar()
+    cursor = connection.cursor(dictionary=True)
+    
+    # Buscar convite válido
+    cursor.execute("""
+        SELECT cp.*, p.nome as projeto_nome, u.nome as usuario_nome, 
+               uc.nome as convidante_nome
+        FROM convite_projeto cp
+        JOIN projetos p ON cp.id_projeto = p.id_projeto
+        JOIN usuario u ON cp.id_usuario = u.id_usuario
+        JOIN usuario uc ON cp.id_convidante = uc.id_usuario
+        WHERE cp.token = %s AND cp.data_expiracao > NOW()
+    """, (token,))
+    
+    convite = cursor.fetchone()
+    
+    if not convite:
+        cursor.close()
+        connection.close()
+        return render_template('convite_expirado.html')
+    
+    cursor.close()
+    connection.close()
+    
+    return render_template('aceitar_convite.html', convite=convite)
+
+@work.route('/convite/aceitar/<token>/confirmar', methods=['POST'])
+def confirmar_aceitacao_convite(token):
+    """Confirma a aceitação do convite"""
+    connection = conectar()
+    cursor = connection.cursor(dictionary=True)
+    
+    # Verificar convite válido
+    cursor.execute("""
+        SELECT * FROM convite_projeto 
+        WHERE token = %s AND data_expiracao > NOW()
+    """, (token,))
+    
+    convite = cursor.fetchone()
+    
+    if not convite:
+        cursor.close()
+        connection.close()
+        return jsonify({'error': 'Convite inválido ou expirado'}), 400
+    
+    try:
+        # Adicionar como membro do projeto
+        cursor.execute("""
+            INSERT INTO projeto_membros (id_projeto, id_usuario, data_aceitacao)
+            VALUES (%s, %s, NOW())
+            ON DUPLICATE KEY UPDATE data_aceitacao = NOW()
+        """, (convite['id_projeto'], convite['id_usuario']))
+        
+        # Remover convite
+        cursor.execute("DELETE FROM convite_projeto WHERE token = %s", (token,))
+        
+        connection.commit()
+        cursor.close()
+        connection.close()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Convite aceito com sucesso! Agora você é membro do projeto.',
+            'projeto_id': convite['id_projeto']
+        })
+        
+    except Exception as e:
+        print(f"❌ Erro ao aceitar convite: {e}")
+        connection.rollback()
+        cursor.close()
+        connection.close()
+        return jsonify({'error': 'Erro ao processar convite'}), 500
+
+@work.route('/projeto/<int:id_projeto>/convite/<int:id_convite>/cancelar', methods=['POST'])
+def cancelar_convite(id_projeto, id_convite):
+    """Cancela um convite pendente"""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Não logado'}), 401
+    
+    try:
+        connection = conectar()
+        cursor = connection.cursor(dictionary=True)
+        
+        # Verificar se é o criador do projeto
+        cursor.execute("SELECT id_criador FROM projetos WHERE id_projeto = %s", (id_projeto,))
+        projeto = cursor.fetchone()
+        
+        if projeto['id_criador'] != session['user_id']:
+            return jsonify({'error': 'Apenas o criador pode cancelar convites'}), 403
+        
+        # Cancelar convite
+        cursor.execute("DELETE FROM convite_projeto WHERE id_convite = %s", (id_convite,))
+        
+        connection.commit()
+        cursor.close()
+        connection.close()
+        
+        return jsonify({'success': True, 'message': 'Convite cancelado com sucesso!'})
+        
+    except Exception as e:
+        print(f"❌ Erro ao cancelar convite: {e}")
+        return jsonify({'error': 'Erro interno'}), 500
