@@ -436,9 +436,10 @@ async function uploadArquivo() {
     }
 }
 
-// Função para baixar arquivo
+// Função para baixar arquivo - CORRIGIDA
 function downloadArquivo(arquivoId) {
-    window.open(`/download/arquivo/${arquivoId}`, '_blank');
+    // ✅ Use a rota correta que definimos no Flask
+    window.open(`/api/tarefas/${tarefaId}/arquivos/${arquivoId}/download`, '_blank');
 }
 
 // Função para excluir arquivo PERMANENTEMENTE

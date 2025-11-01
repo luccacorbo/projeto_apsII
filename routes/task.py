@@ -362,7 +362,7 @@ def api_minhas_tarefas():
 
 @task.route('/tarefa/<int:tarefa_id>')
 def detalhes_tarefa(tarefa_id):
-    """Página de detalhes de uma tarefa específica"""
+    """Página de detalhes de uma tarefa específica - ACESSO PARA QUALQUER MEMBRO DO PROJETO"""
     if 'user_id' not in session:
         return redirect('/login')
     
@@ -373,8 +373,7 @@ def detalhes_tarefa(tarefa_id):
     try:
         cursor = connection.cursor(dictionary=True)
         
-        # ALTERAÇÃO: Removido o campo 'comentarios' da consulta principal
-        # Buscar dados da tarefa específica
+        # ALTERAÇÃO: Buscar dados da tarefa e verificar se usuário é membro do projeto
         cursor.execute('''
             SELECT 
                 t.id_tarefa,
@@ -386,18 +385,34 @@ def detalhes_tarefa(tarefa_id):
                 t.data_vencimento,
                 t.id_projeto,
                 t.id_responsavel,
+                t.id_criador,
                 p.nome as projeto_nome,
-                u.nome as responsavel_nome
+                p.id_criador as projeto_criador,
+                u.nome as responsavel_nome,
+                uc.nome as criador_nome
             FROM tarefas t 
             JOIN projetos p ON t.id_projeto = p.id_projeto 
             LEFT JOIN usuario u ON t.id_responsavel = u.id_usuario
-            WHERE t.id_tarefa = %s AND t.id_responsavel = %s
-        ''', (tarefa_id, session['user_id']))
+            LEFT JOIN usuario uc ON t.id_criador = uc.id_usuario
+            WHERE t.id_tarefa = %s
+        ''', (tarefa_id,))
         
         tarefa = cursor.fetchone()
         
         if not tarefa:
-            return "Tarefa não encontrada ou você não é o responsável", 404
+            return "Tarefa não encontrada", 404
+        
+        # ALTERAÇÃO: Verificar se usuário é membro do projeto (criador ou membro adicionado)
+        cursor.execute('''
+            SELECT 1 FROM projetos 
+            WHERE id_projeto = %s AND id_criador = %s
+            UNION
+            SELECT 1 FROM projeto_membros 
+            WHERE id_projeto = %s AND id_usuario = %s
+        ''', (tarefa['id_projeto'], session['user_id'], tarefa['id_projeto'], session['user_id']))
+        
+        if not cursor.fetchone():
+            return "Acesso negado: você não é membro deste projeto", 403
         
         # ALTERAÇÃO: Buscar comentários da tabela separada 'comentarios'
         cursor.execute('''
@@ -439,10 +454,9 @@ def detalhes_tarefa(tarefa_id):
     finally:
         close_db_connection(connection)
 
-
 @task.route('/api/tarefa/<int:tarefa_id>')
 def api_tarefa_especifica(tarefa_id):
-    """API para buscar uma tarefa específica"""
+    """API para buscar uma tarefa específica - ACESSO PARA QUALQUER MEMBRO DO PROJETO"""
     if 'user_id' not in session:
         return jsonify({'error': 'Usuário não logado'}), 401
     
@@ -453,7 +467,7 @@ def api_tarefa_especifica(tarefa_id):
     try:
         cursor = connection.cursor(dictionary=True)
         
-        # ALTERAÇÃO: Removido o campo 'comentarios' da consulta
+        # ALTERAÇÃO: Buscar dados da tarefa
         cursor.execute('''
             SELECT 
                 t.id_tarefa,
@@ -464,19 +478,27 @@ def api_tarefa_especifica(tarefa_id):
                 t.data_criacao,
                 t.data_vencimento,
                 t.id_projeto,
-                t.id_responsavel,
-                p.nome as projeto_nome,
-                u.nome as responsavel_nome
+                t.id_responsavel
             FROM tarefas t 
-            JOIN projetos p ON t.id_projeto = p.id_projeto 
-            LEFT JOIN usuario u ON t.id_responsavel = u.id_usuario
-            WHERE t.id_tarefa = %s AND t.id_responsavel = %s
-        ''', (tarefa_id, session['user_id']))
+            WHERE t.id_tarefa = %s
+        ''', (tarefa_id,))
         
         tarefa = cursor.fetchone()
         
         if not tarefa:
             return jsonify({'error': 'Tarefa não encontrada'}), 404
+        
+        # ALTERAÇÃO: Verificar se usuário é membro do projeto
+        cursor.execute('''
+            SELECT 1 FROM projetos 
+            WHERE id_projeto = %s AND id_criador = %s
+            UNION
+            SELECT 1 FROM projeto_membros 
+            WHERE id_projeto = %s AND id_usuario = %s
+        ''', (tarefa['id_projeto'], session['user_id'], tarefa['id_projeto'], session['user_id']))
+        
+        if not cursor.fetchone():
+            return jsonify({'error': 'Acesso negado: você não é membro deste projeto'}), 403
         
         # Converter datetime para string
         if tarefa['data_criacao'] and isinstance(tarefa['data_criacao'], (datetime, date)):
@@ -492,10 +514,9 @@ def api_tarefa_especifica(tarefa_id):
     finally:
         close_db_connection(connection)
 
-
 @task.route('/api/tarefas/<int:tarefa_id>/comentarios', methods=['GET', 'POST'])
 def api_comentarios_tarefa(tarefa_id):
-    """API para gerenciar comentários da tarefa"""
+    """API para gerenciar comentários da tarefa - ACESSO PARA QUALQUER MEMBRO DO PROJETO"""
     if 'user_id' not in session:
         return jsonify({'error': 'Usuário não logado'}), 401
     
@@ -506,17 +527,31 @@ def api_comentarios_tarefa(tarefa_id):
     try:
         cursor = connection.cursor(dictionary=True)
         
-        # Verificar se usuário tem acesso à tarefa
+        # ALTERAÇÃO: Verificar se usuário é membro do projeto da tarefa
         cursor.execute('''
-            SELECT 1 FROM tarefas 
-            WHERE id_tarefa = %s AND id_responsavel = %s
-        ''', (tarefa_id, session['user_id']))
+            SELECT t.id_projeto 
+            FROM tarefas t
+            WHERE t.id_tarefa = %s
+        ''', (tarefa_id,))
+        
+        tarefa = cursor.fetchone()
+        if not tarefa:
+            return jsonify({'error': 'Tarefa não encontrada'}), 404
+        
+        # Verificar se usuário é membro do projeto
+        cursor.execute('''
+            SELECT 1 FROM projetos 
+            WHERE id_projeto = %s AND id_criador = %s
+            UNION
+            SELECT 1 FROM projeto_membros 
+            WHERE id_projeto = %s AND id_usuario = %s
+        ''', (tarefa['id_projeto'], session['user_id'], tarefa['id_projeto'], session['user_id']))
         
         if not cursor.fetchone():
-            return jsonify({'error': 'Tarefa não encontrada ou sem permissão'}), 404
+            return jsonify({'error': 'Acesso negado: você não é membro deste projeto'}), 403
         
         if request.method == 'GET':
-            # ALTERAÇÃO: Buscar comentários da tabela 'comentarios' (não 'tarefa_comentarios')
+            # Buscar comentários da tabela 'comentarios'
             cursor.execute('''
                 SELECT 
                     c.id_comentario,
@@ -540,7 +575,7 @@ def api_comentarios_tarefa(tarefa_id):
             return jsonify(comentarios)
             
         elif request.method == 'POST':
-            # Adicionar novo comentário
+            # Adicionar novo comentário - QUALQUER MEMBRO DO PROJETO PODE ADICIONAR
             dados = request.get_json()
             if not dados or not dados.get('comentario'):
                 return jsonify({'error': 'Comentário é obrigatório'}), 400
@@ -549,7 +584,7 @@ def api_comentarios_tarefa(tarefa_id):
             if not comentario:
                 return jsonify({'error': 'Comentário não pode estar vazio'}), 400
             
-            # ALTERAÇÃO: Inserir na tabela 'comentarios' (não 'tarefa_comentarios')
+            # Inserir na tabela 'comentarios'
             cursor.execute('''
                 INSERT INTO comentarios (id_tarefa, id_usuario, comentario)
                 VALUES (%s, %s, %s)
@@ -584,8 +619,7 @@ def api_comentarios_tarefa(tarefa_id):
     finally:
         close_db_connection(connection)
 
-@task.route('/api/tarefas/<int:tarefa_id>/comentarios/<int:comentario_id>', methods=['DELETE'])
-def api_excluir_comentario(tarefa_id, comentario_id):
+
     """API para excluir comentário permanentemente"""
     if 'user_id' not in session:
         return jsonify({'error': 'Usuário não logado'}), 401
@@ -626,6 +660,141 @@ def api_excluir_comentario(tarefa_id, comentario_id):
     except Exception as e:
         print(f"❌ Erro ao excluir comentário: {e}")
         connection.rollback()
+        return jsonify({'error': f'Erro interno: {str(e)}'}), 500
+    finally:
+        close_db_connection(connection)
+
+@task.route('/api/tarefas/<int:tarefa_id>/arquivos', methods=['GET', 'POST'])
+def api_arquivos_tarefa(tarefa_id):
+    """API para gerenciar arquivos da tarefa - ACESSO PARA QUALQUER MEMBRO DO PROJETO"""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Usuário não logado'}), 401
+    
+    connection = conectar()
+    if not connection:
+        return jsonify({'error': 'Erro de conexão com o banco'}), 500
+    
+    try:
+        cursor = connection.cursor(dictionary=True)
+        
+        # ✅ CORREÇÃO: Verificar se usuário é membro do projeto da tarefa
+        cursor.execute('''
+            SELECT t.id_projeto 
+            FROM tarefas t
+            WHERE t.id_tarefa = %s
+        ''', (tarefa_id,))
+        
+        tarefa = cursor.fetchone()
+        if not tarefa:
+            return jsonify({'error': 'Tarefa não encontrada'}), 404
+        
+        # ✅ CORREÇÃO: Verificar se usuário é membro do projeto (criador ou membro adicionado)
+        cursor.execute('''
+            SELECT 1 FROM projetos 
+            WHERE id_projeto = %s AND id_criador = %s
+            UNION
+            SELECT 1 FROM projeto_membros 
+            WHERE id_projeto = %s AND id_usuario = %s
+        ''', (tarefa['id_projeto'], session['user_id'], tarefa['id_projeto'], session['user_id']))
+        
+        if not cursor.fetchone():
+            return jsonify({'error': 'Acesso negado: você não é membro deste projeto'}), 403
+        
+        # Resto do código permanece igual...
+        if request.method == 'GET':
+            cursor.execute('''
+                SELECT 
+                    a.id_arquivo,
+                    a.nome_arquivo,
+                    a.caminho_arquivo,
+                    a.tamanho,
+                    a.tipo_arquivo,
+                    a.data_upload,
+                    a.id_usuario,
+                    u.nome as usuario_nome
+                FROM arquivos a
+                JOIN usuario u ON a.id_usuario = u.id_usuario
+                WHERE a.id_tarefa = %s
+                ORDER BY a.data_upload DESC
+            ''', (tarefa_id,))
+            
+            arquivos = cursor.fetchall()
+            
+            # Formatar dados
+            for arquivo in arquivos:
+                if arquivo['data_upload']:
+                    arquivo['data_upload'] = arquivo['data_upload'].strftime('%d/%m/%Y %H:%M')
+                if arquivo['tamanho']:
+                    arquivo['tamanho_formatado'] = formatar_tamanho_arquivo(arquivo['tamanho'])
+            
+            return jsonify(arquivos)
+            
+        elif request.method == 'POST':
+            # Upload de arquivo - QUALQUER MEMBRO DO PROJETO PODE FAZER UPLOAD
+            if 'arquivo' not in request.files:
+                return jsonify({'error': 'Nenhum arquivo enviado'}), 400
+            
+            arquivo = request.files['arquivo']
+            if arquivo.filename == '':
+                return jsonify({'error': 'Nenhum arquivo selecionado'}), 400
+            
+            if arquivo and allowed_file(arquivo.filename):
+                # Verificar tamanho do arquivo
+                arquivo.seek(0, 2)
+                tamanho = arquivo.tell()
+                arquivo.seek(0)
+                
+                if tamanho > MAX_FILE_SIZE:
+                    return jsonify({'error': f'Arquivo muito grande. Tamanho máximo: {MAX_FILE_SIZE // (1024*1024)}MB'}), 400
+                
+                # Criar diretório se não existir
+                os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+                
+                # Gerar nome seguro para o arquivo
+                filename = secure_filename(arquivo.filename)
+                nome_unico = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{filename}"
+                caminho_arquivo = os.path.join(UPLOAD_FOLDER, nome_unico)
+                
+                # Salvar arquivo
+                arquivo.save(caminho_arquivo)
+                
+                cursor.execute('''
+                    INSERT INTO arquivos (id_tarefa, id_usuario, nome_arquivo, caminho_arquivo, tamanho, tipo_arquivo)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                ''', (tarefa_id, session['user_id'], filename, caminho_arquivo, tamanho, arquivo.content_type))
+                
+                connection.commit()
+                
+                # Retornar dados do arquivo
+                cursor.execute('''
+                    SELECT 
+                        a.id_arquivo,
+                        a.nome_arquivo,
+                        a.caminho_arquivo,
+                        a.tamanho,
+                        a.tipo_arquivo,
+                        a.data_upload,
+                        a.id_usuario,
+                        u.nome as usuario_nome
+                    FROM arquivos a
+                    JOIN usuario u ON a.id_usuario = u.id_usuario
+                    WHERE a.id_arquivo = LAST_INSERT_ID()
+                ''')
+                
+                novo_arquivo = cursor.fetchone()
+                if novo_arquivo['data_upload']:
+                    novo_arquivo['data_upload'] = novo_arquivo['data_upload'].strftime('%d/%m/%Y %H:%M')
+                if novo_arquivo['tamanho']:
+                    novo_arquivo['tamanho_formatado'] = formatar_tamanho_arquivo(novo_arquivo['tamanho'])
+                
+                return jsonify(novo_arquivo)
+            else:
+                return jsonify({'error': 'Tipo de arquivo não permitido'}), 400
+            
+    except Exception as e:
+        print(f"❌ Erro ao gerenciar arquivos: {e}")
+        if request.method == 'POST':
+            connection.rollback()
         return jsonify({'error': f'Erro interno: {str(e)}'}), 500
     finally:
         close_db_connection(connection)
@@ -699,9 +868,9 @@ def api_editar_comentario(tarefa_id, comentario_id):
     finally:
         close_db_connection(connection)
 
-@task.route('/api/tarefas/<int:tarefa_id>/arquivos', methods=['GET', 'POST'])
-def api_arquivos_tarefa(tarefa_id):
-    """API para gerenciar arquivos da tarefa"""
+@task.route('/api/tarefas/<int:tarefa_id>/arquivos/<int:arquivo_id>', methods=['DELETE'])
+def api_excluir_arquivos_tarefa(tarefa_id, arquivo_id):
+    """API para excluir arquivo - APENAS O USUÁRIO QUE ANEXOU"""
     if 'user_id' not in session:
         return jsonify({'error': 'Usuário não logado'}), 401
     
@@ -712,133 +881,32 @@ def api_arquivos_tarefa(tarefa_id):
     try:
         cursor = connection.cursor(dictionary=True)
         
-        # Verificar se usuário tem acesso à tarefa
+        # ✅ PRIMEIRO verificar se usuário é membro do projeto
         cursor.execute('''
-            SELECT 1 FROM tarefas 
-            WHERE id_tarefa = %s AND id_responsavel = %s
-        ''', (tarefa_id, session['user_id']))
+            SELECT t.id_projeto 
+            FROM tarefas t
+            WHERE t.id_tarefa = %s
+        ''', (tarefa_id,))
+        
+        tarefa = cursor.fetchone()
+        if not tarefa:
+            return jsonify({'error': 'Tarefa não encontrada'}), 404
+        
+        # ✅ Verificar se usuário é membro do projeto
+        cursor.execute('''
+            SELECT 1 FROM projetos 
+            WHERE id_projeto = %s AND id_criador = %s
+            UNION
+            SELECT 1 FROM projeto_membros 
+            WHERE id_projeto = %s AND id_usuario = %s
+        ''', (tarefa['id_projeto'], session['user_id'], tarefa['id_projeto'], session['user_id']))
         
         if not cursor.fetchone():
-            return jsonify({'error': 'Tarefa não encontrada ou sem permissão'}), 404
+            return jsonify({'error': 'Acesso negado: você não é membro deste projeto'}), 403
         
-        if request.method == 'GET':
-            # ALTERAÇÃO: Buscar arquivos da tabela 'arquivos' (não 'tarefa_arquivos')
-            cursor.execute('''
-                SELECT 
-                    a.id_arquivo,
-                    a.nome_arquivo,
-                    a.caminho_arquivo,
-                    a.tamanho,
-                    a.tipo_arquivo,
-                    a.data_upload,
-                    a.id_usuario,
-                    u.nome as usuario_nome
-                FROM arquivos a
-                JOIN usuario u ON a.id_usuario = u.id_usuario
-                WHERE a.id_tarefa = %s
-                ORDER BY a.data_upload DESC
-            ''', (tarefa_id,))
-            
-            arquivos = cursor.fetchall()
-            
-            # Formatar dados
-            for arquivo in arquivos:
-                if arquivo['data_upload']:
-                    arquivo['data_upload'] = arquivo['data_upload'].strftime('%d/%m/%Y %H:%M')
-                if arquivo['tamanho']:
-                    arquivo['tamanho_formatado'] = formatar_tamanho_arquivo(arquivo['tamanho'])
-            
-            return jsonify(arquivos)
-            
-        elif request.method == 'POST':
-            # Upload de arquivo
-            if 'arquivo' not in request.files:
-                return jsonify({'error': 'Nenhum arquivo enviado'}), 400
-            
-            arquivo = request.files['arquivo']
-            if arquivo.filename == '':
-                return jsonify({'error': 'Nenhum arquivo selecionado'}), 400
-            
-            if arquivo and allowed_file(arquivo.filename):
-                # Verificar tamanho do arquivo
-                arquivo.seek(0, 2)  # Ir para o final do arquivo
-                tamanho = arquivo.tell()
-                arquivo.seek(0)  # Voltar ao início
-                
-                if tamanho > MAX_FILE_SIZE:
-                    return jsonify({'error': f'Arquivo muito grande. Tamanho máximo: {MAX_FILE_SIZE // (1024*1024)}MB'}), 400
-                
-                # Criar diretório se não existir
-                os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-                
-                # Gerar nome seguro para o arquivo
-                filename = secure_filename(arquivo.filename)
-                # Adicionar timestamp para evitar conflitos
-                nome_unico = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{filename}"
-                caminho_arquivo = os.path.join(UPLOAD_FOLDER, nome_unico)
-                
-                # Salvar arquivo
-                arquivo.save(caminho_arquivo)
-                
-                # ALTERAÇÃO: Inserir na tabela 'arquivos' (não 'tarefa_arquivos')
-                cursor.execute('''
-                    INSERT INTO arquivos (id_tarefa, id_usuario, nome_arquivo, caminho_arquivo, tamanho, tipo_arquivo)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                ''', (tarefa_id, session['user_id'], filename, caminho_arquivo, tamanho, arquivo.content_type))
-                
-                connection.commit()
-                
-                # Retornar dados do arquivo
-                cursor.execute('''
-                    SELECT 
-                        a.id_arquivo,
-                        a.nome_arquivo,
-                        a.caminho_arquivo,
-                        a.tamanho,
-                        a.tipo_arquivo,
-                        a.data_upload,
-                        a.id_usuario,
-                        u.nome as usuario_nome
-                    FROM arquivos a
-                    JOIN usuario u ON a.id_usuario = u.id_usuario
-                    WHERE a.id_arquivo = LAST_INSERT_ID()
-                ''')
-                
-                novo_arquivo = cursor.fetchone()
-                if novo_arquivo['data_upload']:
-                    novo_arquivo['data_upload'] = novo_arquivo['data_upload'].strftime('%d/%m/%Y %H:%M')
-                if novo_arquivo['tamanho']:
-                    novo_arquivo['tamanho_formatado'] = formatar_tamanho_arquivo(novo_arquivo['tamanho'])
-                
-                return jsonify(novo_arquivo)
-            else:
-                return jsonify({'error': 'Tipo de arquivo não permitido'}), 400
-            
-    except Exception as e:
-        print(f"❌ Erro ao gerenciar arquivos: {e}")
-        if request.method == 'POST':
-            connection.rollback()
-        return jsonify({'error': f'Erro interno: {str(e)}'}), 500
-    finally:
-        close_db_connection(connection)
-
-
-@task.route('/api/tarefas/<int:tarefa_id>/arquivos/<int:arquivo_id>', methods=['DELETE'])
-def api_excluir_arquivo_tarefa(tarefa_id, arquivo_id):
-    """API para excluir arquivo da tarefa"""
-    if 'user_id' not in session:
-        return jsonify({'error': 'Usuário não logado'}), 401
-    
-    connection = conectar()
-    if not connection:
-        return jsonify({'error': 'Erro de conexão com o banco'}), 500
-    
-    try:
-        cursor = connection.cursor(dictionary=True)
-        
-        # ALTERAÇÃO: Buscar informações do arquivo da tabela 'arquivos'
+        # ✅ DEPOIS buscar informações do arquivo
         cursor.execute('''
-            SELECT a.caminho_arquivo, a.id_usuario 
+            SELECT a.caminho_arquivo, a.id_usuario
             FROM arquivos a
             WHERE a.id_arquivo = %s AND a.id_tarefa = %s
         ''', (arquivo_id, tarefa_id))
@@ -847,13 +915,8 @@ def api_excluir_arquivo_tarefa(tarefa_id, arquivo_id):
         if not arquivo:
             return jsonify({'error': 'Arquivo não encontrado'}), 404
         
-        # Verificar permissão (apenas o usuário que uploadou ou responsável pela tarefa pode excluir)
-        cursor.execute('''
-            SELECT 1 FROM tarefas 
-            WHERE id_tarefa = %s AND (id_responsavel = %s OR %s IN (id_responsavel, id_criador))
-        ''', (tarefa_id, session['user_id'], arquivo['id_usuario']))
-        
-        if not cursor.fetchone():
+        # ✅ Verificar permissão: APENAS o usuário que fez o upload pode excluir
+        if arquivo['id_usuario'] != session['user_id']:
             return jsonify({'error': 'Sem permissão para excluir este arquivo'}), 403
         
         # Excluir arquivo físico
@@ -863,7 +926,7 @@ def api_excluir_arquivo_tarefa(tarefa_id, arquivo_id):
         except Exception as e:
             print(f"⚠️ Aviso: Não foi possível excluir o arquivo físico: {e}")
         
-        # ALTERAÇÃO: Excluir registro da tabela 'arquivos'
+        # Excluir registro do banco
         cursor.execute('DELETE FROM arquivos WHERE id_arquivo = %s', (arquivo_id,))
         connection.commit()
         
@@ -876,38 +939,108 @@ def api_excluir_arquivo_tarefa(tarefa_id, arquivo_id):
     finally:
         close_db_connection(connection)
 
-
-@task.route('/download/arquivo/<int:arquivo_id>')
-def download_arquivo(arquivo_id):
-    """Rota para download de arquivos"""
+@task.route('/api/tarefas/<int:tarefa_id>/comentarios/<int:comentario_id>', methods=['DELETE'])
+def api_excluir_comentario(tarefa_id, comentario_id):
+    """API para excluir comentário - APENAS O USUÁRIO QUE COMENTOU"""
     if 'user_id' not in session:
-        return "Acesso não autorizado", 401
+        return jsonify({'error': 'Usuário não logado'}), 401
     
     connection = conectar()
     if not connection:
-        return "Erro de conexão", 500
+        return jsonify({'error': 'Erro de conexão com o banco'}), 500
     
     try:
         cursor = connection.cursor(dictionary=True)
         
-        # ALTERAÇÃO: Buscar arquivo da tabela 'arquivos'
+        # Buscar informações do comentário
+        cursor.execute('''
+            SELECT c.id_usuario
+            FROM comentarios c
+            WHERE c.id_comentario = %s AND c.id_tarefa = %s
+        ''', (comentario_id, tarefa_id))
+        
+        comentario = cursor.fetchone()
+        if not comentario:
+            return jsonify({'error': 'Comentário não encontrado'}), 404
+        
+        # Verificar permissão: APENAS o dono do comentário pode excluir
+        if comentario['id_usuario'] != session['user_id']:
+            return jsonify({'error': 'Sem permissão para excluir este comentário'}), 403
+        
+        # Excluir comentário
+        cursor.execute('DELETE FROM comentarios WHERE id_comentario = %s', (comentario_id,))
+        connection.commit()
+        
+        return jsonify({'success': True, 'message': 'Comentário excluído com sucesso'})
+        
+    except Exception as e:
+        print(f"❌ Erro ao excluir comentário: {e}")
+        connection.rollback()
+        return jsonify({'error': f'Erro interno: {str(e)}'}), 500
+    finally:
+        close_db_connection(connection)
+
+@task.route('/api/tarefas/<int:tarefa_id>/arquivos/<int:arquivo_id>/download')
+def download_arquivo(tarefa_id, arquivo_id):
+    """Rota para download de arquivos - ACESSO PARA QUALQUER MEMBRO DO PROJETO"""
+    if 'user_id' not in session:
+        return redirect('/login')
+    
+    connection = conectar()
+    if not connection:
+        return "Erro de conexão com o banco", 500
+    
+    try:
+        cursor = connection.cursor(dictionary=True)
+        
+        # ✅ Verificar se usuário é membro do projeto da tarefa
+        cursor.execute('''
+            SELECT t.id_projeto 
+            FROM tarefas t
+            WHERE t.id_tarefa = %s
+        ''', (tarefa_id,))
+        
+        tarefa = cursor.fetchone()
+        if not tarefa:
+            return "Tarefa não encontrada", 404
+        
+        # ✅ Verificar se usuário é membro do projeto (criador ou membro adicionado)
+        cursor.execute('''
+            SELECT 1 FROM projetos 
+            WHERE id_projeto = %s AND id_criador = %s
+            UNION
+            SELECT 1 FROM projeto_membros 
+            WHERE id_projeto = %s AND id_usuario = %s
+        ''', (tarefa['id_projeto'], session['user_id'], tarefa['id_projeto'], session['user_id']))
+        
+        if not cursor.fetchone():
+            return "Acesso negado: você não é membro deste projeto", 403
+        
+        # Buscar informações do arquivo
         cursor.execute('''
             SELECT a.nome_arquivo, a.caminho_arquivo, a.tipo_arquivo
             FROM arquivos a
-            JOIN tarefas t ON a.id_tarefa = t.id_tarefa
-            WHERE a.id_arquivo = %s AND t.id_responsavel = %s
-        ''', (arquivo_id, session['user_id']))
+            WHERE a.id_arquivo = %s AND a.id_tarefa = %s
+        ''', (arquivo_id, tarefa_id))
         
         arquivo = cursor.fetchone()
-        if not arquivo or not os.path.exists(arquivo['caminho_arquivo']):
+        if not arquivo:
             return "Arquivo não encontrado", 404
         
-        return send_file(arquivo['caminho_arquivo'], 
-                        as_attachment=True, 
-                        download_name=arquivo['nome_arquivo'])
+        # Verificar se o arquivo físico existe
+        if not os.path.exists(arquivo['caminho_arquivo']):
+            return "Arquivo não encontrado no servidor", 404
+        
+        # Fazer download do arquivo
+        return send_file(
+            arquivo['caminho_arquivo'],
+            as_attachment=True,
+            download_name=arquivo['nome_arquivo'],
+            mimetype=arquivo['tipo_arquivo']
+        )
         
     except Exception as e:
-        print(f"❌ Erro no download: {e}")
+        print(f"❌ Erro ao fazer download do arquivo: {e}")
         return f"Erro interno: {str(e)}", 500
     finally:
         close_db_connection(connection)

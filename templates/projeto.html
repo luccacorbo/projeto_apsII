@@ -63,20 +63,22 @@
             <div class="tasks-list" id="todo-column" data-status="todo" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)">
                 {% for tarefa in tarefas_todo %}
                 <div class="task-card" draggable="true" ondragstart="drag(event)" data-task-id="{{ tarefa.id_tarefa }}">
-                    <div class="task-header">
-                        <h4>{{ tarefa.titulo }}</h4>
-                        <span class="priority-badge priority-{{ tarefa.prioridade }}">{{ tarefa.prioridade }}</span>
-                    </div>
-                    {% if tarefa.descricao %}
-                    <p class="task-description">
-                        {{ tarefa.descricao[:100] }}{% if tarefa.descricao|length > 100 %}...{% endif %}
-                    </p>
-                    {% endif %}
-                    <div class="task-footer">
-                        <small>Por: {{ tarefa.criador_nome }}</small>
-                        {% if tarefa.data_vencimento %}
-                        <small class="due-date">📅 {{ tarefa.data_vencimento.strftime('%d/%m/%Y') }}</small>
+                    <div class="task-content">
+                        <div class="task-header">
+                            <h4>{{ tarefa.titulo }}</h4>
+                            <span class="priority-badge priority-{{ tarefa.prioridade }}">{{ tarefa.prioridade }}</span>
+                        </div>
+                        {% if tarefa.descricao %}
+                        <p class="task-description">
+                            {{ tarefa.descricao[:100] }}{% if tarefa.descricao|length > 100 %}...{% endif %}
+                        </p>
                         {% endif %}
+                        <div class="task-footer">
+                            <small>Por: {{ tarefa.criador_nome }}</small>
+                            {% if tarefa.data_vencimento %}
+                            <small class="due-date">📅 {{ tarefa.data_vencimento.strftime('%d/%m/%Y') }}</small>
+                            {% endif %}
+                        </div>
                     </div>
                     {% if eh_criador %}
                     <div class="task-actions">
@@ -98,20 +100,22 @@
             <div class="tasks-list" id="doing-column" data-status="doing" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)">
                 {% for tarefa in tarefas_doing %}
                 <div class="task-card" draggable="true" ondragstart="drag(event)" data-task-id="{{ tarefa.id_tarefa }}">
-                    <div class="task-header">
-                        <h4>{{ tarefa.titulo }}</h4>
-                        <span class="priority-badge priority-{{ tarefa.prioridade }}">{{ tarefa.prioridade }}</span>
-                    </div>
-                    {% if tarefa.descricao %}
-                    <p class="task-description">
-                        {{ tarefa.descricao[:100] }}{% if tarefa.descricao|length > 100 %}...{% endif %}
-                    </p>
-                    {% endif %}
-                    <div class="task-footer">
-                        <small>Por: {{ tarefa.criador_nome }}</small>
-                        {% if tarefa.data_vencimento %}
-                        <small class="due-date">📅 {{ tarefa.data_vencimento.strftime('%d/%m/%Y') }}</small>
+                    <div class="task-content">
+                        <div class="task-header">
+                            <h4>{{ tarefa.titulo }}</h4>
+                            <span class="priority-badge priority-{{ tarefa.prioridade }}">{{ tarefa.prioridade }}</span>
+                        </div>
+                        {% if tarefa.descricao %}
+                        <p class="task-description">
+                            {{ tarefa.descricao[:100] }}{% if tarefa.descricao|length > 100 %}...{% endif %}
+                        </p>
                         {% endif %}
+                        <div class="task-footer">
+                            <small>Por: {{ tarefa.criador_nome }}</small>
+                            {% if tarefa.data_vencimento %}
+                            <small class="due-date">📅 {{ tarefa.data_vencimento.strftime('%d/%m/%Y') }}</small>
+                            {% endif %}
+                        </div>
                     </div>
                     {% if eh_criador %}
                     <div class="task-actions">
@@ -133,20 +137,22 @@
             <div class="tasks-list" id="done-column" data-status="done" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)">
                 {% for tarefa in tarefas_done %}
                 <div class="task-card" draggable="true" ondragstart="drag(event)" data-task-id="{{ tarefa.id_tarefa }}">
-                    <div class="task-header">
-                        <h4>{{ tarefa.titulo }}</h4>
-                        <span class="priority-badge priority-{{ tarefa.prioridade }}">{{ tarefa.prioridade }}</span>
-                    </div>
-                    {% if tarefa.descricao %}
-                    <p class="task-description">
-                        {{ tarefa.descricao[:100] }}{% if tarefa.descricao|length > 100 %}...{% endif %}
-                    </p>
-                    {% endif %}
-                    <div class="task-footer">
-                        <small>Por: {{ tarefa.criador_nome }}</small>
-                        {% if tarefa.data_vencimento %}
-                        <small class="due-date">📅 {{ tarefa.data_vencimento.strftime('%d/%m/%Y') }}</small>
+                    <div class="task-content">
+                        <div class="task-header">
+                            <h4>{{ tarefa.titulo }}</h4>
+                            <span class="priority-badge priority-{{ tarefa.prioridade }}">{{ tarefa.prioridade }}</span>
+                        </div>
+                        {% if tarefa.descricao %}
+                        <p class="task-description">
+                            {{ tarefa.descricao[:100] }}{% if tarefa.descricao|length > 100 %}...{% endif %}
+                        </p>
                         {% endif %}
+                        <div class="task-footer">
+                            <small>Por: {{ tarefa.criador_nome }}</small>
+                            {% if tarefa.data_vencimento %}
+                            <small class="due-date">📅 {{ tarefa.data_vencimento.strftime('%d/%m/%Y') }}</small>
+                            {% endif %}
+                        </div>
                     </div>
                     {% if eh_criador %}
                     <div class="task-actions">
