@@ -1,6 +1,7 @@
-# auth.py - COM DEBUG
 from flask import Blueprint, render_template, request, session, redirect
 from database import conectar, close_db_connection, hash_password, check_password
+import secrets
+from datetime import datetime, timedelta
 
 auth = Blueprint('auth', __name__)
 
@@ -17,7 +18,9 @@ def login():
         print(f"🔍 DEBUG LOGIN - Email: {email}, Senha: {senha}")
         
         if not email or not senha:
-            return render_template('login.html', error='Preencha todos os campos')
+            # Novo: Verifica se a mensagem de sucesso (success) está na URL para exibir
+            success_message = request.args.get('success')
+            return render_template('login.html', error='Preencha todos os campos', success=success_message)
         
         connection = conectar()
         print(f"🔍 DEBUG - Conexão: {connection}")
@@ -45,7 +48,9 @@ def login():
                 return redirect('/home')
             else:
                 print("❌ Email ou senha incorretos")
-                return render_template('login.html', error='Email ou senha incorretos')
+                # Novo: Verifica se a mensagem de sucesso (success) está na URL para exibir
+                success_message = request.args.get('success')
+                return render_template('login.html', error='Email ou senha incorretos', success=success_message)
                 
         except Exception as e:
             print(f"❌ Erro no login: {e}")
@@ -53,7 +58,10 @@ def login():
         finally:
             close_db_connection(connection)
     
-    return render_template('login.html')
+    # Novo: Captura mensagens de erro e sucesso da URL para exibir
+    error_message = request.args.get('error')
+    success_message = request.args.get('success')
+    return render_template('login.html', error=error_message, success=success_message)
 
 @auth.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
@@ -133,3 +141,144 @@ def cadastro():
 def logout():
     session.clear()
     return redirect('/login')
+
+# ====================================================
+# ROTAS DE RECUPERAÇÃO DE SENHA (NOVAS ADIÇÕES)
+# ====================================================
+
+# ----------------------------------------------------
+# Rota 1: Formulário de solicitação de redefinição
+# ----------------------------------------------------
+@auth.route('/esqueci-minha-senha')
+def esqueci_minha_senha():
+    # Novo: Captura mensagens de erro e sucesso da URL para exibir
+    error_message = request.args.get('error')
+    success_message = request.args.get('success')
+    return render_template('esqueci_senha.html', error=error_message, success=success_message)
+
+# ----------------------------------------------------
+# Rota 2: Gerar Token e Simular Envio de E-mail
+# ----------------------------------------------------
+@auth.route('/enviar-reset-link', methods=['POST'])
+def enviar_reset_link():
+    email = request.form.get('email', '').strip()
+    
+    connection = conectar()
+    if not connection:
+        return redirect('/esqueci-minha-senha?error=Houve um erro no sistema. Tente novamente.')
+
+    try:
+        cursor = connection.cursor(dictionary=True)
+        
+        # 1. Buscar o usuário pelo e-mail
+        cursor.execute('SELECT id_usuario, nome FROM usuario WHERE email = %s', (email,))
+        usuario = cursor.fetchone()
+        
+        # 2. Segurança: MENSAGEM GENÉRICA, independente de o e-mail existir ou não
+        mensagem_sucesso = 'Se o e-mail estiver cadastrado, você receberá um link para redefinir a senha.'
+        
+        if not usuario:
+            print(f"🔍 DEBUG - E-mail '{email}' não encontrado, mas a mensagem de sucesso será exibida por segurança.")
+            return redirect(f'/esqueci-minha-senha?success={mensagem_sucesso}')
+
+        user_id = usuario['id_usuario']
+        
+        # 3. Gerar Token e Expiração
+        token = secrets.token_urlsafe(32)
+        # Token expira em 1 hora
+        expires_at = datetime.now() + timedelta(hours=1)
+        
+        # 4. Salvar Token no DB (Limpar tokens antigos do mesmo usuário primeiro)
+        # Limpa tokens antigos
+        cursor.execute('DELETE FROM recuperacao_senha WHERE user_id = %s', (user_id,))
+        # Insere o novo token
+        cursor.execute(
+            'INSERT INTO recuperacao_senha (user_id, token, expires_at) VALUES (%s, %s, %s)',
+            (user_id, token, expires_at)
+        )
+        connection.commit()
+        
+        # 5. Montar o Link de Redefinição
+        reset_link = f"{request.host_url}redefinir-senha/{token}"
+        
+        # 6. SIMULAR O ENVIO DE E-MAIL (No localhost, imprimiremos no console)
+        print("-" * 50)
+        print(f"✅ E-mail de redefinição SIMULADO para: {email}")
+        print(f"🔑 Token Gerado: {token}")
+        print(f"🔗 LINK DE REDEFINIÇÃO: {reset_link}")
+        print("-" * 50)
+
+        # 7. Redireciona com a mensagem de sucesso genérica
+        return redirect(f'/esqueci-minha-senha?success={mensagem_sucesso}')
+
+    except Exception as e:
+        print(f"❌ Erro ao gerar link de redefinição: {e}")
+        connection.rollback()
+        return redirect('/esqueci-minha-senha?error=Houve um erro interno. Tente novamente.')
+    finally:
+        close_db_connection(connection)
+
+# ----------------------------------------------------
+# Rota 3: Página e Lógica de Redefinição de Senha
+# ----------------------------------------------------
+@auth.route('/redefinir-senha/<token>', methods=['GET', 'POST'])
+def redefinir_senha(token):
+    connection = conectar()
+    if not connection:
+        return redirect('/login?error=Erro de conexão com o banco. Tente novamente.')
+
+    try:
+        cursor = connection.cursor(dictionary=True)
+        
+        # 1. Validar Token no DB
+        cursor.execute(
+            'SELECT user_id, expires_at FROM recuperacao_senha WHERE token = %s',
+            (token,)
+        )
+        reset_entry = cursor.fetchone()
+
+        if not reset_entry or reset_entry['expires_at'] < datetime.now():
+            print(f"❌ DEBUG - Token inválido ou expirado: {token}")
+            # Redireciona para o formulário de login com mensagem de erro
+            return redirect('/login?error=O link de redefinição é inválido ou expirou. Por favor, solicite um novo link.')
+
+        user_id = reset_entry['user_id']
+        
+        # 2. Processar a Nova Senha (se for um POST)
+        if request.method == 'POST':
+            nova_senha = request.form.get('nova_senha')
+            confirmar_senha = request.form.get('confirmar_senha')
+
+            if nova_senha != confirmar_senha:
+                # Exibe o erro na própria página de redefinição
+                return render_template('redefinir_senha.html', token=token, error='As senhas não coincidem.')
+            
+            if len(nova_senha) < 6:
+                 # Exibe o erro na própria página de redefinição
+                 return render_template('redefinir_senha.html', token=token, error='A senha deve ter pelo menos 6 caracteres.')
+
+            # Criptografar e Salvar Nova Senha
+            nova_senha_hash = hash_password(nova_senha)
+            cursor.execute(
+                'UPDATE usuario SET senha = %s WHERE id_usuario = %s',
+                (nova_senha_hash, user_id)
+            )
+            
+            # Desativar/Excluir o Token (Uso único)
+            cursor.execute('DELETE FROM recuperacao_senha WHERE token = %s', (token,))
+            
+            connection.commit()
+            print(f"✅ DEBUG - Senha redefinida com sucesso para o user_id: {user_id}")
+            
+            # Redirecionar para o login com mensagem de sucesso
+            return redirect('/login?success=Sua senha foi redefinida com sucesso. Faça login.')
+
+        # 3. Exibir Formulário (se for um GET com token válido)
+        return render_template('redefinir_senha.html', token=token)
+
+    except Exception as e:
+        print(f"❌ Erro na redefinição de senha: {e}")
+        connection.rollback()
+        return redirect('/login?error=Houve um erro interno durante a redefinição.')
+    finally:
+        close_db_connection(connection)
