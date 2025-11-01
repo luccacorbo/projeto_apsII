@@ -248,6 +248,9 @@ def excluir_tarefa(id_projeto, id_tarefa):
         if connection:
             close_db_connection(connection)
 
+"""
+api para a aba de minhas tarefas 
+"""
 @task.route('/api/minhas-tarefas')
 def api_minhas_tarefas():
     """API para buscar APENAS tarefas onde o usuário é o RESPONSÁVEL"""
