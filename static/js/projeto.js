@@ -1,3 +1,11 @@
+// Variáveis globais para manter o estado dos filtros
+let filtrosAtivos = {
+    nome: '',
+    prioridade: 'todas',
+    status: 'todos',
+    responsavel: 'todos'
+};
+
 // Funções para modais
 function abrirModalTarefa() {
     document.getElementById('modalTarefa').style.display = 'block';
@@ -127,7 +135,118 @@ function redirecionarParaTarefa(tarefaId) {
     window.location.href = `/tarefa/${tarefaId}`;
 }
 
-// Drag and Drop Functions
+// ================================
+// SISTEMA DE FILTROS - CORRIGIDO
+// ================================
+
+function aplicarFiltros() {
+    const filtroNome = document.getElementById('filtroNome').value.toLowerCase();
+    const filtroPrioridade = document.getElementById('filtroPrioridade').value;
+    const filtroStatus = document.getElementById('filtroStatus').value;
+    const filtroResponsavel = document.getElementById('filtroResponsavel').value;
+    
+    // Atualizar estado dos filtros
+    filtrosAtivos.nome = filtroNome;
+    filtrosAtivos.prioridade = filtroPrioridade;
+    filtrosAtivos.status = filtroStatus;
+    filtrosAtivos.responsavel = filtroResponsavel;
+    
+    // Usar a classe correta dos cards (task-card-modern)
+    const todasTarefas = document.querySelectorAll('.task-card-modern');
+    let tarefasVisiveis = 0;
+    
+    console.log(`Aplicando filtros - Nome: ${filtroNome}, Prioridade: ${filtroPrioridade}, Status: ${filtroStatus}, Responsável: ${filtroResponsavel}`);
+    console.log(`Total de tarefas encontradas: ${todasTarefas.length}`);
+    
+    todasTarefas.forEach(tarefa => {
+        const titulo = tarefa.querySelector('h4').textContent.toLowerCase();
+        const prioridade = tarefa.getAttribute('data-prioridade');
+        const responsavel = tarefa.getAttribute('data-responsavel');
+        const statusColuna = tarefa.closest('.tasks-list').getAttribute('data-status');
+        
+        let mostrar = true;
+        
+        // Aplicar filtro de nome
+        if (filtroNome && !titulo.includes(filtroNome)) {
+            mostrar = false;
+        }
+        
+        // Aplicar filtro de prioridade
+        if (filtroPrioridade !== 'todas' && prioridade !== filtroPrioridade) {
+            mostrar = false;
+        }
+        
+        // Aplicar filtro de status
+        if (filtroStatus !== 'todos' && statusColuna !== filtroStatus) {
+            mostrar = false;
+        }
+        
+        // Aplicar filtro de responsável
+        if (filtroResponsavel !== 'todos' && responsavel !== filtroResponsavel) {
+            mostrar = false;
+        }
+        
+        // Mostrar ou esconder a tarefa
+        if (mostrar) {
+            tarefa.style.display = 'block';
+            tarefasVisiveis++;
+        } else {
+            tarefa.style.display = 'none';
+        }
+    });
+    
+    // Atualizar contadores das colunas
+    atualizarContadoresColunas();
+    
+    console.log(`Filtros aplicados: ${tarefasVisiveis} tarefas visíveis`);
+}
+
+function limparFiltros() {
+    document.getElementById('filtroNome').value = '';
+    document.getElementById('filtroPrioridade').value = 'todas';
+    document.getElementById('filtroStatus').value = 'todos';
+    document.getElementById('filtroResponsavel').value = 'todos';
+    
+    // Resetar estado dos filtros
+    filtrosAtivos = {
+        nome: '',
+        prioridade: 'todas',
+        status: 'todos',
+        responsavel: 'todos'
+    };
+    
+    // Mostrar todas as tarefas
+    const todasTarefas = document.querySelectorAll('.task-card-modern');
+    todasTarefas.forEach(tarefa => {
+        tarefa.style.display = 'block';
+    });
+    
+    // Restaurar contadores originais
+    atualizarContadoresColunas();
+    
+    console.log('Filtros limpos');
+}
+
+function atualizarContadoresColunas() {
+    const colunas = document.querySelectorAll('.kanban-column');
+    
+    colunas.forEach(coluna => {
+        const tasksList = coluna.querySelector('.tasks-list');
+        const taskCountElement = coluna.querySelector('.task-count');
+        
+        // Contar apenas tarefas visíveis com a classe correta
+        const tarefasVisiveis = tasksList.querySelectorAll('.task-card-modern[style="display: block"], .task-card-modern:not([style])').length;
+        
+        if (taskCountElement) {
+            taskCountElement.textContent = tarefasVisiveis;
+        }
+    });
+}
+
+// ================================
+// DRAG AND DROP FUNCTIONS - CORRIGIDO
+// ================================
+
 function allowDrop(ev) {
     ev.preventDefault();
 }
@@ -143,7 +262,9 @@ function handleDragLeave(ev) {
 }
 
 function drag(ev) {
+    console.log('Iniciando drag da tarefa:', ev.target.dataset.taskId);
     ev.dataTransfer.setData("text", ev.target.dataset.taskId);
+    // Usar a classe correta para dragging
     ev.target.classList.add('dragging');
 }
 
@@ -151,11 +272,24 @@ function drop(ev) {
     ev.preventDefault();
     ev.currentTarget.classList.remove('drag-over');
     
-    const taskId = ev.dataTransfer.getData("text");
-    const tasksList = ev.currentTarget;
+    // Encontrar o elemento correto da tarefa (pode ser o card ou um elemento filho)
+    let targetElement = ev.target;
+    while (targetElement && !targetElement.classList.contains('tasks-list')) {
+        targetElement = targetElement.parentElement;
+    }
     
-    // Remove dragging class from all task cards
-    document.querySelectorAll('.task-card.dragging').forEach(el => {
+    if (!targetElement) {
+        console.error('Elemento tasks-list não encontrado');
+        return;
+    }
+    
+    const taskId = ev.dataTransfer.getData("text");
+    const tasksList = targetElement;
+    
+    console.log(`Tentando mover tarefa ${taskId} para coluna:`, tasksList);
+    
+    // Remove dragging class from all task cards - CORRIGIDO para task-card-modern
+    document.querySelectorAll('.task-card-modern.dragging').forEach(el => {
         el.classList.remove('dragging');
     });
     
@@ -169,6 +303,16 @@ function drop(ev) {
     }
     
     console.log(`Movendo tarefa ${taskId} para status: ${newStatus}`);
+    
+    // Verificar se a tarefa já está no status correto
+    const draggedElement = document.querySelector(`[data-task-id="${taskId}"]`);
+    if (draggedElement) {
+        const currentStatus = draggedElement.closest('.tasks-list').getAttribute('data-status');
+        if (currentStatus === newStatus) {
+            console.log('Tarefa já está no status correto, ignorando movimento');
+            return;
+        }
+    }
     
     // Atualizar status no servidor
     fetch(`/projeto/${getProjetoId()}/tarefa/${taskId}/status`, {
@@ -187,6 +331,7 @@ function drop(ev) {
     .then(data => {
         if (data.success) {
             console.log('Status atualizado com sucesso');
+            // Recarregar a página para refletir as mudanças
             location.reload();
         } else {
             alert('Erro ao atualizar tarefa: ' + (data.message || data.error || 'Erro desconhecido'));
@@ -213,14 +358,21 @@ function toggleProjetoMenu() {
     dropdown.classList.toggle('mostrar');
 }
 
-// Remove drag-over class when drag ends
-document.addEventListener('dragend', function() {
+// Remove drag-over class when drag ends - CORRIGIDO
+document.addEventListener('dragend', function(ev) {
+    console.log('Drag end event');
     document.querySelectorAll('.tasks-list.drag-over').forEach(el => {
         el.classList.remove('drag-over');
     });
-    document.querySelectorAll('.task-card.dragging').forEach(el => {
+    // Usar a classe correta para task-card-modern
+    document.querySelectorAll('.task-card-modern.dragging').forEach(el => {
         el.classList.remove('dragging');
     });
+});
+
+// Prevenir comportamento padrão do dragover em todo o documento
+document.addEventListener('dragover', function(ev) {
+    ev.preventDefault();
 });
 
 function cancelarConvite(conviteId) {
@@ -247,23 +399,97 @@ function cancelarConvite(conviteId) {
     }
 }
 
-// ÚNICO event listener para tudo - CORRIGIDO
-document.addEventListener('DOMContentLoaded', function() {
-    // Adicionar clique nos cards de tarefa
-    document.addEventListener('click', function(event) {
-        const taskCard = event.target.closest('.task-card');
-        if (taskCard && !event.target.closest('.task-actions')) {
-            const taskId = taskCard.dataset.taskId;
+// ================================
+// SISTEMA DE EVENTOS CORRIGIDO - VERSÃO SIMPLIFICADA
+// ================================
+
+function inicializarEventListenersTarefas() {
+    console.log('=== INICIALIZANDO EVENTOS DE TAREFAS ===');
+    
+    // ADICIONAR event listeners diretamente nos botões de ação
+    document.querySelectorAll('.btn-acao-tarefa').forEach(button => {
+        button.addEventListener('click', function(event) {
+            console.log('Botão de ação clicado:', this);
+            event.preventDefault();
+            event.stopImmediatePropagation(); // Para IMEDIATAMENTE a propagação
+            
+            const taskId = this.getAttribute('data-task-id');
+            const action = this.getAttribute('data-action');
+            
+            console.log(`Ação: ${action}, Tarefa ID: ${taskId}`);
+            
+            if (action === 'excluir') {
+                excluirTarefa(taskId);
+            } else if (action === 'editar') {
+                editarTarefa(taskId);
+            }
+            
+            // Retorna false para garantir que não propague
+            return false;
+        });
+    });
+    
+    // Event listener para os CARDS (apenas áreas não-clicáveis)
+    document.querySelectorAll('.task-card-modern').forEach(card => {
+        card.addEventListener('click', function(event) {
+            // Se o clique foi em qualquer botão ou elemento de ação, IGNORA
+            if (event.target.closest('.btn-acao-tarefa') || 
+                event.target.closest('.task-actions') ||
+                event.target.matches('.btn-acao-tarefa') ||
+                event.target.matches('.task-actions') ||
+                event.target.matches('.task-actions *')) {
+                console.log('Clique em elemento de ação - ignorando card');
+                return;
+            }
+            
+            // Só redireciona se foi clique direto no card ou em áreas não-interativas
+            const taskId = this.dataset.taskId;
             if (taskId) {
+                console.log('Redirecionando para tarefa:', taskId);
                 redirecionarParaTarefa(taskId);
             }
-        }
-        
-        // Fechar menu do projeto ao clicar fora - MOVIDO PARA AQUI
+        });
+    });
+}
+
+// Função auxiliar para debug
+function verificarBotoes() {
+    const botoes = document.querySelectorAll('.btn-acao-tarefa, .task-actions button');
+    console.log('=== BOTÕES ENCONTRADOS ===');
+    botoes.forEach((btn, index) => {
+        console.log(`Botão ${index + 1}:`, {
+            elemento: btn,
+            innerHTML: btn.innerHTML,
+            classes: btn.className,
+            'data-task-id': btn.getAttribute('data-task-id'),
+            'data-action': btn.getAttribute('data-action')
+        });
+    });
+    
+    return botoes.length;
+}
+
+// ================================
+// EVENT LISTENERS PRINCIPAIS - CORRIGIDO
+// ================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== INICIALIZANDO SISTEMA DE PROJETOS ===');
+    
+    // Debug inicial
+    setTimeout(() => {
+        verificarBotoes();
+    }, 100);
+    
+    // Inicializar event listeners específicos para tarefas
+    inicializarEventListenersTarefas();
+
+    // Fechar menu do projeto ao clicar fora
+    document.addEventListener('click', function(event) {
         const dropdown = document.getElementById('projetoMenuDropdown');
         const menuBtn = document.querySelector('.menu-btn');
         
-        if (dropdown && !dropdown.contains(event.target) && !menuBtn.contains(event.target)) {
+        if (dropdown && menuBtn && !dropdown.contains(event.target) && !menuBtn.contains(event.target)) {
             dropdown.classList.remove('mostrar');
         }
     });
@@ -278,10 +504,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
     
+    // Aplicar filtros iniciais
+    aplicarFiltros();
+    
     // Debug: verificar configuração das colunas
     console.log('=== CONFIGURAÇÃO DAS COLUNAS ===');
     const colunas = document.querySelectorAll('.tasks-list');
     colunas.forEach(coluna => {
         console.log('Coluna:', coluna.id, 'Status:', coluna.getAttribute('data-status'));
     });
+    
+    // Debug: verificar se os eventos de drag and drop estão configurados
+    console.log('=== CONFIGURAÇÃO DRAG AND DROP ===');
+    const taskCards = document.querySelectorAll('.task-card-modern');
+    console.log(`Total de cards de tarefas: ${taskCards.length}`);
+    taskCards.forEach((card, index) => {
+        console.log(`Card ${index + 1}:`, {
+            draggable: card.draggable,
+            taskId: card.dataset.taskId,
+            hasOndragstart: !!card.ondragstart
+        });
+    });
+    
+    console.log('=== SISTEMA DE PROJETOS INICIALIZADO ===');
 });
