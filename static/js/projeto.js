@@ -17,10 +17,25 @@ function fecharModalMembros() {
 
 function excluirProjeto() {
     document.getElementById('modalExcluirProjeto').style.display = 'block';
+    // Fecha o menu dropdown
+    const dropdown = document.getElementById('projetoMenuDropdown');
+    dropdown.classList.remove('mostrar');
 }
 
 function fecharModalExcluir() {
     document.getElementById('modalExcluirProjeto').style.display = 'none';
+}
+
+// Novas funções para sair do projeto
+function sairDoProjeto() {
+    document.getElementById('modalSairProjeto').style.display = 'block';
+    // Fecha o menu dropdown
+    const dropdown = document.getElementById('projetoMenuDropdown');
+    dropdown.classList.remove('mostrar');
+}
+
+function fecharModalSair() {
+    document.getElementById('modalSairProjeto').style.display = 'none';
 }
 
 // Funções para membros
@@ -42,7 +57,7 @@ function adicionarMembro() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Membro adicionado com sucesso!');
+            alert('convite enviado com sucesso!');
             location.reload();
         } else {
             alert('Erro: ' + data.error);
@@ -192,36 +207,11 @@ function getProjetoId() {
     return matches ? matches[1] : null;
 }
 
-// Fechar modais ao clicar fora e adicionar event listeners para tarefas
-document.addEventListener('DOMContentLoaded', function() {
-    // Adicionar clique nos cards de tarefa
-    document.addEventListener('click', function(event) {
-        const taskCard = event.target.closest('.task-card');
-        if (taskCard && !event.target.closest('.task-actions')) {
-            const taskId = taskCard.dataset.taskId;
-            if (taskId) {
-                redirecionarParaTarefa(taskId);
-            }
-        }
-    });
-
-    // Fechar modais ao clicar fora
-    window.onclick = function(event) {
-        const modals = document.getElementsByClassName('modal');
-        for (let modal of modals) {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-    };
-    
-    // Debug: verificar configuração das colunas
-    console.log('=== CONFIGURAÇÃO DAS COLUNAS ===');
-    const colunas = document.querySelectorAll('.tasks-list');
-    colunas.forEach(coluna => {
-        console.log('Coluna:', coluna.id, 'Status:', coluna.getAttribute('data-status'));
-    });
-});
+// Funções para o menu do projeto
+function toggleProjetoMenu() {
+    const dropdown = document.getElementById('projetoMenuDropdown');
+    dropdown.classList.toggle('mostrar');
+}
 
 // Remove drag-over class when drag ends
 document.addEventListener('dragend', function() {
@@ -256,3 +246,42 @@ function cancelarConvite(conviteId) {
         });
     }
 }
+
+// ÚNICO event listener para tudo - CORRIGIDO
+document.addEventListener('DOMContentLoaded', function() {
+    // Adicionar clique nos cards de tarefa
+    document.addEventListener('click', function(event) {
+        const taskCard = event.target.closest('.task-card');
+        if (taskCard && !event.target.closest('.task-actions')) {
+            const taskId = taskCard.dataset.taskId;
+            if (taskId) {
+                redirecionarParaTarefa(taskId);
+            }
+        }
+        
+        // Fechar menu do projeto ao clicar fora - MOVIDO PARA AQUI
+        const dropdown = document.getElementById('projetoMenuDropdown');
+        const menuBtn = document.querySelector('.menu-btn');
+        
+        if (dropdown && !dropdown.contains(event.target) && !menuBtn.contains(event.target)) {
+            dropdown.classList.remove('mostrar');
+        }
+    });
+
+    // Fechar modais ao clicar fora
+    window.onclick = function(event) {
+        const modals = document.getElementsByClassName('modal');
+        for (let modal of modals) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    };
+    
+    // Debug: verificar configuração das colunas
+    console.log('=== CONFIGURAÇÃO DAS COLUNAS ===');
+    const colunas = document.querySelectorAll('.tasks-list');
+    colunas.forEach(coluna => {
+        console.log('Coluna:', coluna.id, 'Status:', coluna.getAttribute('data-status'));
+    });
+});

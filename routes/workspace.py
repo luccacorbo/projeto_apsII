@@ -326,6 +326,53 @@ def excluir_projeto(id_projeto):
     
     return redirect('/home')
 
+@work.route('/projeto/<int:id_projeto>/sair', methods=['POST'])
+def sair_do_projeto(id_projeto):
+    if 'user_id' not in session:
+        return jsonify({'error': 'Não logado'}), 401
+    
+    try:
+        connection = conectar()
+        cursor = connection.cursor(dictionary=True)
+        
+        # Verificar se o usuário é membro do projeto
+        cursor.execute("""
+            SELECT id_criador FROM projetos WHERE id_projeto = %s
+        """, (id_projeto,))
+        projeto = cursor.fetchone()
+        
+        if not projeto:
+            return jsonify({'error': 'Projeto não encontrado'}), 404
+        
+        # Se for o criador, não pode sair (precisa excluir o projeto ou transferir)
+        if projeto['id_criador'] == session['user_id']:
+            return jsonify({'error': 'O criador não pode sair do projeto. Exclua o projeto ou transfira a criação.'}), 400
+        
+        # Verificar se é membro
+        cursor.execute("""
+            SELECT 1 FROM projeto_membros 
+            WHERE id_projeto = %s AND id_usuario = %s AND data_aceitacao IS NOT NULL
+        """, (id_projeto, session['user_id']))
+        
+        if not cursor.fetchone():
+            return jsonify({'error': 'Você não é membro deste projeto'}), 400
+        
+        # Remover membro
+        cursor.execute("""
+            DELETE FROM projeto_membros 
+            WHERE id_projeto = %s AND id_usuario = %s
+        """, (id_projeto, session['user_id']))
+        
+        connection.commit()
+        cursor.close()
+        connection.close()
+        
+        return redirect('/home')
+        
+    except Exception as e:
+        print(f"❌ Erro ao sair do projeto: {e}")
+        return jsonify({'error': 'Erro interno'}), 500
+
 # ====================================
 # ROTAS PARA SISTEMA DE CONVITES
 # ====================================
