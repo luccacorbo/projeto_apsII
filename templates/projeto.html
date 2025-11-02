@@ -9,7 +9,18 @@
     <!-- Header do Projeto -->
     <div class="projeto-header">
         <div class="projeto-info">
-            <h1>{{ projeto.nome }}</h1>
+            <div class="projeto-title-container">
+                <h1>{{ projeto.nome }}</h1>
+                <div class="projeto-menu">
+                    <button class="menu-btn" onclick="toggleProjetoMenu()">⋮</button>
+                    <div class="menu-dropdown" id="projetoMenuDropdown">
+                        <button class="menu-item" onclick="sairDoProjeto()">Sair do Projeto</button>
+                        {% if eh_criador %}
+                        <button class="menu-item" onclick="excluirProjeto()">Excluir Projeto</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
             {% if projeto.descricao %}
             <p class="projeto-descricao">{{ projeto.descricao }}</p>
             {% endif %}
@@ -24,7 +35,6 @@
             {% if eh_criador %}
             <button class="btn btn-primary" onclick="abrirModalTarefa()">+ Nova Tarefa</button>
             <button class="btn btn-secondary" onclick="abrirModalMembros()">👥 Gerenciar Membros</button>
-            <button class="btn btn-danger" onclick="excluirProjeto()">🗑️ Excluir Projeto</button>
             {% else %}
             <!-- Espaço reservado para manter layout -->
             <div style="height: 40px; visibility: hidden;"></div>
@@ -224,7 +234,6 @@
                 <button type="button" onclick="removerMembro({{ membro.id_usuario }})" class="btn btn-danger btn-sm">Remover</button>
             </div>
             {% endfor %}
-            <!-- Adicione esta seção após a lista de membros no modal de membros -->
             <div class="convites-pendentes">
                 <h3>Convites Pendentes</h3>
                 {% if convites_pendentes %}
@@ -261,6 +270,22 @@
     </div>
 </div>
 {% endif %}
+
+<!-- Modal Sair do Projeto (aparece para todos) -->
+<div id="modalSairProjeto" class="modal">
+    <div class="modal-content">
+        <h2>Confirmar Saída</h2>
+        <p>Tem certeza que deseja sair do projeto <strong>"{{ projeto.nome }}"</strong>?</p>
+        <p class="warning-text">⚠️ Você perderá acesso a todas as tarefas e informações deste projeto.</p>
+        <br>
+        <div class="modal-actions">
+            <button type="button" onclick="fecharModalSair()" class="btn btn-secondary">Cancelar</button>
+            <form id="formSairProjeto" method="POST" action="{{ url_for('work.sair_do_projeto', id_projeto=projeto.id_projeto) }}" style="display: inline;">
+                <button type="submit" class="btn btn-danger">Sim, Sair do Projeto</button>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
