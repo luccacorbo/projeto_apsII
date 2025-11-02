@@ -42,136 +42,206 @@
         </div>
     </div>
 
-    <!-- Estatísticas Rápidas - SEMPRE 4 CARDS EM GRID 2x2 -->
-    <div class="projeto-stats">
-        <div class="stat-card">
-            <h3>Pendentes</h3>
-            <span class="stat-number">{{ tarefas_todo|length }}</span>
+    <!-- Filtros - LAYOUT CORRIGIDO -->
+    <div class="filtros-container">
+        <div class="filtros-header">
+            <h3 class="filtros-titulo">Filtrar Tarefas</h3>
+            <div class="filtros-actions">
+                <button type="button" class="btn-filtrar" onclick="aplicarFiltros()">Aplicar Filtros</button>
+                <button type="button" class="btn-limpar" onclick="limparFiltros()">Limpar</button>
+            </div>
         </div>
-        <div class="stat-card">
-            <h3>Em Andamento</h3>
-            <span class="stat-number">{{ tarefas_doing|length }}</span>
-        </div>
-        <div class="stat-card">
-            <h3>Concluídas</h3>
-            <span class="stat-number">{{ tarefas_done|length }}</span>
-        </div>
-        <div class="stat-card">
-            <h3>Membros</h3>
-            <span class="stat-number">{{ membros|length + 1 }}</span>
-        </div>
+        <form class="filtros-form" id="filtrosForm">
+            <!-- BARRA DE PESQUISA POR NOME - ACIMA DOS DEMAIS FILTROS -->
+            <div class="filtro-group filtro-pesquisa">
+                <label for="filtroNome">Pesquisar por Nome</label>
+                <input type="text" id="filtroNome" placeholder="Digite o nome da tarefa...">
+            </div>
+            
+            <div class="filtro-group">
+                <label for="filtroPrioridade">Prioridade</label>
+                <select id="filtroPrioridade">
+                    <option value="todas">Todas as Prioridades</option>
+                    <option value="alta">Alta Prioridade</option>
+                    <option value="media">Média Prioridade</option>
+                    <option value="baixa">Baixa Prioridade</option>
+                </select>
+            </div>
+            
+            <div class="filtro-group">
+                <label for="filtroStatus">Status</label>
+                <select id="filtroStatus">
+                    <option value="todos">Todos os Status</option>
+                    <option value="todo">Pendentes</option>
+                    <option value="doing">Em Andamento</option>
+                    <option value="done">Concluídas</option>
+                </select>
+            </div>
+            
+            <div class="filtro-group">
+                <label for="filtroResponsavel">Responsável</label>
+                <select id="filtroResponsavel">
+                    <option value="todos">Todos os Responsáveis</option>
+                    <option value="{{ session['user_id'] }}">Eu ({{ session['user_name'] }})</option>
+                    {% for membro in membros %}
+                    <option value="{{ membro.id_usuario }}">{{ membro.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
     </div>
 
-    <!-- Kanban Board - SEMPRE 3 COLUNAS -->
-    <div class="kanban-board">
-        <!-- PENDENTES -->
-        <div class="kanban-column">
-            <div class="column-header">
-                <h3>Pendentes</h3>
-                <span class="task-count">{{ tarefas_todo|length }}</span>
-            </div>
-            <div class="tasks-list" id="todo-column" data-status="todo" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)">
-                {% for tarefa in tarefas_todo %}
-                <div class="task-card" draggable="true" ondragstart="drag(event)" data-task-id="{{ tarefa.id_tarefa }}">
-                    <div class="task-content">
-                        <div class="task-header">
-                            <h4>{{ tarefa.titulo }}</h4>
-                            <span class="priority-badge priority-{{ tarefa.prioridade }}">{{ tarefa.prioridade }}</span>
-                        </div>
-                        {% if tarefa.descricao %}
-                        <p class="task-description">
-                            {{ tarefa.descricao[:100] }}{% if tarefa.descricao|length > 100 %}...{% endif %}
-                        </p>
-                        {% endif %}
-                        <div class="task-footer">
-                            <small>Por: {{ tarefa.criador_nome }}</small>
-                            {% if tarefa.data_vencimento %}
-                            <small class="due-date">📅 {{ tarefa.data_vencimento.strftime('%d/%m/%Y') }}</small>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% if eh_criador %}
-                    <div class="task-actions">
-                        <button onclick="editarTarefa({{ tarefa.id_tarefa }})">✏️</button>
-                        <button onclick="excluirTarefa({{ tarefa.id_tarefa }})">🗑️</button>
-                    </div>
-                    {% endif %}
+    <!-- Layout Principal com Kanban e Estatísticas na Lateral -->
+    <div class="main-content-layout">
+        <!-- Kanban Board - COM NOVOS CARDS -->
+        <div class="kanban-board">
+            <!-- PENDENTES -->
+            <div class="kanban-column">
+                <div class="column-header">
+                    <h3>Pendentes</h3>
+                    <span class="task-count">{{ tarefas_todo|length }}</span>
                 </div>
-                {% endfor %}
+                <div class="tasks-list" id="todo-column" data-status="todo" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)">
+                    {% for tarefa in tarefas_todo %}
+                    <div class="task-card-modern" draggable="true" ondragstart="drag(event)" data-task-id="{{ tarefa.id_tarefa }}" data-prioridade="{{ tarefa.prioridade }}" data-responsavel="{{ tarefa.id_responsavel }}">
+                        <div class="task-content">
+                            <div class="task-header-modern">
+                                <h4>{{ tarefa.titulo }}</h4>
+                                <span class="priority-badge-modern priority-{{ tarefa.prioridade }}-modern">{{ tarefa.prioridade }}</span>
+                            </div>
+                            {% if tarefa.descricao %}
+                            <p class="task-description-modern">
+                                {{ tarefa.descricao[:100] }}{% if tarefa.descricao|length > 100 %}...{% endif %}
+                            </p>
+                            {% endif %}
+                            <div class="task-footer-modern">
+                                <div class="responsavel-info">
+                                    <div class="responsavel-avatar">
+                                        {{ tarefa.criador_nome[:1]|upper }}
+                                    </div>
+                                    <span>{{ tarefa.criador_nome }}</span>
+                                </div>
+                                {% if tarefa.data_vencimento %}
+                                <div class="due-date-modern">
+                                    📅 {{ tarefa.data_vencimento.strftime('%d/%m/%Y') }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if eh_criador %}
+                        <div class="task-actions">
+                            <button class="btn-acao-tarefa" data-task-id="{{ tarefa.id_tarefa }}" data-action="excluir">🗑️</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- EM ANDAMENTO -->
+            <div class="kanban-column">
+                <div class="column-header">
+                    <h3>Em Andamento</h3>
+                    <span class="task-count">{{ tarefas_doing|length }}</span>
+                </div>
+                <div class="tasks-list" id="doing-column" data-status="doing" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)">
+                    {% for tarefa in tarefas_doing %}
+                    <div class="task-card-modern" draggable="true" ondragstart="drag(event)" data-task-id="{{ tarefa.id_tarefa }}" data-prioridade="{{ tarefa.prioridade }}" data-responsavel="{{ tarefa.id_responsavel }}">
+                        <div class="task-content">
+                            <div class="task-header-modern">
+                                <h4>{{ tarefa.titulo }}</h4>
+                                <span class="priority-badge-modern priority-{{ tarefa.prioridade }}-modern">{{ tarefa.prioridade }}</span>
+                            </div>
+                            {% if tarefa.descricao %}
+                            <p class="task-description-modern">
+                                {{ tarefa.descricao[:100] }}{% if tarefa.descricao|length > 100 %}...{% endif %}
+                            </p>
+                            {% endif %}
+                            <div class="task-footer-modern">
+                                <div class="responsavel-info">
+                                    <div class="responsavel-avatar">
+                                        {{ tarefa.criador_nome[:1]|upper }}
+                                    </div>
+                                    <span>{{ tarefa.criador_nome }}</span>
+                                </div>
+                                {% if tarefa.data_vencimento %}
+                                <div class="due-date-modern">
+                                    📅 {{ tarefa.data_vencimento.strftime('%d/%m/%Y') }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if eh_criador %}
+                        <div class="task-actions">
+                            <button class="btn-acao-tarefa" data-task-id="{{ tarefa.id_tarefa }}" data-action="excluir">🗑️</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- CONCLUÍDAS -->
+            <div class="kanban-column">
+                <div class="column-header">
+                    <h3>Concluídas</h3>
+                    <span class="task-count">{{ tarefas_done|length }}</span>
+                </div>
+                <div class="tasks-list" id="done-column" data-status="done" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)">
+                    {% for tarefa in tarefas_done %}
+                    <div class="task-card-modern" draggable="true" ondragstart="drag(event)" data-task-id="{{ tarefa.id_tarefa }}" data-prioridade="{{ tarefa.prioridade }}" data-responsavel="{{ tarefa.id_responsavel }}">
+                        <div class="task-content">
+                            <div class="task-header-modern">
+                                <h4>{{ tarefa.titulo }}</h4>
+                                <span class="priority-badge-modern priority-{{ tarefa.prioridade }}-modern">{{ tarefa.prioridade }}</span>
+                            </div>
+                            {% if tarefa.descricao %}
+                            <p class="task-description-modern">
+                                {{ tarefa.descricao[:100] }}{% if tarefa.descricao|length > 100 %}...{% endif %}
+                            </p>
+                            {% endif %}
+                            <div class="task-footer-modern">
+                                <div class="responsavel-info">
+                                    <div class="responsavel-avatar">
+                                        {{ tarefa.criador_nome[:1]|upper }}
+                                    </div>
+                                    <span>{{ tarefa.criador_nome }}</span>
+                                </div>
+                                {% if tarefa.data_vencimento %}
+                                <div class="due-date-modern">
+                                    📅 {{ tarefa.data_vencimento.strftime('%d/%m/%Y') }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if eh_criador %}
+                        <div class="task-actions">
+                            <button class="btn-acao-tarefa" data-task-id="{{ tarefa.id_tarefa }}" data-action="excluir">🗑️</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
 
-        <!-- EM ANDAMENTO -->
-        <div class="kanban-column">
-            <div class="column-header">
-                <h3>Em Andamento</h3>
-                <span class="task-count">{{ tarefas_doing|length }}</span>
+        <!-- Estatísticas Rápidas - NOVO LAYOUT NA LATERAL DIREITA -->
+        <div class="estatisticas-lateral">
+            <div class="estatistica-card membros">
+                <div class="estatistica-numero">{{ membros|length + 1 }}</div>
+                <div class="estatistica-label">Membros</div>
             </div>
-            <div class="tasks-list" id="doing-column" data-status="doing" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)">
-                {% for tarefa in tarefas_doing %}
-                <div class="task-card" draggable="true" ondragstart="drag(event)" data-task-id="{{ tarefa.id_tarefa }}">
-                    <div class="task-content">
-                        <div class="task-header">
-                            <h4>{{ tarefa.titulo }}</h4>
-                            <span class="priority-badge priority-{{ tarefa.prioridade }}">{{ tarefa.prioridade }}</span>
-                        </div>
-                        {% if tarefa.descricao %}
-                        <p class="task-description">
-                            {{ tarefa.descricao[:100] }}{% if tarefa.descricao|length > 100 %}...{% endif %}
-                        </p>
-                        {% endif %}
-                        <div class="task-footer">
-                            <small>Por: {{ tarefa.criador_nome }}</small>
-                            {% if tarefa.data_vencimento %}
-                            <small class="due-date">📅 {{ tarefa.data_vencimento.strftime('%d/%m/%Y') }}</small>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% if eh_criador %}
-                    <div class="task-actions">
-                        <button onclick="editarTarefa({{ tarefa.id_tarefa }})">✏️</button>
-                        <button onclick="excluirTarefa({{ tarefa.id_tarefa }})">🗑️</button>
-                    </div>
-                    {% endif %}
-                </div>
-                {% endfor %}
+            <div class="estatistica-card pendentes">
+                <div class="estatistica-numero">{{ tarefas_todo|length }}</div>
+                <div class="estatistica-label">Pendentes</div>
             </div>
-        </div>
-
-        <!-- CONCLUÍDAS -->
-        <div class="kanban-column">
-            <div class="column-header">
-                <h3>Concluídas</h3>
-                <span class="task-count">{{ tarefas_done|length }}</span>
+            <div class="estatistica-card andamento">
+                <div class="estatistica-numero">{{ tarefas_doing|length }}</div>
+                <div class="estatistica-label">Em Andamento</div>
             </div>
-            <div class="tasks-list" id="done-column" data-status="done" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)">
-                {% for tarefa in tarefas_done %}
-                <div class="task-card" draggable="true" ondragstart="drag(event)" data-task-id="{{ tarefa.id_tarefa }}">
-                    <div class="task-content">
-                        <div class="task-header">
-                            <h4>{{ tarefa.titulo }}</h4>
-                            <span class="priority-badge priority-{{ tarefa.prioridade }}">{{ tarefa.prioridade }}</span>
-                        </div>
-                        {% if tarefa.descricao %}
-                        <p class="task-description">
-                            {{ tarefa.descricao[:100] }}{% if tarefa.descricao|length > 100 %}...{% endif %}
-                        </p>
-                        {% endif %}
-                        <div class="task-footer">
-                            <small>Por: {{ tarefa.criador_nome }}</small>
-                            {% if tarefa.data_vencimento %}
-                            <small class="due-date">📅 {{ tarefa.data_vencimento.strftime('%d/%m/%Y') }}</small>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% if eh_criador %}
-                    <div class="task-actions">
-                        <button onclick="editarTarefa({{ tarefa.id_tarefa }})">✏️</button>
-                        <button onclick="excluirTarefa({{ tarefa.id_tarefa }})">🗑️</button>
-                    </div>
-                    {% endif %}
-                </div>
-                {% endfor %}
+            <div class="estatistica-card concluidas">
+                <div class="estatistica-numero">{{ tarefas_done|length }}</div>
+                <div class="estatistica-label">Concluídas</div>
             </div>
         </div>
     </div>
@@ -195,11 +265,12 @@
             </select>
             
             <label>Data de Vencimento:</label>
-            <input type="date" name="data_vencimento">
+            <input type="date" name="data_vencimento" required>
+            <small class="required-hint">* Campo obrigatório</small>
             
             <label>Responsável:</label>
             <select name="id_responsavel">
-                <option value="{{ session['user_id'] }}">Eu</option>
+                <option value="{{ session['user_id'] }}">Eu ({{ session['user_name'] }})</option>
                 {% for membro in membros %}
                 <option value="{{ membro.id_usuario }}">{{ membro.nome }}</option>
                 {% endfor %}
@@ -290,4 +361,4 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/projeto.js') }}"></script>
-{% endblock %}
+{% endblock scripts %}
