@@ -116,7 +116,8 @@
     gap: 25px;
     margin-bottom: 40px;
     align-items: stretch;
-    justify-content: space-between;
+    justify-content: flex-start;
+    flex-wrap: wrap;
 }
 
 .kanban-column {
@@ -131,6 +132,8 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
+    min-width: 300px; /* LARGURA MÍNIMA PARA AS COLUNAS */
+    max-width: 400px; /* LARGURA MÁXIMA PARA AS COLUNAS */
 }
 
 .column-header {
@@ -416,6 +419,7 @@ form label {
     .kanban-column {
         flex: 1 1 calc(50% - 12px);
         min-width: 300px;
+        max-width: none;
     }
 
     .main-content-layout {
@@ -765,6 +769,7 @@ form label {
     transition: all 0.4s ease;
     position: relative;
     overflow: hidden;
+     min-width: 280px; /* LARGURA MÍNIMA PARA O CARD INTEIRO */
 }
 
 .task-card-modern::before {
@@ -799,6 +804,7 @@ form label {
     margin-bottom: 12px;
     position: relative;
     z-index: 2;
+    gap: 10px;
 }
 
 .task-header-modern h4 {
@@ -808,6 +814,8 @@ form label {
     font-size: 1.05rem;
     font-weight: 600;
     line-height: 1.3;
+    min-width: 0;
+    word-wrap: break-word;
 }
 
 .priority-badge-modern {
@@ -819,6 +827,7 @@ form label {
     font-weight: 700;
     letter-spacing: 0.5px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    flex-shrink: 0;
 }
 
 .priority-alta-modern { 
@@ -847,6 +856,7 @@ form label {
 
 .task-footer-modern {
     display: flex;
+    grid-template-columns: 1fr auto;
     justify-content: space-between;
     align-items: center;
     font-size: 0.8rem;
@@ -855,6 +865,9 @@ form label {
     z-index: 2;
     padding-top: 12px;
     border-top: 1px solid rgba(0, 0, 0, 0.08);
+    gap: 10px;
+    min-height: 30px; 
+    width: 100%;
 }
 
 .responsavel-info {
@@ -863,6 +876,9 @@ form label {
     gap: 6px;
     color: #5d6d7e;
     font-weight: 500;
+    justify-self: start;
+    min-width: 0;
+    overflow: hidden; 
 }
 
 .responsavel-avatar {
@@ -876,6 +892,7 @@ form label {
     color: white;
     font-size: 0.7rem;
     font-weight: bold;
+    flex-shrink: 0
 }
 
 .due-date-modern {
@@ -884,8 +901,10 @@ form label {
     display: flex;
     align-items: center;
     gap: 4px;
+    white-space: nowrap;
+    justify-self: end;
+    flex-shrink: 0;
 }
-
 /* Estados de drag and drop para novos cards */
 .tasks-list.drag-over {
     background: rgba(102, 126, 234, 0.05);
