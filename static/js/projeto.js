@@ -101,11 +101,6 @@ function removerMembro(usuarioId) {
     }
 }
 
-// Funções para tarefas
-function editarTarefa(tarefaId) {
-    alert('Funcionalidade de edição em desenvolvimento! Tarefa ID: ' + tarefaId);
-}
-
 function excluirTarefa(tarefaId) {
     if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
         fetch(`/projeto/${getProjetoId()}/tarefa/${tarefaId}/excluir`, {
@@ -527,4 +522,114 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     console.log('=== SISTEMA DE PROJETOS INICIALIZADO ===');
+});
+
+// Funções para o modal de lista de membros
+function abrirModalListaMembros() {
+    document.getElementById('modalListaMembros').style.display = 'block';
+}
+
+function fecharModalListaMembros() {
+    document.getElementById('modalListaMembros').style.display = 'none';
+    // Fecha todos os menus abertos
+    document.querySelectorAll('.menu-dropdown-membro').forEach(menu => {
+        menu.classList.remove('mostrar');
+    });
+}
+
+function toggleMembroMenu(usuarioId) {
+    const menu = document.getElementById(`menuMembro${usuarioId}`);
+    const todosMenus = document.querySelectorAll('.menu-dropdown-membro');
+    
+    // Fecha todos os outros menus
+    todosMenus.forEach(m => {
+        if (m !== menu) {
+            m.classList.remove('mostrar');
+        }
+    });
+    
+    // Alterna o menu atual
+    menu.classList.toggle('mostrar');
+}
+
+function tornarAdministrador(usuarioId) {
+    if (confirm('Tem certeza que deseja tornar este membro administrador?\n\nAdministradores podem:\n• Criar e editar tarefas\n• Gerenciar membros\n• Alterar status de tarefas')) {
+        fetch(`/projeto/${getProjetoId()}/membros/${usuarioId}/tornar-admin`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Membro promovido a administrador com sucesso!');
+                location.reload();
+            } else {
+                alert('Erro ao promover membro: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao promover membro');
+        });
+    }
+}
+
+function rebaixarMembro(usuarioId) {
+    if (confirm('Tem certeza que deseja rebaixar este administrador?\n\nEle perderá as permissões de administrador.')) {
+        fetch(`/projeto/${getProjetoId()}/membros/${usuarioId}/rebaixar-membro`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Administrador rebaixado com sucesso!');
+                location.reload();
+            } else {
+                alert('Erro ao rebaixar administrador: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao rebaixar administrador');
+        });
+    }
+}
+
+function removerMembroModal(usuarioId) {
+    if (confirm('Tem certeza que deseja remover este membro do projeto?')) {
+        fetch(`/projeto/${getProjetoId()}/membros/${usuarioId}/remover`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Membro removido com sucesso!');
+                location.reload();
+            } else {
+                alert('Erro ao remover membro: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao remover membro');
+        });
+    }
+}
+
+// Fechar menus ao clicar fora
+document.addEventListener('click', function(event) {
+    // Fecha menus de membros
+    document.querySelectorAll('.menu-dropdown-membro').forEach(menu => {
+        if (!menu.contains(event.target) && !event.target.classList.contains('menu-btn-membro')) {
+            menu.classList.remove('mostrar');
+        }
+    });
 });

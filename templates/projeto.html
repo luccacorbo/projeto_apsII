@@ -227,7 +227,7 @@
 
         <!-- Estatísticas Rápidas - NOVO LAYOUT NA LATERAL DIREITA -->
         <div class="estatisticas-lateral">
-            <div class="estatistica-card membros">
+            <div class="estatistica-card membros"onclick="abrirModalListaMembros()" style="cursor: pointer;">
                 <div class="estatistica-numero">{{ membros|length + 1 }}</div>
                 <div class="estatistica-label">Membros</div>
             </div>
@@ -354,6 +354,92 @@
             <form id="formSairProjeto" method="POST" action="{{ url_for('work.sair_do_projeto', id_projeto=projeto.id_projeto) }}" style="display: inline;">
                 <button type="submit" class="btn btn-danger">Sim, Sair do Projeto</button>
             </form>
+        </div>
+    </div>
+</div>
+
+<div id="modalListaMembros" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="fecharModalListaMembros()">&times;</span>
+        <h2>Membros do Projeto</h2>
+        
+        <div class="membros-lista-container">
+            <!-- Criador do Projeto -->
+            <div class="membro-item criador">
+                <div class="membro-info">
+                    <div class="membro-avatar">
+                        {{ criador.nome[:1]|upper }}
+                    </div>
+                    <div class="membro-detalhes">
+                        <span class="membro-nome">{{ criador.nome }}</span>
+                        <span class="membro-email">{{ criador.email }}</span>
+                        <span class="membro-cargo">Criador</span>
+                    </div>
+                </div>
+                <div class="membro-acoes">
+                    <span class="criador-badge">👑 Criador</span>
+                </div>
+            </div>
+
+            <!-- Membros Administradores -->
+            {% for membro in membros if membro.eh_administrador %}
+            <div class="membro-item administrador">
+                <div class="membro-info">
+                    <div class="membro-avatar">
+                        {{ membro.nome[:1]|upper }}
+                    </div>
+                    <div class="membro-detalhes">
+                        <span class="membro-nome">{{ membro.nome }}</span>
+                        <span class="membro-email">{{ membro.email }}</span>
+                        <span class="membro-cargo">Administrador</span>
+                    </div>
+                </div>
+                <div class="membro-acoes">
+                    {% if eh_criador %}
+                    <div class="membro-menu">
+                        <button class="menu-btn-membro" onclick="toggleMembroMenu({{ membro.id_usuario }})">⋮</button>
+                        <div class="menu-dropdown-membro" id="menuMembro{{ membro.id_usuario }}">
+                            <button class="menu-item" onclick="rebaixarMembro({{ membro.id_usuario }})">👥 Rebaixar a Membro</button>
+                            <button class="menu-item btn-remover" onclick="removerMembroModal({{ membro.id_usuario }})">🗑️ Remover</button>
+                        </div>
+                    </div>
+                    {% else %}
+                    <span class="admin-badge">🛡️ Admin</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Membros Normais -->
+            {% for membro in membros if not membro.eh_administrador %}
+            <div class="membro-item membro-normal">
+                <div class="membro-info">
+                    <div class="membro-avatar">
+                        {{ membro.nome[:1]|upper }}
+                    </div>
+                    <div class="membro-detalhes">
+                        <span class="membro-nome">{{ membro.nome }}</span>
+                        <span class="membro-email">{{ membro.email }}</span>
+                        <span class="membro-cargo">Membro</span>
+                    </div>
+                </div>
+                <div class="membro-acoes">
+                    {% if eh_criador %}
+                    <div class="membro-menu">
+                        <button class="menu-btn-membro" onclick="toggleMembroMenu({{ membro.id_usuario }})">⋮</button>
+                        <div class="menu-dropdown-membro" id="menuMembro{{ membro.id_usuario }}">
+                            <button class="menu-item" onclick="tornarAdministrador({{ membro.id_usuario }})">🛡️ Tornar Administrador</button>
+                            <button class="menu-item btn-remover" onclick="removerMembroModal({{ membro.id_usuario }})">🗑️ Remover</button>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" onclick="fecharModalListaMembros()" class="btn btn-secondary">Fechar</button>
         </div>
     </div>
 </div>
