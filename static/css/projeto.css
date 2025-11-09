@@ -1095,3 +1095,221 @@ form label {
         grid-template-columns: 1fr;
     }
 }
+
+/* ================================
+   Estilos para Modal de Membros
+================================ */
+
+.membros-lista-container {
+    max-height: 500px;
+    overflow-y: auto;
+    margin: 20px 0;
+    padding-right: 10px;
+}
+
+.membro-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.membro-item.criador {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 193, 7, 0.1));
+    border-left: 4px solid #FFD700;
+}
+
+.membro-item.administrador {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    border-left: 4px solid #667eea;
+}
+
+.membro-item.membro-normal {
+    background: rgba(255, 255, 255, 0.5);
+    border-left: 4px solid #95a5a6;
+}
+
+.membro-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.membro-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.membro-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.membro-detalhes {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.membro-nome {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
+.membro-email {
+    color: #7f8c8d;
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+}
+
+.membro-cargo {
+    font-size: 0.75rem;
+    color: #667eea;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.membro-acoes {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.criador-badge, .admin-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(255, 215, 0, 0.2);
+    color: #b8860b;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.admin-badge {
+    background: rgba(102, 126, 234, 0.2);
+    color: #667eea;
+    border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+/* Menu dos membros */
+.membro-menu {
+    position: relative;
+}
+
+.menu-btn-membro {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px 8px;
+    border-radius: 5px;
+    color: #7f8c8d;
+    transition: all 0.3s ease;
+}
+
+.menu-btn-membro:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #2c3e50;
+}
+
+.menu-dropdown-membro {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    min-width: 200px;
+    z-index: 1000;
+    border: 1px solid #e9ecef;
+}
+
+.menu-dropdown-membro.mostrar {
+    display: block;
+}
+
+.menu-dropdown-membro .menu-item {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #2c3e50;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.menu-dropdown-membro .menu-item:last-child {
+    border-bottom: none;
+}
+
+.menu-dropdown-membro .menu-item:hover {
+    background: #f8f9fa;
+    color: #667eea;
+}
+
+.menu-dropdown-membro .btn-remover {
+    color: #e74c3c;
+}
+
+.menu-dropdown-membro .btn-remover:hover {
+    background: rgba(231, 76, 60, 0.1);
+    color: #c0392b;
+}
+
+/* Scrollbar personalizada */
+.membros-lista-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.membros-lista-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.membros-lista-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+.membros-lista-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .membro-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .membro-acoes {
+        align-self: flex-end;
+    }
+    
+    .menu-dropdown-membro {
+        right: -50px;
+    }
+}
