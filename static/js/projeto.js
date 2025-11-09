@@ -582,7 +582,7 @@ function tornarAdministrador(idUsuario) {
 function rebaixarMembro(idUsuario) {
     console.log('Rebaixar membro chamado para usuário:', idUsuario);
     
-    if (!confirm('Rebaixar este administrador para membro normal? Ele perderá as permissões de administrador.')) {
+    if (!confirm('Rebaixar este administrador para membro comum? Ele perderá as permissões de administrador.')) {
         return;
     }
     
