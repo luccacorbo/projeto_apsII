@@ -119,9 +119,9 @@
                             <div class="task-footer-modern">
                                 <div class="responsavel-info">
                                     <div class="responsavel-avatar">
-                                        {{ tarefa.criador_nome[:1]|upper }}
+                                        {{ tarefa.responsavel_nome[:1]|upper }}
                                     </div>
-                                    <span>{{ tarefa.criador_nome }}</span>
+                                    <span>{{ tarefa.responsavel_nome }}</span>
                                 </div>
                                 {% if tarefa.data_vencimento %}
                                 <div class="due-date-modern">
@@ -163,9 +163,9 @@
                             <div class="task-footer-modern">
                                 <div class="responsavel-info">
                                     <div class="responsavel-avatar">
-                                        {{ tarefa.criador_nome[:1]|upper }}
+                                        {{ tarefa.responsavel_nome[:1]|upper }}
                                     </div>
-                                    <span>{{ tarefa.criador_nome }}</span>
+                                    <span>{{ tarefa.responsavel_nome }}</span>
                                 </div>
                                 {% if tarefa.data_vencimento %}
                                 <div class="due-date-modern">
@@ -207,9 +207,9 @@
                             <div class="task-footer-modern">
                                 <div class="responsavel-info">
                                     <div class="responsavel-avatar">
-                                        {{ tarefa.criador_nome[:1]|upper }}
+                                        {{ tarefa.responsavel_nome[:1]|upper }}
                                     </div>
-                                    <span>{{ tarefa.criador_nome }}</span>
+                                    <span>{{ tarefa.responsavel_nome }}</span>
                                 </div>
                                 {% if tarefa.data_vencimento %}
                                 <div class="due-date-modern">
@@ -405,12 +405,12 @@
                     </div>
                 </div>
                 <div class="membro-acoes">
-                    {% if eh_criador %}
+                    {% if eh_criador or usuario_atual_eh_admin %}
                     <div class="membro-menu">
                         <button class="menu-btn-membro" onclick="toggleMembroMenu({{ membro.id_usuario }})">⋮</button>
                         <div class="menu-dropdown-membro" id="menuMembro{{ membro.id_usuario }}">
-                            <button class="menu-item" onclick="rebaixarMembro({{ membro.id_usuario }})">👥 Rebaixar a Membro</button>
-                            <button class="menu-item btn-remover" onclick="removerMembroModal({{ membro.id_usuario }})">🗑️ Remover</button>
+                            <button class="menu-item" onclick="rebaixarMembro({{ membro.id_usuario }})">Rebaixar Membro</button>
+                            <button class="menu-item btn-remover" onclick="removerMembroModal({{ membro.id_usuario }})">Remover</button>
                         </div>
                     </div>
                     {% else %}
@@ -434,12 +434,12 @@
                     </div>
                 </div>
                 <div class="membro-acoes">
-                    {% if eh_criador %}
+                    {% if eh_criador or usuario_atual_eh_admin %}
                     <div class="membro-menu">
                         <button class="menu-btn-membro" onclick="toggleMembroMenu({{ membro.id_usuario }})">⋮</button>
                         <div class="menu-dropdown-membro" id="menuMembro{{ membro.id_usuario }}">
-                            <button class="menu-item" onclick="tornarAdministrador({{ membro.id_usuario }})">🛡️ Tornar Administrador</button>
-                            <button class="menu-item btn-remover" onclick="removerMembroModal({{ membro.id_usuario }})">🗑️ Remover</button>
+                            <button class="menu-item" onclick="tornarAdministrador({{ membro.id_usuario }})">Tornar Administrador</button>
+                            <button class="menu-item btn-remover" onclick="removerMembroModal({{ membro.id_usuario }})">Remover</button>
                         </div>
                     </div>
                     {% endif %}

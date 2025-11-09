@@ -111,27 +111,27 @@ def visualizar_projeto(id_projeto):
     
     # Buscar tarefas por status
     cursor.execute("""
-        SELECT t.*, u.nome as criador_nome 
+        SELECT t.*, u.nome as responsavel_nome 
         FROM tarefas t 
-        JOIN usuario u ON t.id_criador = u.id_usuario 
+        JOIN usuario u ON t.id_responsavel = u.id_usuario 
         WHERE t.id_projeto = %s AND t.status = 'todo'
         ORDER BY t.data_criacao DESC
     """, (id_projeto,))
     tarefas_todo = cursor.fetchall()
     
     cursor.execute("""
-        SELECT t.*, u.nome as criador_nome 
+        SELECT t.*, u.nome as responsavel_nome 
         FROM tarefas t 
-        JOIN usuario u ON t.id_criador = u.id_usuario 
+        JOIN usuario u ON t.id_responsavel = u.id_usuario 
         WHERE t.id_projeto = %s AND t.status = 'doing'
         ORDER BY t.data_criacao DESC
     """, (id_projeto,))
     tarefas_doing = cursor.fetchall()
     
     cursor.execute("""
-        SELECT t.*, u.nome as criador_nome 
+        SELECT t.*, u.nome as responsavel_nome
         FROM tarefas t 
-        JOIN usuario u ON t.id_criador = u.id_usuario 
+        JOIN usuario u ON t.id_responsavel = u.id_usuario 
         WHERE t.id_projeto = %s AND t.status = 'done'
         ORDER BY t.data_criacao DESC
     """, (id_projeto,))
@@ -463,7 +463,7 @@ def rebaixar_membro(id_projeto, id_usuario):
         cursor.close()
         connection.close()
         
-        return jsonify({'success': True, 'message': 'Usuário rebaixado para membro normal'})
+        return jsonify({'success': True, 'message': 'Usuário rebaixado para membro'})
         
     except Exception as e:
         print(f"❌ Erro ao rebaixar membro: {e}")

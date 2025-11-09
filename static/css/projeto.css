@@ -1255,7 +1255,7 @@ form label {
     padding: 10px 15px;
     cursor: pointer;
     font-size: 0.9rem;
-    color: #2c3e50;
+    color: #838383;
     transition: all 0.2s ease;
     border-bottom: 1px solid #f8f9fa;
 }
@@ -1266,7 +1266,7 @@ form label {
 
 .menu-dropdown-membro .menu-item:hover {
     background: #f8f9fa;
-    color: #667eea;
+    color: #838383;
 }
 
 .menu-dropdown-membro .btn-remover {
@@ -1274,7 +1274,6 @@ form label {
 }
 
 .menu-dropdown-membro .btn-remover:hover {
-    background: rgba(231, 76, 60, 0.1);
     color: #c0392b;
 }
 
