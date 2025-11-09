@@ -533,76 +533,95 @@ function fecharModalListaMembros() {
     document.getElementById('modalListaMembros').style.display = 'none';
     // Fecha todos os menus abertos
     document.querySelectorAll('.menu-dropdown-membro').forEach(menu => {
-        menu.classList.remove('mostrar');
+        menu.style.display = 'none';
     });
 }
 
-function toggleMembroMenu(usuarioId) {
-    const menu = document.getElementById(`menuMembro${usuarioId}`);
-    const todosMenus = document.querySelectorAll('.menu-dropdown-membro');
+// ================================
+// FUNÇÕES CORRIGIDAS PARA GERENCIAR PERMISSÕES DE ADMINISTRADOR
+// ================================
+
+function tornarAdministrador(idUsuario) {
+    console.log('Tornar administrador chamado para usuário:', idUsuario);
     
-    // Fecha todos os outros menus
-    todosMenus.forEach(m => {
-        if (m !== menu) {
-            m.classList.remove('mostrar');
+    if (!confirm('Tornar este usuário administrador? Ele poderá adicionar/remover membros e criar tarefas.')) {
+        return;
+    }
+    
+    const projetoId = getProjetoId();
+    console.log('ID do projeto:', projetoId);
+    
+    fetch(`/projeto/${projetoId}/membros/${idUsuario}/tornar-admin`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
         }
+    })
+    .then(response => {
+        console.log('Resposta do servidor:', response);
+        if (!response.ok) {
+            throw new Error('Erro na resposta do servidor: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Dados recebidos:', data);
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Erro: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao tornar administrador: ' + error.message);
     });
+}
+
+function rebaixarMembro(idUsuario) {
+    console.log('Rebaixar membro chamado para usuário:', idUsuario);
     
-    // Alterna o menu atual
-    menu.classList.toggle('mostrar');
-}
-
-function tornarAdministrador(usuarioId) {
-    if (confirm('Tem certeza que deseja tornar este membro administrador?\n\nAdministradores podem:\n• Criar e editar tarefas\n• Gerenciar membros\n• Alterar status de tarefas')) {
-        fetch(`/projeto/${getProjetoId()}/membros/${usuarioId}/tornar-admin`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Membro promovido a administrador com sucesso!');
-                location.reload();
-            } else {
-                alert('Erro ao promover membro: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            alert('Erro ao promover membro');
-        });
+    if (!confirm('Rebaixar este administrador para membro normal? Ele perderá as permissões de administrador.')) {
+        return;
     }
+    
+    const projetoId = getProjetoId();
+    console.log('ID do projeto:', projetoId);
+    
+    fetch(`/projeto/${projetoId}/membros/${idUsuario}/rebaixar`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => {
+        console.log('Resposta do servidor:', response);
+        if (!response.ok) {
+            throw new Error('Erro na resposta do servidor: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Dados recebidos:', data);
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Erro: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao rebaixar membro: ' + error.message);
+    });
 }
 
-function rebaixarMembro(usuarioId) {
-    if (confirm('Tem certeza que deseja rebaixar este administrador?\n\nEle perderá as permissões de administrador.')) {
-        fetch(`/projeto/${getProjetoId()}/membros/${usuarioId}/rebaixar-membro`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Administrador rebaixado com sucesso!');
-                location.reload();
-            } else {
-                alert('Erro ao rebaixar administrador: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            alert('Erro ao rebaixar administrador');
-        });
-    }
-}
-
-function removerMembroModal(usuarioId) {
+function removerMembroModal(idUsuario) {
     if (confirm('Tem certeza que deseja remover este membro do projeto?')) {
-        fetch(`/projeto/${getProjetoId()}/membros/${usuarioId}/remover`, {
+        const projetoId = getProjetoId();
+        
+        fetch(`/projeto/${projetoId}/membros/${idUsuario}/remover`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -624,12 +643,31 @@ function removerMembroModal(usuarioId) {
     }
 }
 
-// Fechar menus ao clicar fora
-document.addEventListener('click', function(event) {
-    // Fecha menus de membros
-    document.querySelectorAll('.menu-dropdown-membro').forEach(menu => {
-        if (!menu.contains(event.target) && !event.target.classList.contains('menu-btn-membro')) {
-            menu.classList.remove('mostrar');
+// Função auxiliar para alternar menus de membro
+function toggleMembroMenu(idUsuario) {
+    const menu = document.getElementById(`menuMembro${idUsuario}`);
+    const todosMenus = document.querySelectorAll('.menu-dropdown-membro');
+    
+    // Fechar outros menus
+    todosMenus.forEach(m => {
+        if (m !== menu) {
+            m.style.display = 'none';
         }
     });
+    
+    // Alternar menu atual
+    if (menu.style.display === 'block') {
+        menu.style.display = 'none';
+    } else {
+        menu.style.display = 'block';
+    }
+}
+
+// Fechar menus ao clicar fora
+document.addEventListener('click', function(e) {
+    if (!e.target.matches('.menu-btn-membro')) {
+        document.querySelectorAll('.menu-dropdown-membro').forEach(menu => {
+            menu.style.display = 'none';
+        });
+    }
 });

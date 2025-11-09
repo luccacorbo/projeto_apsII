@@ -195,17 +195,17 @@ def criar_tarefa(id_projeto):
         return redirect('/login')
     
     try:
-        # Verificar se usuário tem permissão (criador ou membro do projeto)
+        # Verificar se usuário tem permissão (criador, administrador OU membro do projeto)
         connection = conectar()
         cursor = connection.cursor(dictionary=True)
         
-        # Verificar se usuário é criador ou membro do projeto
+        # Verificar se usuário é criador, administrador ou membro do projeto
         cursor.execute("""
             SELECT 1 FROM projetos 
             WHERE id_projeto = %s AND id_criador = %s
             UNION
             SELECT 1 FROM projeto_membros 
-            WHERE id_projeto = %s AND id_usuario = %s
+            WHERE id_projeto = %s AND id_usuario = %s AND data_aceitacao IS NOT NULL
         """, (id_projeto, session['user_id'], id_projeto, session['user_id']))
         
         if not cursor.fetchone():
@@ -274,20 +274,24 @@ def excluir_tarefa(id_projeto, id_tarefa):
         connection = conectar()
         cursor = connection.cursor(dictionary=True)
         
-        # Verificar se usuário é criador do projeto ou da tarefa
+        # Verificar se usuário é criador do projeto, administrador ou da tarefa
         cursor.execute("""
-            SELECT p.id_criador as projeto_criador, t.id_criador as tarefa_criador
+            SELECT p.id_criador as projeto_criador, t.id_criador as tarefa_criador,
+                   pm.eh_administrador
             FROM tarefas t
             JOIN projetos p ON t.id_projeto = p.id_projeto
+            LEFT JOIN projeto_membros pm ON p.id_projeto = pm.id_projeto AND pm.id_usuario = %s
             WHERE t.id_tarefa = %s AND t.id_projeto = %s
-        """, (id_tarefa, id_projeto))
+        """, (session['user_id'], id_tarefa, id_projeto))
         
         resultado = cursor.fetchone()
         if not resultado:
             return jsonify({'error': 'Tarefa não encontrada'}), 404
         
-        # Apenas criador do projeto ou da tarefa pode excluir
-        if resultado['projeto_criador'] != session['user_id'] and resultado['tarefa_criador'] != session['user_id']:
+        # Apenas criador do projeto, administrador ou criador da tarefa pode excluir
+        if (resultado['projeto_criador'] != session['user_id'] and 
+            not resultado['eh_administrador'] and 
+            resultado['tarefa_criador'] != session['user_id']):
             return jsonify({'error': 'Sem permissão para excluir esta tarefa'}), 403
         
         # Excluir tarefa
