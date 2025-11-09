@@ -1312,3 +1312,82 @@ form label {
         right: -50px;
     }
 }
+
+/* ================================
+   Estilos para o Card do Tabuleiro
+================================ */
+
+.estatistica-card.tabuleiro::before {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.estatistica-card.tabuleiro:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(52, 152, 219, 0.2);
+}
+
+.icone-tabuleiro {
+  width: 48px;       /* ajuste o tamanho conforme o design */
+  height: 48px;
+  display: block;
+  margin: 0 auto 8px auto;  /* centraliza e adiciona espaçamento abaixo */
+}
+
+
+.estatistica-descricao {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+/* Efeito de brilho no hover para o card do tabuleiro */
+.estatistica-card.tabuleiro {
+    position: relative;
+    overflow: hidden;
+}
+
+.estatistica-card.tabuleiro::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    transform: rotate(45deg);
+    transition: all 0.5s ease;
+    opacity: 0;
+}
+
+.estatistica-card.tabuleiro:hover::after {
+    animation: shine 1.5s ease;
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+        opacity: 0;
+    }
+}
+
+/* Indicador visual de clique */
+.estatistica-card.tabuleiro {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.estatistica-card.tabuleiro:active {
+    transform: scale(0.95);
+}

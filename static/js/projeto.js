@@ -671,3 +671,17 @@ document.addEventListener('click', function(e) {
         });
     }
 });
+
+// ================================
+// FUNÇÃO PARA IR PARA O TABULEIRO
+// ================================
+
+function irParaTabuleiro() {
+    const projetoId = getProjetoId();
+    if (projetoId) {
+        window.location.href = `/projeto/${projetoId}/tabuleiro`;
+    } else {
+        console.error('ID do projeto não encontrado');
+        alert('Erro ao acessar o tabuleiro');
+    }
+}

@@ -236,6 +236,14 @@
                 <div class="estatistica-numero">{{ membros|length + 1 }}</div>
                 <div class="estatistica-label">Membros</div>
             </div>
+
+            <!-- NOVO CARD PARA TABULEIRO -->
+            <div class="estatistica-card tabuleiro" onclick="irParaTabuleiro()" style="cursor: pointer;">
+                <img src="{{ url_for('static', filename='imagens/tabuleiro.png') }}" alt="tabuleiro" class="icone-tabuleiro">
+                <div class="estatistica-label">Ver Tabuleiro</div>
+                <div class="estatistica-descricao">Visualização completa</div>
+            </div>
+
             <div class="estatistica-card pendentes">
                 <div class="estatistica-numero">{{ tarefas_todo|length }}</div>
                 <div class="estatistica-label">Pendentes</div>
