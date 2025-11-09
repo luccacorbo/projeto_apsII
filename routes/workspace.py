@@ -137,9 +137,9 @@ def visualizar_projeto(id_projeto):
     """, (id_projeto,))
     tarefas_done = cursor.fetchall()
     
-    # Buscar membros do projeto (apenas os que aceitaram o convite)
+    # Buscar membros do projeto (apenas os que aceitaram o convite) COM INFORMAÇÃO DE ADMIN
     cursor.execute("""
-        SELECT u.id_usuario, u.nome, u.email
+        SELECT u.id_usuario, u.nome, u.email, pm.eh_administrador
         FROM projeto_membros pm
         JOIN usuario u ON pm.id_usuario = u.id_usuario
         WHERE pm.id_projeto = %s AND pm.data_aceitacao IS NOT NULL
@@ -160,6 +160,14 @@ def visualizar_projeto(id_projeto):
     
     eh_criador = projeto['id_criador'] == session['user_id']
     
+    # Verificar se usuário atual é administrador (criador OU membro com flag admin)
+    usuario_atual_eh_admin = eh_criador
+    if not usuario_atual_eh_admin:
+        for membro in membros:
+            if membro['id_usuario'] == session['user_id'] and membro['eh_administrador']:
+                usuario_atual_eh_admin = True
+                break
+    
     return render_template('projeto.html',
                          projeto=projeto,
                          tarefas_todo=tarefas_todo,
@@ -168,6 +176,7 @@ def visualizar_projeto(id_projeto):
                          membros=membros,
                          convites_pendentes=convites_pendentes,
                          eh_criador=eh_criador,
+                         usuario_atual_eh_admin=usuario_atual_eh_admin,  # NOVO PARÂMETRO
                          criador={'nome': projeto['criador_nome']})
 
 @work.route('/projeto/<int:id_projeto>/membros', methods=['POST'])
@@ -175,14 +184,21 @@ def adicionar_membro(id_projeto):
     if 'user_id' not in session:
         return jsonify({'error': 'Não logado'}), 401
     
-    # Verificar se é o criador
     connection = conectar()
     cursor = connection.cursor(dictionary=True)
-    cursor.execute("SELECT id_criador FROM projetos WHERE id_projeto = %s", (id_projeto,))
-    projeto = cursor.fetchone()
     
-    if projeto['id_criador'] != session['user_id']:
-        return jsonify({'error': 'Apenas o criador pode adicionar membros'}), 403
+    # Verificar se é o criador OU um administrador
+    cursor.execute("""
+        SELECT p.id_criador, pm.eh_administrador
+        FROM projetos p
+        LEFT JOIN projeto_membros pm ON p.id_projeto = pm.id_projeto AND pm.id_usuario = %s
+        WHERE p.id_projeto = %s
+    """, (session['user_id'], id_projeto))
+    
+    projeto_info = cursor.fetchone()
+    
+    if not projeto_info or (projeto_info['id_criador'] != session['user_id'] and not projeto_info['eh_administrador']):
+        return jsonify({'error': 'Apenas o criador ou administradores podem adicionar membros'}), 403
     
     email_membro = request.json.get('email')
     
@@ -278,12 +294,18 @@ def remover_membro(id_projeto, id_usuario):
         connection = conectar()
         cursor = connection.cursor(dictionary=True)
         
-        # Verificar se é o criador do projeto
-        cursor.execute("SELECT id_criador FROM projetos WHERE id_projeto = %s", (id_projeto,))
-        projeto = cursor.fetchone()
+        # Verificar se é o criador do projeto OU administrador
+        cursor.execute("""
+            SELECT p.id_criador, pm.eh_administrador
+            FROM projetos p
+            LEFT JOIN projeto_membros pm ON p.id_projeto = pm.id_projeto AND pm.id_usuario = %s
+            WHERE p.id_projeto = %s
+        """, (session['user_id'], id_projeto))
         
-        if projeto['id_criador'] != session['user_id']:
-            return jsonify({'error': 'Apenas o criador pode remover membros'}), 403
+        projeto_info = cursor.fetchone()
+        
+        if not projeto_info or (projeto_info['id_criador'] != session['user_id'] and not projeto_info['eh_administrador']):
+            return jsonify({'error': 'Apenas o criador ou administradores podem remover membros'}), 403
         
         # Não permitir remover a si mesmo
         if id_usuario == session['user_id']:
@@ -371,6 +393,80 @@ def sair_do_projeto(id_projeto):
         
     except Exception as e:
         print(f"❌ Erro ao sair do projeto: {e}")
+        return jsonify({'error': 'Erro interno'}), 500
+
+# ====================================
+# NOVAS ROTAS PARA GERENCIAR PERMISSÕES DE ADMINISTRADOR
+# ====================================
+
+@work.route('/projeto/<int:id_projeto>/membros/<int:id_usuario>/tornar-admin', methods=['POST'])
+def tornar_administrador(id_projeto, id_usuario):
+    if 'user_id' not in session:
+        return jsonify({'error': 'Não logado'}), 401
+    
+    try:
+        connection = conectar()
+        cursor = connection.cursor(dictionary=True)
+        
+        # Verificar se é o criador do projeto
+        cursor.execute("SELECT id_criador FROM projetos WHERE id_projeto = %s", (id_projeto,))
+        projeto = cursor.fetchone()
+        
+        if projeto['id_criador'] != session['user_id']:
+            return jsonify({'error': 'Apenas o criador pode alterar permissões'}), 403
+        
+        # Tornar membro administrador
+        cursor.execute("""
+            UPDATE projeto_membros 
+            SET eh_administrador = TRUE 
+            WHERE id_projeto = %s AND id_usuario = %s
+        """, (id_projeto, id_usuario))
+        
+        connection.commit()
+        cursor.close()
+        connection.close()
+        
+        return jsonify({'success': True, 'message': 'Usuário agora é administrador'})
+        
+    except Exception as e:
+        print(f"❌ Erro ao tornar administrador: {e}")
+        return jsonify({'error': 'Erro interno'}), 500
+
+@work.route('/projeto/<int:id_projeto>/membros/<int:id_usuario>/rebaixar', methods=['POST'])
+def rebaixar_membro(id_projeto, id_usuario):
+    if 'user_id' not in session:
+        return jsonify({'error': 'Não logado'}), 401
+    
+    try:
+        connection = conectar()
+        cursor = connection.cursor(dictionary=True)
+        
+        # Verificar se é o criador do projeto
+        cursor.execute("SELECT id_criador FROM projetos WHERE id_projeto = %s", (id_projeto,))
+        projeto = cursor.fetchone()
+        
+        if projeto['id_criador'] != session['user_id']:
+            return jsonify({'error': 'Apenas o criador pode alterar permissões'}), 403
+        
+        # Não permitir rebaixar a si mesmo
+        if id_usuario == session['user_id']:
+            return jsonify({'error': 'Não é possível rebaixar a si mesmo'}), 400
+        
+        # Rebaixar administrador para membro normal
+        cursor.execute("""
+            UPDATE projeto_membros 
+            SET eh_administrador = FALSE 
+            WHERE id_projeto = %s AND id_usuario = %s
+        """, (id_projeto, id_usuario))
+        
+        connection.commit()
+        cursor.close()
+        connection.close()
+        
+        return jsonify({'success': True, 'message': 'Usuário rebaixado para membro normal'})
+        
+    except Exception as e:
+        print(f"❌ Erro ao rebaixar membro: {e}")
         return jsonify({'error': 'Erro interno'}), 500
 
 # ====================================
@@ -463,12 +559,18 @@ def cancelar_convite(id_projeto, id_convite):
         connection = conectar()
         cursor = connection.cursor(dictionary=True)
         
-        # Verificar se é o criador do projeto
-        cursor.execute("SELECT id_criador FROM projetos WHERE id_projeto = %s", (id_projeto,))
-        projeto = cursor.fetchone()
+        # Verificar se é o criador do projeto OU administrador
+        cursor.execute("""
+            SELECT p.id_criador, pm.eh_administrador
+            FROM projetos p
+            LEFT JOIN projeto_membros pm ON p.id_projeto = pm.id_projeto AND pm.id_usuario = %s
+            WHERE p.id_projeto = %s
+        """, (session['user_id'], id_projeto))
         
-        if projeto['id_criador'] != session['user_id']:
-            return jsonify({'error': 'Apenas o criador pode cancelar convites'}), 403
+        projeto_info = cursor.fetchone()
+        
+        if not projeto_info or (projeto_info['id_criador'] != session['user_id'] and not projeto_info['eh_administrador']):
+            return jsonify({'error': 'Apenas o criador ou administradores podem cancelar convites'}), 403
         
         # Cancelar convite
         cursor.execute("DELETE FROM convite_projeto WHERE id_convite = %s", (id_convite,))

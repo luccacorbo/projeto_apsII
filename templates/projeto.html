@@ -16,6 +16,7 @@
                     <div class="menu-dropdown" id="projetoMenuDropdown">
                         <button class="menu-item" onclick="sairDoProjeto()">Sair do Projeto</button>
                         {% if eh_criador %}
+                        <!-- A função de excluir projetos aparece APENAS para o criador -->
                         <button class="menu-item" onclick="excluirProjeto()">Excluir Projeto</button>
                         {% endif %}
                     </div>
@@ -32,7 +33,8 @@
         </div>
         
         <div class="projeto-actions">
-            {% if eh_criador %}
+            <!-- Botões aparecem para criador E administradores -->
+            {% if eh_criador or usuario_atual_eh_admin %}
             <button class="btn btn-primary" onclick="abrirModalTarefa()">+ Nova Tarefa</button>
             <button class="btn btn-secondary" onclick="abrirModalMembros()">👥 Gerenciar Membros</button>
             {% else %}
@@ -128,7 +130,8 @@
                                 {% endif %}
                             </div>
                         </div>
-                        {% if eh_criador %}
+                        <!-- Botão de excluir tarefa aparece APENAS para criador e administradores -->
+                        {% if eh_criador or usuario_atual_eh_admin %}
                         <div class="task-actions">
                             <button class="btn-acao-tarefa" data-task-id="{{ tarefa.id_tarefa }}" data-action="excluir">🗑️</button>
                         </div>
@@ -171,7 +174,8 @@
                                 {% endif %}
                             </div>
                         </div>
-                        {% if eh_criador %}
+                        <!-- Botão de excluir tarefa aparece APENAS para criador e administradores -->
+                        {% if eh_criador or usuario_atual_eh_admin %}
                         <div class="task-actions">
                             <button class="btn-acao-tarefa" data-task-id="{{ tarefa.id_tarefa }}" data-action="excluir">🗑️</button>
                         </div>
@@ -214,7 +218,8 @@
                                 {% endif %}
                             </div>
                         </div>
-                        {% if eh_criador %}
+                        <!-- Botão de excluir tarefa aparece APENAS para criador e administradores -->
+                        {% if eh_criador or usuario_atual_eh_admin %}
                         <div class="task-actions">
                             <button class="btn-acao-tarefa" data-task-id="{{ tarefa.id_tarefa }}" data-action="excluir">🗑️</button>
                         </div>
@@ -227,7 +232,7 @@
 
         <!-- Estatísticas Rápidas - NOVO LAYOUT NA LATERAL DIREITA -->
         <div class="estatisticas-lateral">
-            <div class="estatistica-card membros"onclick="abrirModalListaMembros()" style="cursor: pointer;">
+            <div class="estatistica-card membros" onclick="abrirModalListaMembros()" style="cursor: pointer;">
                 <div class="estatistica-numero">{{ membros|length + 1 }}</div>
                 <div class="estatistica-label">Membros</div>
             </div>
@@ -248,7 +253,8 @@
 </div>
 
 <!-- Modais -->
-{% if eh_criador %}
+<!-- Modais de Tarefa e Gerenciar Membros aparecem para criador E administradores -->
+{% if eh_criador or usuario_atual_eh_admin %}
 <div id="modalTarefa" class="modal">
     <div class="modal-content">
         <span class="close" onclick="fecharModalTarefa()">&times;</span>
@@ -326,7 +332,10 @@
         </div>
     </div>
 </div>
+{% endif %}
 
+<!-- Modal Excluir Projeto aparece APENAS para o criador -->
+{% if eh_criador %}
 <div id="modalExcluirProjeto" class="modal">
     <div class="modal-content">
         <h2>Confirmar Exclusão</h2>
@@ -358,6 +367,7 @@
     </div>
 </div>
 
+<!-- Modal Lista de Membros (aparece para todos) -->
 <div id="modalListaMembros" class="modal">
     <div class="modal-content">
         <span class="close" onclick="fecharModalListaMembros()">&times;</span>
