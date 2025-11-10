@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tabuleiro.css') }}">
+<style>
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:#cdddfc;border-radius:8px}
+::-webkit-scrollbar-thumb{background:#2e5aa3;border-radius:8px}
+::-webkit-scrollbar-thumb:hover{background:#1f4287}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-tabuleiro">
+  <h1>Tabuleiro de Recompensas</h1>
+  <p class="sub">Você anda conforme rola o dado!</p>
+
+  <div id="tabuleiro"
+       class="tabuleiro"
+       data-total-casas="100"
+       data-por-linha="20"
+       data-username="{{ nome_usuario or 'Jogador' }}">
+  </div>
+
+  <div class="dado-wrap" aria-live="polite">
+    <div id="dado" class="dado-2d" role="img" aria-label="Face do dado">–</div>
+    <p class="resultado">Dado: <span id="res-num">–</span></p>
+  </div>
+
+  <div class="actions">
+    <button type="button" class="btn" onclick="rolarDado()">Rolar Dado</button>
+    <button type="button" class="btn" onclick="abrirModal('adicionar')">Adicionar Recompensa</button>
+    <button type="button" class="btn warn" onclick="abrirModal('editar')">Editar Recompensas</button>
+    <button type="button" id="btnRecomecar" class="btn" onclick="recomecar()" style="display:none">Recomeçar</button>
+  </div>
+
+  <div id="modal-adicionar" class="modal" role="dialog" aria-modal="true" aria-labelledby="ttl-add">
+    <div class="modal-card" style="width:420px;text-align:center;">
+      <div class="modal-head" style="justify-content:center;">
+        <h3 id="ttl-add" style="margin:0;">Adicionar Recompensa</h3>
+      </div>
+      <div class="modal-body" style="padding-top:10px;">
+        <form method="POST" action="{{ url_for('tabuleiro.adicionar_recompensa') }}">
+          <div class="row" style="flex-direction:column;gap:10px;">
+            <input type="text" name="titulo" placeholder="Título" required>
+            <input type="text" name="descricao" placeholder="Descrição" required>
+            <input type="number" name="posicao" min="1" max="100" placeholder="Casa (1 a 100)" required>
+          </div>
+          <div class="right" style="justify-content:center;margin-top:15px;gap:10px;">
+            <button type="submit" class="btn">Salvar</button>
+            <button type="button" class="btn danger" onclick="fecharModal('adicionar')">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-editar" class="modal" role="dialog" aria-modal="true" aria-labelledby="ttl-edit">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="ttl-edit">Editar recompensas</h3>
+        <span class="pill">{{ recompensas|length }} itens</span>
+      </div>
+      <div class="modal-body">
+        {% if recompensas and recompensas|length > 0 %}
+          {% for r in recompensas %}
+          <form class="row" method="POST" action="{{ url_for('tabuleiro.editar_recompensa', id_recompensa=r.id_recompensa) }}">
+            <input type="text" name="titulo" value="{{ r.titulo }}" required>
+            <input type="text" name="descricao" value="{{ r.descricao }}" required>
+            <input type="number" name="posicao" value="{{ r.posicao }}" min="1" max="100" required style="flex:0 0 120px">
+            <button class="btn" type="submit">Salvar</button>
+            <button class="btn danger" formaction="{{ url_for('tabuleiro.excluir_recompensa', id_recompensa=r.id_recompensa) }}">Excluir</button>
+          </form>
+          <div class="hr"></div>
+          {% endfor %}
+        {% else %}
+          <p>Nenhuma recompensa cadastrada.</p>
+        {% endif %}
+      </div>
+      <div class="right">
+        <button type="button" class="btn" onclick="fecharModal('editar')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+<!-- Modal: Ganhou -->
+<div id="modal-ganhou" class="modal" role="dialog" aria-modal="true" aria-labelledby="ttl-win">
+  <div class="modal-card win">
+    <div class="win-title" id="ttl-win">🎉 Parabéns!</div>
+    <p class="win-desc" id="textoRecompensa">Você ganhou uma recompensa!</p>
+
+    <div class="right" style="margin-top:14px">
+      <button type="button" class="btn" onclick="fecharModal('ganhou')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+  window.recompensas = {{ recompensas | tojson }};
+  window.nomeJogador = "{{ (nome_usuario or 'Jogador') | e }}";
+</script>
+<script src="{{ url_for('static', filename='js/tabuleiro.js') }}"></script>
+{% endblock %}
