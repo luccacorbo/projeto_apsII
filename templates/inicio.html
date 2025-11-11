@@ -12,7 +12,7 @@
     {# Header com boas-vindas #}
     <header class="inicio-header">
         <h1>Olá, {{ primeiro_nome }}!</h1>
-        <p>Gerencie seus projetos e tarefas de forma simples</p>
+        <p>Gerencie Seus Projetos e Tarefas de Forma Simples</p>
     </header>
 
     {# Seção de projetos #}
@@ -28,7 +28,7 @@
         {# Estado vazio - quando não há projetos #}
         <div class="empty-state">
             <div class="empty-icon">📁</div>
-            <h3>Nenhum projeto encontrado</h3><br>
+            <h3>Nenhum Projeto Encontrado</h3><br>
             <p>Crie seu primeiro projeto</p><br>
 
             <a href="{{ url_for('work.criar_projeto') }}" class="btn btn-primary">
@@ -52,7 +52,7 @@
                     </p>
                     {% else %}
                     <p class="projeto-descricao sem-descricao">
-                        Nenhuma descrição fornecida
+                        Nenhuma Descrição Fornecida
                     </p>
                     {% endif %}
                     
