@@ -277,13 +277,55 @@ def atualizar_status_tarefa(id_projeto, id_tarefa):
     novo_status = request.json['status']
     
     connection = conectar()
-    cursor = connection.cursor()
-    cursor.execute("UPDATE tarefas SET status = %s WHERE id_tarefa = %s", (novo_status, id_tarefa))
-    connection.commit()
-    cursor.close()
-    connection.close()
+    cursor = connection.cursor(dictionary=True)
     
-    return jsonify({'success': True})
+    try:
+        # Buscar dados atuais da tarefa
+        cursor.execute("SELECT * FROM tarefas WHERE id_tarefa = %s", (id_tarefa,))
+        tarefa = cursor.fetchone()
+        
+        # Atualizar status
+        cursor.execute("UPDATE tarefas SET status = %s WHERE id_tarefa = %s", (novo_status, id_tarefa))
+        
+        # Se a tarefa foi concluída e ainda não gerou saldo
+        if (novo_status == 'done' and tarefa['status'] != 'done' and 
+            not tarefa['saldo_gerado'] and tarefa['id_responsavel']):
+            
+            # Buscar tabuleiro do projeto
+            cursor.execute("SELECT id_tabuleiro FROM tabuleiro WHERE id_projeto = %s", (id_projeto,))
+            tabuleiro = cursor.fetchone()
+            
+            if tabuleiro:
+                # Atualizar saldo do usuário
+                cursor.execute("""
+                    INSERT INTO progresso_tabuleiro (id_usuario, id_tabuleiro, saldo, posicao_atual)
+                    VALUES (%s, %s, 1, 0)
+                    ON DUPLICATE KEY UPDATE 
+                        saldo = saldo + 1,
+                        data_ultima_atualizacao = NOW()
+                """, (tarefa['id_responsavel'], tabuleiro['id_tabuleiro']))
+                
+                # Registrar no histórico
+                cursor.execute("""
+                    INSERT INTO historico_saldo (id_usuario, id_tarefa, id_projeto, saldo_gerado)
+                    VALUES (%s, %s, %s, 1)
+                """, (tarefa['id_responsavel'], id_tarefa, id_projeto))
+                
+                # Marcar como saldo gerado
+                cursor.execute("UPDATE tarefas SET saldo_gerado = TRUE WHERE id_tarefa = %s", (id_tarefa,))
+        
+        connection.commit()
+        cursor.close()
+        connection.close()
+        
+        return jsonify({'success': True})
+        
+    except Exception as e:
+        connection.rollback()
+        cursor.close()
+        connection.close()
+        print(f"❌ Erro ao atualizar status da tarefa: {e}")
+        return jsonify({'error': 'Erro interno ao atualizar tarefa'}), 500
 
 @work.route('/projeto/<int:id_projeto>/membros/<int:id_usuario>/remover', methods=['POST'])
 def remover_membro(id_projeto, id_usuario):

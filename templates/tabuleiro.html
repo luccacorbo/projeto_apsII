@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tabuleiro.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="page-tabuleiro">
+  <div class="tabuleiro-container">
+    
+    <!-- Lado Esquerdo - Tabuleiro -->
+    <div class="tabuleiro-lado">
+      <h1>Tabuleiro de Recompensas - {{ projeto.nome }}</h1>
+      <p class="sub">Jogue o dado e avance para ganhar recompensas!</p>
+
+      <div id="tabuleiro"
+           class="tabuleiro"
+           data-total-casas="100"
+           data-por-linha="10"
+           data-username="{{ nome_usuario or 'Jogador' }}">
+      </div>
+    </div>
+
+    <!-- Lado Direito - Controles -->
+    <div class="controles-lado">
+      
+      <!-- Painel do Dado -->
+      <div class="painel-dado">
+        <h3>🎲 Seu Dado</h3>
+        <div class="dado-wrap" aria-live="polite">
+          <div id="dado" class="dado-2d" role="img" aria-label="Face do dado">–</div>
+          <p class="resultado">Último resultado:</p>
+          <div class="resultado-numero" id="res-num">–</div>
+        </div>
+        
+        <!-- Container do botão girar e saldo -->
+        <div class="btn-girar-container">
+          <button type="button" id="btnGirarDado" class="btn-girar-dado" onclick="rolarDado()">
+            🎲 Girar Dado
+          </button>
+          <div class="saldo-container">
+            <div class="saldo-label">Saldo:</div>
+            <div class="saldo-valor" id="saldo-valor">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel de Usuários -->
+      <div class="painel-usuarios">
+        <h3>👥 Membros do Projeto</h3>
+        <div class="lista-usuarios" id="lista-usuarios">
+          <div class="sem-dados">Carregando membros...</div>
+        </div>
+      </div>
+
+      <!-- Painel de Ações -->
+      <div class="painel-acoes">
+        <h3>⚡ Ações</h3>
+        <div class="actions">
+          {% if eh_criador %}
+          <button type="button" class="btn" onclick="abrirModal('adicionar')">
+            ➕ Adicionar Recompensa
+          </button>
+          <button type="button" class="btn warn" onclick="abrirModal('editar')">
+            ✏️ Gerenciar Recompensas
+          </button>
+          {% endif %}
+          <button type="button" class="btn secondary" onclick="voltarParaProjeto()">
+            Voltar ao Projeto
+          </button>
+          <button type="button" id="btnRecomecar" class="btn danger" onclick="recomecar()" style="display:none">
+            🔄 Recomeçar Jogo
+          </button>
+        </div>
+      </div>
+
+      <!-- Informações do Jogador -->
+      <div class="info-jogador">
+        <h4> Jogador Atual</h4>
+        <div class="jogador-atual" id="nome-jogador-display">
+          {{ nome_usuario or 'Jogador' }}
+        </div>
+        <div class="posicao-atual">
+          Posição: <span id="posicao-atual">1</span> de 100
+        </div>
+        <div class="info-projeto">
+          Projeto: <strong>{{ projeto.nome }}</strong>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Seção de Recompensas Ganhas -->
+  <div class="recompensas-ganhas">
+    <h2>🏆 Recompensas Conquistadas</h2>
+    <div class="grid-recompensas" id="grid-recompensas">
+      <div class="sem-dados">Carregando recompensas conquistadas...</div>
+    </div>
+  </div>
+
+  <!-- Modal Adicionar Recompensa -->
+  {% if eh_criador %}
+  <div id="modal-adicionar" class="modal" role="dialog" aria-modal="true" aria-labelledby="ttl-add">
+    <div class="modal-card" style="max-width:450px;">
+      <div class="modal-head" style="justify-content:center; margin-bottom:15px;">
+        <h3 id="ttl-add" style="margin:0;">➕ Adicionar Recompensa</h3>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{{ url_for('tabuleiro.adicionar_recompensa', id_projeto=projeto.id_projeto) }}">
+          <div class="row" style="flex-direction:column;gap:12px;">
+            <input type="text" name="titulo" placeholder="Título da recompensa" required>
+            <input type="text" name="descricao" placeholder="Descrição detalhada" required>
+            <input type="number" name="posicao" min="1" max="100" placeholder="Número da casa (1-100)" required>
+          </div>
+          <div class="right" style="justify-content:center;margin-top:20px;gap:10px;">
+            <button type="submit" class="btn">💾 Salvar</button>
+            <button type="button" class="btn danger" onclick="fecharModal('adicionar')">❌ Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Modal Editar Recompensas -->
+  {% if eh_criador %}
+  <div id="modal-editar" class="modal" role="dialog" aria-modal="true" aria-labelledby="ttl-edit">
+    <div class="modal-card">
+      <div class="modal-head" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 id="ttl-edit">✏️ Gerenciar Recompensas</h3>
+        <span class="pill">{{ recompensas|length }} recompensa(s)</span>
+      </div>
+      <div class="modal-body">
+        {% if recompensas and recompensas|length > 0 %}
+          {% for r in recompensas %}
+          <form class="row" method="POST" action="{{ url_for('tabuleiro.editar_recompensa', id_projeto=projeto.id_projeto, id_recompensa=r.id_recompensa) }}">
+            <input type="text" name="titulo" value="{{ r.titulo }}" placeholder="Título" required>
+            <input type="text" name="descricao" value="{{ r.descricao }}" placeholder="Descrição" required>
+            <input type="number" name="posicao" value="{{ r.posicao }}" min="1" max="100" placeholder="Casa" required style="flex:0 0 100px">
+            <button class="btn" type="submit" style="flex:0 0 auto">💾</button>
+            <button class="btn danger" type="button" onclick="confirmarExclusao({{ r.id_recompensa }})" style="flex:0 0 auto">🗑️</button>
+          </form>
+          <div class="hr"></div>
+          {% endfor %}
+        {% else %}
+          <p style="text-align:center; padding:20px; color:#666;">Nenhuma recompensa cadastrada ainda.</p>
+        {% endif %}
+      </div>
+      <div class="right">
+        <button type="button" class="btn" onclick="fecharModal('editar')">Fechar</button>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Modal de Vitória -->
+  <div id="modal-ganhou" class="modal" role="dialog" aria-modal="true" aria-labelledby="ttl-win">
+    <div class="modal-card win">
+      <div class="win-title" id="ttl-win">🎉 Parabéns!</div>
+      <p class="win-desc" id="textoRecompensa">Você ganhou uma recompensa!</p>
+      <div class="win-saldo" id="saldo-ganho">+5 de saldo!</div>
+      <p class="win-desc" id="mensagem-recompensa">Continue jogando para ganhar mais recompensas!</p>
+      <div class="right" style="justify-content:center; margin-top:20px">
+        <button type="button" class="btn" onclick="fecharModal('ganhou')">Continuar Jogando</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Informações da Casa -->
+  <div id="modal-casa-info" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-card casa-info">
+      <div class="info-casa-titulo" id="casa-titulo">Casa 1</div>
+      <div class="info-casa-numero" id="casa-numero">Posição: 1</div>
+      <div class="info-casa-descricao" id="casa-descricao">
+        Esta é uma casa comum do tabuleiro.
+      </div>
+      {% if eh_criador %}
+      <div class="right" style="justify-content:center; gap:10px;">
+        <button type="button" class="btn" onclick="editarRecompensaCasa()">✏️ Editar Recompensa</button>
+        <button type="button" class="btn" onclick="adicionarRecompensaCasa()">➕ Adicionar Recompensa</button>
+      </div>
+      {% endif %}
+      <div class="right" style="justify-content:center; margin-top:15px;">
+        <button type="button" class="btn" onclick="fecharModal('casa-info')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmação de Exclusão -->
+  {% if eh_criador %}
+  <div id="modal-confirmacao" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-card" style="max-width:400px; text-align:center;">
+      <h3 style="margin-bottom:15px;">Confirmar Exclusão</h3>
+      <p style="margin-bottom:20px;">Tem certeza que deseja excluir esta recompensa?</p>
+      <div class="right" style="justify-content:center; gap:10px;">
+        <form id="form-excluir" method="POST" style="display:inline;">
+          <button type="submit" class="btn danger">Sim, Excluir</button>
+        </form>
+        <button type="button" class="btn" onclick="fecharModal('confirmacao')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+  window.recompensas = {{ recompensas | tojson }};
+  window.nomeJogador = "{{ (nome_usuario or 'Jogador') | e }}";
+  window.posicaoAtual = {{ progresso.posicao_atual if progresso else 0 }};
+  window.saldo = {{ progresso.saldo if progresso else 0 }};
+  window.idProjeto = {{ projeto.id_projeto }};
+  window.ehCriador = {% if eh_criador %}true{% else %}false{% endif %};
+  window.usuariosOnline = {{ usuarios_online | tojson }};
+  window.recompensasGanhas = {{ recompensas_ganhas | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/tabuleiro.js') }}"></script>
+{% endblock %}
