@@ -331,7 +331,7 @@ function posicionarJogador(novaPosicao) {
         // Cria elemento do jogador - EMOJI DE LOCALIZAÇÃO
         config.jogadorElement = document.createElement('div');
         config.jogadorElement.className = 'boneco';
-        config.jogadorElement.textContent = '📍';
+        config.jogadorElement.textContent = '🧑‍💼';
         
         // Cria elemento do nome
         config.nomeElement = document.createElement('div');
