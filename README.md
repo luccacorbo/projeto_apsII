@@ -16,7 +16,8 @@ O **Produto Mínimo Viável (MVP)** está completo, funcional e hospedado na nuv
 A aplicação inclui o **sistema de gamificação completo** (tabuleiro, saldo e recompensas) e está acessível publicamente.
 
 ➡️ **Acesse o FofoTechs aqui:**  
-[https://fofotechs.com](https://fofotechs.up.railway.app/login)  
+
+[https://fofotechs.app](https://fofotechs.up.railway.app/login)  
 
 ---
 
