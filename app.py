@@ -4,17 +4,19 @@ from routes.home import home
 from routes.workspace import work
 from routes.task import task
 from routes.user import user
+from routes.tabuleiro import tabuleiro as bp_tabuleiro
 from database import conectar
 
 app = Flask(__name__)
 app.secret_key = "chave_secreta"
 
-# registra o blueprint de autenticação
+# registra o blueprint
 app.register_blueprint(auth)
 app.register_blueprint(home)
 app.register_blueprint(work)
 app.register_blueprint(task)
 app.register_blueprint(user)
+app.register_blueprint(bp_tabuleiro)
 
 
 @app.context_processor

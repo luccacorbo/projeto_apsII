@@ -673,15 +673,37 @@ document.addEventListener('click', function(e) {
 });
 
 // ================================
-// FUNÇÃO PARA IR PARA O TABULEIRO
+// FUNÇÃO PARA IR PARA O TABULEIRO - CORRIGIDA
 // ================================
 
 function irParaTabuleiro() {
     const projetoId = getProjetoId();
+    console.log('🔄 Redirecionando para o tabuleiro do projeto:', projetoId);
+    
     if (projetoId) {
-        window.location.href = `/projeto/${projetoId}/tabuleiro`;
+        window.location.href = `/tabuleiro/projeto/${projetoId}`;
     } else {
-        console.error('ID do projeto não encontrado');
-        alert('Erro ao acessar o tabuleiro');
+        console.error('❌ ID do projeto não encontrado');
+        alert('Erro: Não foi possível acessar o tabuleiro. ID do projeto não encontrado.');
     }
+}
+
+function testarUrlTabuleiro() {
+    const projetoId = getProjetoId();
+    console.log('ID do projeto:', projetoId);
+    console.log('URL que será usada:', `/tabuleiro/projeto/${projetoId}`);
+    
+    // Testar se a rota existe
+    fetch(`/tabuleiro/projeto/${projetoId}`)
+        .then(response => {
+            console.log('Status da resposta:', response.status);
+            if (response.ok) {
+                console.log('✅ Rota do tabuleiro encontrada!');
+            } else {
+                console.log('❌ Rota do tabuleiro não encontrada');
+            }
+        })
+        .catch(error => {
+            console.log('❌ Erro ao acessar rota:', error);
+        });
 }
