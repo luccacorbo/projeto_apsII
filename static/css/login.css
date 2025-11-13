@@ -1,71 +1,427 @@
+/* login.css - Versão Totalmente Responsiva */
+:root {
+    --primary-color: #0052cc;
+    --primary-hover: #003d99;
+    --primary-light: #e6f3ff;
+    --background-color: #f0fafc;
+    --text-primary: #003399;
+    --text-secondary: #666;
+    --border-color: #ccc;
+    --border-radius: 20px;
+    --shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    --transition: all 0.3s ease;
+    
+    /* Variáveis responsivas */
+    --container-padding-mobile: 20px;
+    --container-padding-tablet: 30px;
+    --container-padding-desktop: 40px;
+    --logo-size-mobile: 80px;
+    --logo-size-desktop: 120px;
+}
+
+/* Reset e configurações base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0fafc;
+    background-color: var(--background-color);
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
+    padding: var(--container-padding-mobile);
 }
 
+/* Container principal responsivo */
 .container {
     display: flex;
+    flex-direction: column;
     background: white;
-    border-radius: 20px;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
     overflow: hidden;
     max-width: 900px;
     width: 100%;
+    min-height: 500px;
 }
 
-.left, .right {
-    flex: 1;
-    padding: 40px;
+/* Layout para telas maiores */
+@media (min-width: 768px) {
+    .container {
+        flex-direction: row;
+        min-height: 600px;
+    }
 }
 
+/* Seção esquerda - Logo e boas-vindas */
 .left {
+    padding: var(--container-padding-desktop);
     text-align: center;
-    background: #f0fafc;
+    background: var(--background-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    order: 2;
+}
+
+@media (min-width: 768px) {
+    .left {
+        order: 1;
+        padding: var(--container-padding-desktop);
+    }
 }
 
 .logo {
-    width: 120px;
-    margin-bottom: 10px;
+    width: var(--logo-size-mobile);
+    height: auto;
+    margin-bottom: 20px;
+    max-width: 100%;
+}
+
+@media (min-width: 768px) {
+    .logo {
+        width: var(--logo-size-desktop);
+        margin-bottom: 30px;
+    }
 }
 
 .welcome {
-    font-size: 20px;
-    color: #003399;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    color: var(--text-primary);
     font-weight: bold;
+    line-height: 1.3;
+    margin-bottom: 10px;
 }
 
+.welcome-subtitle {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    color: var(--text-secondary);
+    line-height: 1.4;
+    max-width: 300px;
+}
+
+/* Seção direita - Formulário */
 .right {
-    background: #e6f3ff;
-    border-radius: 0 20px 20px 0;
+    padding: var(--container-padding-desktop);
+    background: var(--primary-light);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+    order: 1;
 }
 
+@media (min-width: 768px) {
+    .right {
+        order: 2;
+        border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    }
+}
+
+.form-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.form-title {
+    font-size: clamp(1.5rem, 4vw, 1.8rem);
+    color: var(--text-primary);
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.form-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+/* Formulário responsivo */
 form {
     display: flex;
     flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
 }
 
 input {
-    margin-bottom: 15px;
-    padding: 10px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    font-size: 1rem;
+    transition: var(--transition);
+    width: 100%;
 }
 
+input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+
+/* Botão responsivo */
 button {
-    background-color: #0052cc;
+    background-color: var(--primary-color);
     color: white;
     border: none;
-    padding: 12px;
-    border-radius: 10px;
-    font-size: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
+    transition: var(--transition);
+    margin-top: 10px;
+    width: 100%;
 }
 
 button:hover {
-    background-color: #003d99;
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Links responsivos */
+.form-links {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.forgot-password, .register-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.forgot-password:hover, .register-link:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+/* Divisor visual */
+.form-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.form-divider::before,
+.form-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.form-divider span {
+    padding: 0 15px;
+}
+
+/* ========== BREAKPOINTS ESPECÍFICOS ========== */
+
+/* Telas muito pequenas (até 359px) */
+@media (max-width: 359px) {
+    body {
+        padding: 15px;
+    }
+    
+    .container {
+        border-radius: 15px;
+    }
+    
+    .left, .right {
+        padding: 25px 20px;
+    }
+    
+    .logo {
+        width: 70px;
+        margin-bottom: 15px;
+    }
+    
+    .welcome {
+        font-size: 1.3rem;
+    }
+    
+    input, button {
+        padding: 12px;
+    }
+}
+
+/* Smartphones (360px - 479px) */
+@media (min-width: 360px) and (max-width: 479px) {
+    .left, .right {
+        padding: 30px 25px;
+    }
+}
+
+/* Tablets pequenos (480px - 767px) */
+@media (min-width: 480px) and (max-width: 767px) {
+    .container {
+        max-width: 450px;
+    }
+    
+    .left, .right {
+        padding: 40px 35px;
+    }
+    
+    .form-links {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+/* Tablets (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    body {
+        padding: 30px;
+    }
+    
+    .container {
+        max-width: 700px;
+    }
+    
+    .left, .right {
+        padding: 40px 35px;
+    }
+}
+
+/* Desktop (1024px - 1199px) */
+@media (min-width: 1024px) and (max-width: 1199px) {
+    .container {
+        max-width: 850px;
+    }
+}
+
+/* Desktop wide (1200px+) */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 900px;
+    }
+}
+
+/* Modo paisagem em dispositivos móveis */
+@media (max-height: 600px) and (orientation: landscape) {
+    body {
+        padding: 15px;
+        align-items: flex-start;
+    }
+    
+    .container {
+        min-height: auto;
+        margin: 20px 0;
+    }
+    
+    .left, .right {
+        padding: 25px;
+    }
+    
+    .logo {
+        width: 60px;
+        margin-bottom: 15px;
+    }
+}
+
+/* Alto contraste para acessibilidade */
+@media (prefers-contrast: high) {
+    :root {
+        --border-color: #000;
+        --text-secondary: #000;
+        --shadow: 0px 4px 10px rgba(0,0,0,0.3);
+    }
+    
+    input {
+        border-width: 2px;
+    }
+}
+
+/* Modo escuro automático */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #1a1a1a;
+        --primary-light: #2d3748;
+        --text-primary: #e2e8f0;
+        --text-secondary: #a0aec0;
+        --border-color: #4a5568;
+    }
+    
+    .container {
+        background: #2d3748;
+    }
+    
+    input {
+        background: #4a5568;
+        color: #e2e8f0;
+        border-color: #718096;
+    }
+}
+
+/* Animações suaves */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.container {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* Estados de loading para o botão */
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+button.loading {
+    position: relative;
+    color: transparent;
+}
+
+button.loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 50%;
+    left: 50%;
+    margin-left: -10px;
+    margin-top: -10px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-right-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }

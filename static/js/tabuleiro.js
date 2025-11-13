@@ -15,7 +15,45 @@ document.addEventListener('DOMContentLoaded', function() {
     atualizarSaldo();
     carregarUsuariosOnline();
     carregarRecompensasGanhas();
+    
+    // Adiciona event listeners para modais
+    inicializarModais();
 });
+
+// Inicializa os modais com correções
+function inicializarModais() {
+    // Fechar modal com ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            fecharTodosModais();
+        }
+    });
+
+    // Fechar modal clicando fora - CORREÇÃO APLICADA
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal')) {
+            fecharModalPorElemento(e.target);
+        }
+    });
+
+    // Prevenir fechamento ao clicar dentro do conteúdo do modal
+    document.querySelectorAll('.modal-content, .modal-card').forEach(conteudo => {
+        conteudo.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    });
+    
+    // Garantir que os botões de fechar modal funcionem corretamente
+    document.querySelectorAll('.modal .close, [onclick*="fecharModal"]').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const modal = this.closest('.modal');
+            if (modal) {
+                fecharModalPorElemento(modal);
+            }
+        });
+    });
+}
 
 // Inicializa o tabuleiro com todas as casas
 function inicializarTabuleiro() {
@@ -80,7 +118,7 @@ function criarCasa(numero) {
 // Mostra informações da casa ao clicar
 function mostrarInfoCasa(numero) {
     const casa = document.querySelector(`.casa[data-numero="${numero}"]`);
-    const recompensa = window.recompensas.find(r => r.posicao === numero);
+    const recompensa = window.recompensas ? window.recompensas.find(r => r.posicao === numero) : null;
     
     document.getElementById('casa-titulo').textContent = recompensa ? recompensa.titulo : `Casa ${numero}`;
     document.getElementById('casa-numero').textContent = `Posição: ${numero}`;
@@ -459,14 +497,104 @@ function mostrarMensagemVitoria(mensagem) {
     abrirModal('ganhou');
 }
 
-// Funções de modal
+// ================================
+// FUNÇÕES DE MODAL CORRIGIDAS - POSICIONAMENTO DINÂMICO
+// ================================
+
+// Função para abrir modal - CORREÇÃO APLICADA (posicionamento inteligente)
 function abrirModal(tipo) {
-    document.getElementById(`modal-${tipo}`).classList.add('show');
-    document.body.classList.add('modal-open');
+    const modal = document.getElementById(`modal-${tipo}`);
+    if (modal) {
+        // Remove qualquer posicionamento anterior
+        modal.style.alignItems = '';
+        modal.style.paddingTop = '';
+        modal.style.paddingBottom = '';
+        
+        modal.classList.add('show');
+        document.body.classList.add('modal-open');
+        
+        // Posiciona o modal de forma inteligente baseado na posição de scroll
+        setTimeout(() => {
+            posicionarModalInteligente(modal);
+        }, 10);
+        
+        // Garantir que o modal seja rolável se necessário
+        setTimeout(() => {
+            modal.scrollTop = 0;
+        }, 10);
+    }
 }
 
+// Nova função para posicionar modal de forma inteligente
+function posicionarModalInteligente(modal) {
+    const modalContent = modal.querySelector('.modal-content') || modal.querySelector('.modal-card') || modal;
+    const viewportHeight = window.innerHeight;
+    const scrollY = window.scrollY;
+    const modalHeight = modalContent.offsetHeight;
+    
+    // Calcula a posição visível atual
+    const visibleAreaTop = scrollY;
+    const visibleAreaBottom = scrollY + viewportHeight;
+    
+    // Se o modal for maior que 80% da viewport, usa scroll interno
+    if (modalHeight > viewportHeight * 0.8) {
+        modal.style.alignItems = 'flex-start';
+        modal.style.paddingTop = '20px';
+        modal.style.paddingBottom = '20px';
+        modalContent.style.maxHeight = '90vh';
+    } else {
+        // Para modais menores, posiciona de forma inteligente
+        const spaceAbove = visibleAreaTop;
+        const spaceBelow = document.documentElement.scrollHeight - visibleAreaBottom;
+        
+        if (spaceAbove > spaceBelow && spaceAbove > 100) {
+            // Mais espaço acima - posiciona mais para cima
+            modal.style.alignItems = 'flex-start';
+            modal.style.paddingTop = '40px';
+        } else if (spaceBelow > spaceAbove && spaceBelow > 100) {
+            // Mais espaço abaixo - posiciona mais para baixo
+            modal.style.alignItems = 'flex-end';
+            modal.style.paddingBottom = '40px';
+        } else {
+            // Espaço balanceado - centraliza normalmente
+            modal.style.alignItems = 'center';
+        }
+    }
+}
+
+// Função para fechar modal - CORREÇÃO APLICADA
 function fecharModal(tipo) {
-    document.getElementById(`modal-${tipo}`).classList.remove('show');
+    const modal = document.getElementById(`modal-${tipo}`);
+    if (modal) {
+        // Reseta estilos de posicionamento
+        modal.style.alignItems = '';
+        modal.style.paddingTop = '';
+        modal.style.paddingBottom = '';
+        
+        modal.classList.remove('show');
+        document.body.classList.remove('modal-open');
+    }
+}
+
+// Nova função para fechar modal por elemento
+function fecharModalPorElemento(modalElement) {
+    // Reseta estilos de posicionamento
+    modalElement.style.alignItems = '';
+    modalElement.style.paddingTop = '';
+    modalElement.style.paddingBottom = '';
+    
+    modalElement.classList.remove('show');
+    document.body.classList.remove('modal-open');
+}
+
+// Nova função para fechar todos os modais
+function fecharTodosModais() {
+    document.querySelectorAll('.modal.show').forEach(modal => {
+        modal.style.alignItems = '';
+        modal.style.paddingTop = '';
+        modal.style.paddingBottom = '';
+        modal.classList.remove('show');
+    });
     document.body.classList.remove('modal-open');
 }
 
@@ -518,21 +646,3 @@ function recomecar() {
 function voltarParaProjeto() {
     window.location.href = `/projeto/${window.idProjeto}`;
 }
-
-// Fechar modal com ESC
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        document.querySelectorAll('.modal.show').forEach(modal => {
-            modal.classList.remove('show');
-        });
-        document.body.classList.remove('modal-open');
-    }
-});
-
-// Fechar modal clicando fora
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('modal')) {
-        e.target.classList.remove('show');
-        document.body.classList.remove('modal-open');
-    }
-});

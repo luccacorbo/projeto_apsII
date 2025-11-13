@@ -10,6 +10,7 @@
     margin: 0 auto;
     padding: 20px;
     min-height: 100vh;
+    width: 100%;
 }
 
 /* Header do Projeto - Altura consistente */
@@ -25,10 +26,17 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     min-height: 120px; /* Altura mínima para layout consistente */
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.projeto-info {
+    flex: 1;
+    min-width: 250px;
 }
 
 .projeto-info h1 {
-    font-size: 2.2rem;
+    font-size: clamp(1.8rem, 4vw, 2.2rem);
     font-weight: 700;
     background: linear-gradient(135deg, #667eea, #764ba2);
     -webkit-background-clip: text;
@@ -39,7 +47,7 @@
 .projeto-descricao {
     color: #7f8c8d;
     margin: 10px 0;
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 2vw, 1rem);
 }
 
 .projeto-meta {
@@ -48,6 +56,7 @@
     display: flex;
     gap: 8px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .projeto-actions {
@@ -68,6 +77,7 @@
     font-weight: 600;
     transition: all 0.3s ease;
     font-family: inherit;
+    font-size: clamp(0.85rem, 2vw, 1rem);
 }
 
 .btn-primary {
@@ -132,7 +142,7 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
-    min-width: 300px; /* LARGURA MÍNIMA PARA AS COLUNAS */
+    min-width: min(300px, 100%); /* LARGURA MÍNIMA PARA AS COLUNAS */
     max-width: 400px; /* LARGURA MÁXIMA PARA AS COLUNAS */
 }
 
@@ -148,7 +158,7 @@
 
 .column-header h3 {
     color: #2c3e50;
-    font-size: 1.2rem;
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
     margin: 0;
 }
 
@@ -194,13 +204,14 @@
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 8px;
+    gap: 10px;
 }
 
 .task-header h4 {
     margin: 0;
     flex: 1;
     color: #2c3e50;
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 2vw, 1rem);
 }
 
 .priority-badge {
@@ -210,6 +221,7 @@
     color: white;
     text-transform: capitalize;
     font-weight: 600;
+    flex-shrink: 0;
 }
 
 .priority-alta { background: #e74c3c; }
@@ -230,6 +242,8 @@
     font-size: 0.85rem;
     color: #95a5a6;
     margin-top: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .due-date {
@@ -410,93 +424,6 @@ form label {
     to { transform: translateY(0); opacity: 1; }
 }
 
-/* Responsividade */
-@media (max-width: 1024px) {
-    .kanban-board {
-        flex-wrap: wrap;
-    }
-    
-    .kanban-column {
-        flex: 1 1 calc(50% - 12px);
-        min-width: 300px;
-        max-width: none;
-    }
-
-    .main-content-layout {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-
-    .estatisticas-lateral {
-        order: -1;
-    }
-}
-
-@media (max-width: 768px) {
-    .projeto-header {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-
-    .projeto-actions {
-        margin-left: 0;
-        justify-content: center;
-    }
-
-    .kanban-board {
-        flex-direction: column;
-    }
-    
-    .kanban-column {
-        flex: 1 1 100%;
-    }
-
-    .btn {
-        width: 100%;
-    }
-
-    .modal-content {
-        margin: 10% auto;
-        width: 95%;
-        padding: 20px;
-    }
-
-    .input-group {
-        flex-direction: column;
-    }
-
-    .main-content-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .estatisticas-lateral {
-        order: -1;
-    }
-}
-
-@media (max-width: 480px) {
-    .kanban-column {
-        padding: 15px;
-    }
-    
-    .projeto-detalhes-container {
-        padding: 10px;
-    }
-}
-
-/* Estados de drag and drop */
-.tasks-list.drag-over {
-    background: rgba(102, 126, 234, 0.1);
-    border: 2px dashed #667eea;
-    border-radius: 10px;
-}
-
-.task-card.dragging {
-    opacity: 0.5;
-    transform: scale(0.95);
-}
-
 /* Container do título com menu */
 .projeto-title-container {
     display: flex;
@@ -621,7 +548,7 @@ form label {
 }
 
 .filtros-titulo {
-    font-size: 1.1rem;
+    font-size: clamp(1rem, 2.5vw, 1.1rem);
     font-weight: 600;
     color: #2c3e50;
     margin-bottom: 15px;
@@ -742,7 +669,7 @@ form label {
 }
 
 .estatistica-numero {
-    font-size: 2.5rem;
+    font-size: clamp(2rem, 5vw, 2.5rem);
     font-weight: 700;
     color: #2c3e50;
     line-height: 1;
@@ -769,7 +696,7 @@ form label {
     transition: all 0.4s ease;
     position: relative;
     overflow: hidden;
-     min-width: 280px; /* LARGURA MÍNIMA PARA O CARD INTEIRO */
+     min-width: min(280px, 100%); /* LARGURA MÍNIMA PARA O CARD INTEIRO */
 }
 
 .task-card-modern::before {
@@ -811,7 +738,7 @@ form label {
     margin: 0;
     flex: 1;
     color: #2c3e50;
-    font-size: 1.05rem;
+    font-size: clamp(0.95rem, 2vw, 1.05rem);
     font-weight: 600;
     line-height: 1.3;
     min-width: 0;
@@ -868,6 +795,7 @@ form label {
     gap: 10px;
     min-height: 30px; 
     width: 100%;
+    flex-wrap: wrap;
 }
 
 .responsavel-info {
@@ -916,42 +844,6 @@ form label {
     opacity: 0.6;
     transform: scale(0.98);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-}
-
-/* Responsividade para novos elementos */
-@media (max-width: 1024px) {
-    .filtros-form {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .filtros-form {
-        grid-template-columns: 1fr;
-    }
-    
-    .task-header-modern {
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .priority-badge-modern {
-        align-self: flex-start;
-    }
-}
-
-@media (max-width: 480px) {
-    .estatistica-card {
-        padding: 20px 15px;
-    }
-    
-    .estatistica-numero {
-        font-size: 2rem;
-    }
-    
-    .task-card-modern {
-        padding: 15px;
-    }
 }
 
 /* ================================
@@ -1080,20 +972,6 @@ form label {
     outline: none;
     border-color: #667eea;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-/* ================================
-   Ajustes de responsividade
-================================ */
-
-@media (max-width: 768px) {
-    .filtro-pesquisa {
-        grid-column: 1;
-    }
-    
-    .filtros-form {
-        grid-template-columns: 1fr;
-    }
 }
 
 /* ================================
@@ -1296,23 +1174,6 @@ form label {
     background: #a8a8a8;
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
-    .membro-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-    
-    .membro-acoes {
-        align-self: flex-end;
-    }
-    
-    .menu-dropdown-membro {
-        right: -50px;
-    }
-}
-
 /* ================================
    Estilos para o Card do Tabuleiro
 ================================ */
@@ -1327,12 +1188,11 @@ form label {
 }
 
 .icone-tabuleiro {
-  width: 48px;       /* ajuste o tamanho conforme o design */
-  height: 48px;
+  width: clamp(36px, 8vw, 48px);
+  height: clamp(36px, 8vw, 48px);
   display: block;
-  margin: 0 auto 8px auto;  /* centraliza e adiciona espaçamento abaixo */
+  margin: 0 auto 8px auto;
 }
-
 
 .estatistica-descricao {
     font-size: 0.8rem;
@@ -1390,4 +1250,289 @@ form label {
 
 .estatistica-card.tabuleiro:active {
     transform: scale(0.95);
+}
+
+/* ================================
+   RESPONSIVIDADE - APENAS MELHORIAS
+   (Mantendo todo o conteúdo original)
+================================ */
+
+/* Tablets (768px - 1024px) */
+@media (max-width: 1024px) {
+    .kanban-board {
+        flex-wrap: wrap;
+    }
+    
+    .kanban-column {
+        flex: 1 1 calc(50% - 12px);
+        min-width: 300px;
+        max-width: none;
+    }
+
+    .main-content-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .estatisticas-lateral {
+        order: -1;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .filtros-form {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .projeto-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+
+    .projeto-actions {
+        margin-left: 0;
+        justify-content: center;
+        width: 100%;
+    }
+}
+
+/* Tablets pequenos e celulares grandes (576px - 767px) */
+@media (max-width: 767px) and (min-width: 576px) {
+    .projeto-detalhes-container {
+        padding: 15px;
+    }
+    
+    .estatisticas-lateral {
+        grid-template-columns: 1fr;
+    }
+    
+    .kanban-column {
+        flex: 1 1 100%;
+        min-width: 100%;
+    }
+    
+    .filtros-form {
+        grid-template-columns: 1fr;
+    }
+    
+    .task-header-modern {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .priority-badge-modern {
+        align-self: flex-start;
+    }
+    
+    .task-footer-modern {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .due-date-modern {
+        align-self: flex-end;
+    }
+}
+
+/* Celulares (até 575px) */
+@media (max-width: 575px) {
+    .projeto-detalhes-container {
+        padding: 10px;
+    }
+    
+    .projeto-header {
+        padding: 20px;
+        border-radius: 12px;
+    }
+    
+    .estatisticas-lateral {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .estatistica-card {
+        padding: 20px;
+        min-height: 100px;
+    }
+    
+    .kanban-board {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .kanban-column {
+        flex: 1 1 100%;
+        min-width: 100%;
+        padding: 15px;
+        min-height: 500px;
+    }
+    
+    .tasks-list {
+        min-height: 400px;
+    }
+    
+    .filtros-container {
+        padding: 15px;
+    }
+    
+    .filtros-form {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .filtro-pesquisa {
+        grid-column: 1;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .projeto-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .task-card-modern {
+        padding: 15px;
+    }
+    
+    .task-header-modern {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .task-footer-modern {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .due-date-modern {
+        align-self: flex-start;
+    }
+    
+    .modal-content {
+        margin: 10% auto;
+        width: 95%;
+        padding: 20px;
+        border-radius: 12px;
+    }
+    
+    .input-group {
+        flex-direction: column;
+    }
+
+    .main-content-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .estatisticas-lateral {
+        order: -1;
+    }
+}
+
+/* Dispositivos muito pequenos (até 360px) */
+@media (max-width: 480px) {
+    .kanban-column {
+        padding: 15px;
+    }
+    
+    .projeto-detalhes-container {
+        padding: 10px;
+    }
+    
+    .estatistica-card {
+        padding: 15px;
+    }
+    
+    .estatistica-numero {
+        font-size: 2rem;
+    }
+    
+    .task-card-modern {
+        padding: 12px;
+    }
+}
+
+/* Orientação paisagem em dispositivos móveis */
+@media (max-height: 500px) and (orientation: landscape) {
+    .projeto-detalhes-container {
+        min-height: auto;
+    }
+    
+    .kanban-column {
+        min-height: 400px;
+    }
+    
+    .tasks-list {
+        min-height: 300px;
+    }
+}
+
+/* Estados de drag and drop */
+.tasks-list.drag-over {
+    background: rgba(102, 126, 234, 0.1);
+    border: 2px dashed #667eea;
+    border-radius: 10px;
+}
+
+.task-card.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+/* Responsividade para novos elementos */
+@media (max-width: 1024px) {
+    .filtros-form {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .filtros-form {
+        grid-template-columns: 1fr;
+    }
+    
+    .task-header-modern {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .priority-badge-modern {
+        align-self: flex-start;
+    }
+    
+    .membro-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .membro-acoes {
+        align-self: flex-end;
+    }
+    
+    .menu-dropdown-membro {
+        right: -50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .estatistica-card {
+        padding: 20px 15px;
+    }
+    
+    .estatistica-numero {
+        font-size: 2rem;
+    }
+    
+    .task-card-modern {
+        padding: 15px;
+    }
 }
