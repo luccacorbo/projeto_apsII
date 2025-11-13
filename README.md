@@ -94,7 +94,6 @@ Trabalho desenvolvido de forma colaborativa na disciplina **Análise e Projeto d
 ---
 
 ## 🧾 Documentação do Projeto
-*(Seção mantida do README original para consistência)*
 
 Os principais documentos produzidos até o momento incluem:
 - **TAP (Termo de Abertura do Projeto)** – definição de escopo, objetivos e stakeholders;  
