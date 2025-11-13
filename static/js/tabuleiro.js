@@ -5,7 +5,8 @@ const config = {
     posicaoJogador: window.posicaoAtual || 0,
     jogadorElement: null,
     nomeElement: null,
-    saldo: window.saldo || 0
+    saldo: window.saldo || 0,
+    emMovimento: false // NOVO: controla se está em animação
 };
 
 // Inicialização do tabuleiro
@@ -18,9 +19,22 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Adiciona event listeners para modais
     inicializarModais();
+    
+    // Configura validação do formulário de adicionar recompensa
+    const formAdicionar = document.getElementById('form-adicionar-recompensa');
+    if (formAdicionar) {
+        formAdicionar.addEventListener('submit', function(e) {
+            const posicaoInput = document.getElementById('input-posicao');
+            if (posicaoInput && parseInt(posicaoInput.value) === 1) {
+                e.preventDefault();
+                alert('A casa 1 não pode ter recompensa. Por favor, escolha outra casa.');
+                posicaoInput.focus();
+            }
+        });
+    }
 });
 
-// Inicializa os modais com correções
+// Inicializa os modais com a nova estrutura
 function inicializarModais() {
     // Fechar modal com ESC
     document.addEventListener('keydown', function(e) {
@@ -29,28 +43,28 @@ function inicializarModais() {
         }
     });
 
-    // Fechar modal clicando fora - CORREÇÃO APLICADA
+    // Fechar modal clicando no overlay - NOVA ESTRUTURA
     document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('modal')) {
+        if (e.target.classList.contains('modal-overlay')) {
             fecharModalPorElemento(e.target);
         }
     });
 
-    // Prevenir fechamento ao clicar dentro do conteúdo do modal
-    document.querySelectorAll('.modal-content, .modal-card').forEach(conteudo => {
-        conteudo.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-    });
-    
-    // Garantir que os botões de fechar modal funcionem corretamente
-    document.querySelectorAll('.modal .close, [onclick*="fecharModal"]').forEach(btn => {
+    // Botões de fechar modal - NOVA ESTRUTURA
+    document.querySelectorAll('.modal-close, [data-modal-close]').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
-            const modal = this.closest('.modal');
+            const modal = this.closest('.modal-overlay');
             if (modal) {
                 fecharModalPorElemento(modal);
             }
+        });
+    });
+
+    // Prevenir fechamento ao clicar dentro do conteúdo do modal
+    document.querySelectorAll('.modal-card, .modal-content').forEach(conteudo => {
+        conteudo.addEventListener('click', function(e) {
+            e.stopPropagation();
         });
     });
 }
@@ -115,39 +129,109 @@ function criarCasa(numero) {
     return casa;
 }
 
-// Mostra informações da casa ao clicar
+// Mostra informações da casa ao clicar - ATUALIZADO COM INTERATIVIDADE PARA CRIADOR
 function mostrarInfoCasa(numero) {
     const casa = document.querySelector(`.casa[data-numero="${numero}"]`);
     const recompensa = window.recompensas ? window.recompensas.find(r => r.posicao === numero) : null;
     
-    document.getElementById('casa-titulo').textContent = recompensa ? recompensa.titulo : `Casa ${numero}`;
-    document.getElementById('casa-numero').textContent = `Posição: ${numero}`;
-    
-    if (recompensa) {
-        document.getElementById('casa-descricao').textContent = recompensa.descricao;
-    } else {
-        document.getElementById('casa-descricao').textContent = 
-            'Esta é uma casa comum do tabuleiro. Avance para descobrir recompensas!';
+    // Atualiza o conteúdo do modal de informações da casa
+    const modal = document.getElementById('modal-casa-info');
+    if (modal) {
+        const titulo = modal.querySelector('.info-casa-titulo');
+        const numeroCasa = modal.querySelector('.info-casa-numero');
+        const descricao = modal.querySelector('.info-casa-descricao');
+        const icon = modal.querySelector('.casa-info-icon');
+        const status = modal.querySelector('.casa-status');
+        const btnEditar = modal.querySelector('#btnEditarRecompensa');
+        const btnAdicionar = modal.querySelector('#btnAdicionarRecompensa');
+        const btnExcluir = modal.querySelector('#btnExcluirRecompensa');
+        
+        if (titulo) titulo.textContent = recompensa ? recompensa.titulo : `Casa ${numero}`;
+        if (numeroCasa) numeroCasa.textContent = `Posição: ${numero}`;
+        if (icon) icon.textContent = recompensa ? '🎁' : '🏠';
+        
+        if (descricao) {
+            descricao.textContent = recompensa ? 
+                recompensa.descricao : 
+                'Esta é uma casa comum do tabuleiro. Avance para descobrir recompensas!';
+        }
+        
+        // Atualiza status da casa
+        if (status) {
+            if (recompensa) {
+                status.innerHTML = '<div class="status-badge recompensa">🎁 Tem Recompensa</div>';
+            } else if (numero === 1) {
+                status.innerHTML = '<div class="status-badge inicio">🎯 Casa Inicial</div>';
+            } else if (numero === config.totalCasas) {
+                status.innerHTML = '<div class="status-badge final">🏁 Casa Final</div>';
+            } else {
+                status.innerHTML = '<div class="status-badge comum">🏠 Casa Comum</div>';
+            }
+        }
+        
+        // Mostra/oculta botões baseado na existência de recompensa e se é criador
+        if (window.ehCriador) {
+            if (recompensa) {
+                btnEditar.style.display = 'block';
+                btnExcluir.style.display = 'block';
+                btnAdicionar.style.display = 'none';
+                btnExcluir.dataset.recompensaId = recompensa.id_recompensa;
+            } else if (numero !== 1) { // Não permite adicionar recompensa na casa 1
+                btnAdicionar.style.display = 'block';
+                btnEditar.style.display = 'none';
+                btnExcluir.style.display = 'none';
+            } else {
+                // Casa 1 - não mostra nenhum botão de recompensa
+                btnAdicionar.style.display = 'none';
+                btnEditar.style.display = 'none';
+                btnExcluir.style.display = 'none';
+            }
+        } else {
+            // Não é criador - esconde todos os botões de ação
+            btnAdicionar.style.display = 'none';
+            btnEditar.style.display = 'none';
+            btnExcluir.style.display = 'none';
+        }
     }
     
     abrirModal('casa-info');
 }
 
-// Funções para criador
+// Funções para criador - ATUALIZADAS
 function editarRecompensaCasa() {
-    const numeroCasa = document.getElementById('casa-numero').textContent.split(': ')[1];
-    // Implementar lógica para editar recompensa
-    console.log(`Editar recompensa da casa ${numeroCasa}`);
-    fecharModal('casa-info');
-    abrirModal('editar');
+    const numeroCasa = document.querySelector('.info-casa-numero')?.textContent.split(': ')[1];
+    if (numeroCasa) {
+        console.log(`Editar recompensa da casa ${numeroCasa}`);
+        fecharModal('casa-info');
+        abrirModal('editar');
+    }
 }
 
 function adicionarRecompensaCasa() {
-    const numeroCasa = document.getElementById('casa-numero').textContent.split(': ')[1];
-    // Implementar lógica para adicionar recompensa
-    console.log(`Adicionar recompensa à casa ${numeroCasa}`);
-    fecharModal('casa-info');
-    abrirModal('adicionar');
+    const numeroCasa = document.querySelector('.info-casa-numero')?.textContent.split(': ')[1];
+    if (numeroCasa) {
+        console.log(`Adicionar recompensa à casa ${numeroCasa}`);
+        
+        // Preenche automaticamente o campo de posição no modal de adicionar
+        const posicaoInput = document.getElementById('input-posicao');
+        if (posicaoInput) {
+            posicaoInput.value = numeroCasa;
+        }
+        
+        fecharModal('casa-info');
+        abrirModal('adicionar');
+    }
+}
+
+// NOVA FUNÇÃO: Excluir recompensa da casa
+function excluirRecompensaCasa() {
+    const btnExcluir = document.querySelector('#btnExcluirRecompensa');
+    const recompensaId = btnExcluir?.dataset.recompensaId;
+    
+    if (recompensaId) {
+        confirmarExclusao(parseInt(recompensaId));
+        fecharModal('casa-info');
+    }
 }
 
 // Cria caminhos estilizados entre as casas
@@ -212,6 +296,9 @@ function adicionarRecompensas() {
     if (!window.recompensas) return;
     
     window.recompensas.forEach(recompensa => {
+        // Não adiciona recompensa na casa 1
+        if (recompensa.posicao === 1) return;
+        
         const casa = document.querySelector(`.casa[data-numero="${recompensa.posicao}"]`);
         if (casa) {
             casa.classList.add('recompensa');
@@ -227,7 +314,7 @@ function adicionarRecompensas() {
     });
 }
 
-// Carrega usuários online do projeto
+// Carrega usuários online do projeto - ATUALIZADO PARA MOSTRAR APENAS PRIMEIRO NOME
 function carregarUsuariosOnline() {
     const listaUsuarios = document.getElementById('lista-usuarios');
     
@@ -240,16 +327,24 @@ function carregarUsuariosOnline() {
     window.usuariosOnline.forEach(usuario => {
         const usuarioItem = document.createElement('div');
         usuarioItem.className = 'usuario-item';
+        
+        // Pega apenas o primeiro nome
+        const primeiroNome = usuario.nome ? usuario.nome.split(' ')[0] : 'Usuário';
+        
+        // Formata posição atual (se disponível)
+        const posicao = usuario.posicao_atual !== null && usuario.posicao_atual !== undefined ? 
+            usuario.posicao_atual : 0;
+        
         usuarioItem.innerHTML = `
-            <span class="usuario-nome">${usuario.nome}</span>
-            <span class="usuario-posicao">Pos: ${usuario.posicao_atual || 0}</span>
+            <span class="usuario-nome">${primeiroNome}</span>
+            <span class="usuario-posicao">Casa: ${posicao}</span>
             <span class="usuario-saldo">Saldo: ${usuario.saldo || 0}</span>
         `;
         listaUsuarios.appendChild(usuarioItem);
     });
 }
 
-// Carrega recompensas ganhas
+// Carrega recompensas ganhas - ATUALIZADO PARA MOSTRAR DATA DE CONQUISTA
 function carregarRecompensasGanhas() {
     const gridRecompensas = document.getElementById('grid-recompensas');
     
@@ -262,11 +357,17 @@ function carregarRecompensasGanhas() {
     window.recompensasGanhas.forEach(recompensa => {
         const card = document.createElement('div');
         card.className = 'card-recompensa';
+        
+        // Formata data de conquista
+        const dataConquista = recompensa.data_conquista ? 
+            new Date(recompensa.data_conquista).toLocaleDateString('pt-BR') : 
+            'Data não disponível';
+        
         card.innerHTML = `
             <div class="recompensa-titulo">${recompensa.titulo}</div>
             <div class="recompensa-descricao">${recompensa.descricao}</div>
             <div class="recompensa-info">
-                <span>Conquistada em: ${new Date(recompensa.data_conquista).toLocaleDateString('pt-BR')}</span>
+                <span>Conquistada em: ${dataConquista}</span>
                 <span>Casa: ${recompensa.posicao}</span>
             </div>
         `;
@@ -276,7 +377,10 @@ function carregarRecompensasGanhas() {
 
 // Atualiza informações do jogador no painel lateral
 function atualizarInfoJogador() {
-    document.getElementById('nome-jogador-display').textContent = window.nomeJogador;
+    // Mostra apenas o primeiro nome no display do jogador
+    const nomeCompleto = window.nomeJogador;
+    const primeiroNome = nomeCompleto.split(' ')[0];
+    document.getElementById('nome-jogador-display').textContent = primeiroNome;
     document.getElementById('posicao-atual').textContent = config.posicaoJogador + 1;
 }
 
@@ -312,7 +416,7 @@ function removerSaldo(valor) {
     atualizarSaldo();
 }
 
-// Posiciona o jogador em uma casa específica - COM EMOJI DE LOCALIZAÇÃO
+// Posiciona o jogador em uma casa específica - ATUALIZADA COM ANIMAÇÃO
 function posicionarJogador(novaPosicao) {
     // Remove jogador da posição anterior
     if (config.jogadorElement) {
@@ -328,36 +432,45 @@ function posicionarJogador(novaPosicao) {
         // Marca casa como visitada
         casa.classList.add('visitada');
         
+        // Adiciona classe de recentemente visitada (para efeito de trilha)
+        casa.classList.add('recentemente');
+        setTimeout(() => {
+            casa.classList.remove('recentemente');
+        }, 300);
+        
         // Cria elemento do jogador - EMOJI DE LOCALIZAÇÃO
         config.jogadorElement = document.createElement('div');
         config.jogadorElement.className = 'boneco';
+        if (config.emMovimento) {
+            config.jogadorElement.classList.add('movendo', 'jogador-movendo');
+        }
         config.jogadorElement.textContent = '🧑‍💼';
         
-        // Cria elemento do nome
+        // Cria elemento do nome (APENAS PRIMEIRO NOME)
         config.nomeElement = document.createElement('div');
         config.nomeElement.className = 'nome-jogador';
-        config.nomeElement.textContent = window.nomeJogador;
+        const primeiroNome = window.nomeJogador.split(' ')[0];
+        config.nomeElement.textContent = primeiroNome;
         
         // Adiciona à casa
         casa.appendChild(config.jogadorElement);
         casa.appendChild(config.nomeElement);
+        
+        // Remove classes de animação após um tempo
+        if (config.emMovimento) {
+            setTimeout(() => {
+                config.jogadorElement.classList.remove('movendo', 'jogador-movendo');
+            }, 300);
+        }
     }
     
     // Atualiza informações no painel lateral
     atualizarInfoJogador();
-    
-    // Verifica se chegou ao final
-    if (novaPosicao + 1 === config.totalCasas) {
-        setTimeout(() => {
-            mostrarMensagemVitoria("🎉 Parabéns! Você chegou ao final do tabuleiro!");
-            document.getElementById('btnRecomecar').style.display = 'block';
-        }, 500);
-    }
 }
 
-// Rola o dado e move o jogador - AGORA COM INTEGRAÇÃO COM API
+// Rola o dado e move o jogador - ATUALIZADO COM ANIMAÇÃO
 function rolarDado() {
-    if (config.saldo <= 0) return;
+    if (config.saldo <= 0 || config.emMovimento) return;
     
     const dado = document.getElementById('dado');
     const resultadoElem = document.getElementById('res-num');
@@ -391,25 +504,23 @@ function rolarDado() {
             config.saldo = data.saldo_restante;
             atualizarSaldo();
             
-            // Move o jogador
-            moverJogador(data.resultado_dado);
+            // Move o jogador com animação passo a passo
+            moverJogadorComAnimacao(config.posicaoJogador, data.nova_posicao - 1, data.resultado_dado);
             
-            // Se ganhou recompensa, mostra mensagem
+            // Se ganhou recompensa, mostra mensagem (após animação)
             if (data.recompensa) {
                 setTimeout(() => {
                     mostrarMensagemRecompensa(data.recompensa.titulo, data.recompensa.descricao);
-                }, 500);
+                }, data.resultado_dado * 300 + 500); // Espera a animação terminar
             }
         } else {
             alert('Erro: ' + data.error);
             dado.textContent = '–';
             resultadoElem.textContent = '–';
             dado.classList.remove('rolling');
+            btnGirar.disabled = false;
+            btnGirar.textContent = '🎲 Girar Dado';
         }
-        
-        // Reabilita o botão
-        btnGirar.disabled = config.saldo <= 0;
-        btnGirar.textContent = '🎲 Girar Dado';
     })
     .catch(error => {
         console.error('Erro:', error);
@@ -422,52 +533,139 @@ function rolarDado() {
     });
 }
 
-// Move o jogador pelas casas
-function moverJogador(passos) {
-    let novaPosicao = config.posicaoJogador + passos;
+// NOVA FUNÇÃO: Move o jogador com animação passo a passo
+function moverJogadorComAnimacao(posicaoInicial, posicaoFinal, passos) {
+    if (config.emMovimento) return;
     
-    // Não ultrapassa o final
-    if (novaPosicao >= config.totalCasas) {
-        novaPosicao = config.totalCasas - 1;
+    config.emMovimento = true;
+    let posicaoAtual = posicaoInicial;
+    const btnGirar = document.getElementById('btnGirarDado');
+    
+    // Desabilita o botão durante a animação
+    if (btnGirar) {
+        btnGirar.disabled = true;
+        btnGirar.textContent = '🚶 Movendo...';
     }
-    
-    // Animação de movimento
-    moverPassoAPasso(config.posicaoJogador, novaPosicao);
-}
-
-// Move o jogador passo a passo com animação
-function moverPassoAPasso(de, para) {
-    let posicaoAtual = de;
     
     const intervalo = setInterval(() => {
         posicaoAtual++;
+        
+        // Atualiza a posição visualmente
         posicionarJogador(posicaoAtual);
         
-        // Verifica recompensa localmente (para animação)
-        verificarRecompensaLocal(posicaoAtual);
-        
-        if (posicaoAtual >= para) {
-            clearInterval(intervalo);
+        // Efeitos visuais para a casa atual
+        const casaAtual = document.querySelector(`.casa[data-numero="${posicaoAtual + 1}"]`);
+        if (casaAtual) {
+            // Efeito de destaque na casa atual
+            casaAtual.classList.add('casa-destacada');
+            setTimeout(() => {
+                casaAtual.classList.remove('casa-destacada');
+            }, 200);
+            
+            // Efeito sonoro visual (partículas)
+            criarEfeitoParticulas(casaAtual);
         }
-    }, 300);
-}
-
-// Verifica se o jogador caiu em uma recompensa (apenas para animação)
-function verificarRecompensaLocal(posicao) {
-    const casa = document.querySelector(`.casa[data-numero="${posicao + 1}"]`);
-    
-    if (casa && casa.classList.contains('recompensa')) {
-        const titulo = casa.dataset.recompensaTitulo;
-        const descricao = casa.dataset.recompensaDescricao;
         
-        // Apenas para efeito visual - o saldo real já foi atualizado pela API
-        setTimeout(() => {
-            mostrarMensagemRecompensa(titulo, descricao);
-        }, 500);
-    }
+        // Verifica se chegou na posição final
+        if (posicaoAtual >= posicaoFinal) {
+            clearInterval(intervalo);
+            config.emMovimento = false;
+            config.posicaoJogador = posicaoFinal;
+            
+            // Reabilita o botão
+            if (btnGirar) {
+                btnGirar.disabled = config.saldo <= 0;
+                btnGirar.textContent = '🎲 Girar Dado';
+            }
+            
+            // Efeito especial na casa final
+            const casaFinal = document.querySelector(`.casa[data-numero="${posicaoFinal + 1}"]`);
+            if (casaFinal) {
+                casaFinal.classList.add('casa-chegada');
+                setTimeout(() => {
+                    casaFinal.classList.remove('casa-chegada');
+                }, 1000);
+            }
+            
+            // Verifica se chegou ao final do tabuleiro
+            if (posicaoFinal + 1 === config.totalCasas) {
+                setTimeout(() => {
+                    mostrarMensagemVitoria("🎉 Parabéns! Você chegou ao final do tabuleiro!");
+                    document.getElementById('btnRecomecar').style.display = 'block';
+                }, 500);
+            }
+        }
+    }, 300); // Velocidade da animação (300ms por casa)
 }
 
-// Mostra mensagem de recompensa personalizada
+// NOVA FUNÇÃO: Cria efeito de partículas ao passar pelas casas
+function criarEfeitoParticulas(elemento) {
+    const rect = elemento.getBoundingClientRect();
+    const particulasContainer = document.createElement('div');
+    particulasContainer.className = 'particulas-container';
+    particulasContainer.style.position = 'fixed';
+    particulasContainer.style.left = `${rect.left + rect.width / 2}px`;
+    particulasContainer.style.top = `${rect.top + rect.height / 2}px`;
+    particulasContainer.style.pointerEvents = 'none';
+    particulasContainer.style.zIndex = '1000';
+    
+    document.body.appendChild(particulasContainer);
+    
+    // Cria várias partículas
+    for (let i = 0; i < 8; i++) {
+        const particula = document.createElement('div');
+        particula.className = 'particula';
+        particula.style.position = 'absolute';
+        particula.style.width = '6px';
+        particula.style.height = '6px';
+        particula.style.background = getCorParticula();
+        particula.style.borderRadius = '50%';
+        particula.style.opacity = '0.8';
+        
+        // Animação aleatória para cada partícula
+        const angle = (i / 8) * Math.PI * 2;
+        const distance = 20 + Math.random() * 30;
+        const duration = 400 + Math.random() * 300;
+        
+        particula.style.animation = `voarParticula ${duration}ms ease-out forwards`;
+        particula.style.setProperty('--angle', angle);
+        particula.style.setProperty('--distance', distance);
+        
+        particulasContainer.appendChild(particula);
+        
+        // Remove a partícula após a animação
+        setTimeout(() => {
+            particula.remove();
+        }, duration);
+    }
+    
+    // Remove o container após um tempo
+    setTimeout(() => {
+        particulasContainer.remove();
+    }, 1000);
+}
+
+// NOVA FUNÇÃO: Retorna cor aleatória para as partículas
+function getCorParticula() {
+    const cores = [
+        'var(--azul-claro)',
+        'var(--verde)',
+        'var(--roxo)',
+        'var(--dourado)',
+        '#FF6B6B',
+        '#4ECDC4',
+        '#45B7D1',
+        '#96CEB4'
+    ];
+    return cores[Math.floor(Math.random() * cores.length)];
+}
+
+// Move o jogador diretamente para a posição final (sem animação - para recomeçar)
+function moverJogadorDireto(novaPosicao) {
+    posicionarJogador(novaPosicao);
+}
+
+// Mostra mensagem de recompensa personalizada - ATUALIZADO PARA NOVA ESTRUTURA (SEM BÔNUS DE SALDO)
 function mostrarMensagemRecompensa(titulo, descricao) {
     const mensagens = [
         "🎉 Excelente! Você encontrou uma recompensa!",
@@ -479,170 +677,151 @@ function mostrarMensagemRecompensa(titulo, descricao) {
     
     const mensagemAleatoria = mensagens[Math.floor(Math.random() * mensagens.length)];
     
-    document.getElementById('textoRecompensa').textContent = mensagemAleatoria;
-    document.getElementById('saldo-ganho').textContent = "+5 de saldo!";
-    document.getElementById('mensagem-recompensa').textContent = 
-        `Você ganhou: "${titulo}" - ${descricao}`;
+    // Atualiza o modal de vitória/recompensa
+    const modal = document.getElementById('modal-ganhou');
+    if (modal) {
+        const winTitle = modal.querySelector('.win-title');
+        const winDesc = modal.querySelector('.win-desc');
+        const winSaldo = modal.querySelector('.win-saldo');
+        
+        if (winTitle) winTitle.textContent = mensagemAleatoria;
+        if (winDesc) winDesc.textContent = `Você ganhou: "${titulo}" - ${descricao}`;
+        if (winSaldo) winSaldo.textContent = "Recompensa conquistada!";
+    }
     
     abrirModal('ganhou');
 }
 
-// Mostra mensagem de vitória personalizada
+// Mostra mensagem de vitória personalizada - ATUALIZADO PARA NOVA ESTRUTURA
 function mostrarMensagemVitoria(mensagem) {
-    document.getElementById('textoRecompensa').textContent = mensagem;
-    document.getElementById('saldo-ganho').textContent = "🎊 Missão Cumprida!";
-    document.getElementById('mensagem-recompensa').textContent = 
-        "Você completou todo o tabuleiro! Parabéns pela conquista!";
+    const modal = document.getElementById('modal-ganhou');
+    if (modal) {
+        const winTitle = modal.querySelector('.win-title');
+        const winDesc = modal.querySelector('.win-desc');
+        const winSaldo = modal.querySelector('.win-saldo');
+        
+        if (winTitle) winTitle.textContent = mensagem;
+        if (winDesc) winDesc.textContent = "Você completou todo o tabuleiro! Parabéns pela conquista!";
+        if (winSaldo) winSaldo.textContent = "🎊 Missão Cumprida!";
+    }
     
     abrirModal('ganhou');
 }
 
 // ================================
-// FUNÇÕES DE MODAL CORRIGIDAS - POSICIONAMENTO DINÂMICO
+// FUNÇÕES DE MODAL ATUALIZADAS - NOVA ESTRUTURA
 // ================================
 
-// Função para abrir modal - CORREÇÃO APLICADA (posicionamento inteligente)
+// Função para abrir modal - NOVA ESTRUTURA
 function abrirModal(tipo) {
     const modal = document.getElementById(`modal-${tipo}`);
     if (modal) {
-        // Remove qualquer posicionamento anterior
-        modal.style.alignItems = '';
-        modal.style.paddingTop = '';
-        modal.style.paddingBottom = '';
-        
-        modal.classList.add('show');
+        modal.classList.add('active');
         document.body.classList.add('modal-open');
         
-        // Posiciona o modal de forma inteligente baseado na posição de scroll
+        // Foca no primeiro elemento interativo do modal
         setTimeout(() => {
-            posicionarModalInteligente(modal);
-        }, 10);
-        
-        // Garantir que o modal seja rolável se necessário
-        setTimeout(() => {
-            modal.scrollTop = 0;
-        }, 10);
+            const focusElement = modal.querySelector('button, input, textarea, select');
+            if (focusElement) focusElement.focus();
+        }, 100);
     }
 }
 
-// Nova função para posicionar modal de forma inteligente
-function posicionarModalInteligente(modal) {
-    const modalContent = modal.querySelector('.modal-content') || modal.querySelector('.modal-card') || modal;
-    const viewportHeight = window.innerHeight;
-    const scrollY = window.scrollY;
-    const modalHeight = modalContent.offsetHeight;
-    
-    // Calcula a posição visível atual
-    const visibleAreaTop = scrollY;
-    const visibleAreaBottom = scrollY + viewportHeight;
-    
-    // Se o modal for maior que 80% da viewport, usa scroll interno
-    if (modalHeight > viewportHeight * 0.8) {
-        modal.style.alignItems = 'flex-start';
-        modal.style.paddingTop = '20px';
-        modal.style.paddingBottom = '20px';
-        modalContent.style.maxHeight = '90vh';
-    } else {
-        // Para modais menores, posiciona de forma inteligente
-        const spaceAbove = visibleAreaTop;
-        const spaceBelow = document.documentElement.scrollHeight - visibleAreaBottom;
-        
-        if (spaceAbove > spaceBelow && spaceAbove > 100) {
-            // Mais espaço acima - posiciona mais para cima
-            modal.style.alignItems = 'flex-start';
-            modal.style.paddingTop = '40px';
-        } else if (spaceBelow > spaceAbove && spaceBelow > 100) {
-            // Mais espaço abaixo - posiciona mais para baixo
-            modal.style.alignItems = 'flex-end';
-            modal.style.paddingBottom = '40px';
-        } else {
-            // Espaço balanceado - centraliza normalmente
-            modal.style.alignItems = 'center';
-        }
-    }
-}
-
-// Função para fechar modal - CORREÇÃO APLICADA
+// Função para fechar modal - NOVA ESTRUTURA
 function fecharModal(tipo) {
     const modal = document.getElementById(`modal-${tipo}`);
     if (modal) {
-        // Reseta estilos de posicionamento
-        modal.style.alignItems = '';
-        modal.style.paddingTop = '';
-        modal.style.paddingBottom = '';
-        
-        modal.classList.remove('show');
+        modal.classList.remove('active');
         document.body.classList.remove('modal-open');
     }
 }
 
 // Nova função para fechar modal por elemento
 function fecharModalPorElemento(modalElement) {
-    // Reseta estilos de posicionamento
-    modalElement.style.alignItems = '';
-    modalElement.style.paddingTop = '';
-    modalElement.style.paddingBottom = '';
-    
-    modalElement.classList.remove('show');
+    modalElement.classList.remove('active');
     document.body.classList.remove('modal-open');
 }
 
 // Nova função para fechar todos os modais
 function fecharTodosModais() {
-    document.querySelectorAll('.modal.show').forEach(modal => {
-        modal.style.alignItems = '';
-        modal.style.paddingTop = '';
-        modal.style.paddingBottom = '';
-        modal.classList.remove('show');
+    document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+        modal.classList.remove('active');
     });
     document.body.classList.remove('modal-open');
 }
 
-// Confirmação de exclusão
+// Confirmação de exclusão - ATUALIZADO
 function confirmarExclusao(id) {
     const form = document.getElementById('form-excluir');
-    form.action = `{{ url_for('tabuleiro.excluir_recompensa', id_projeto=0, id_recompensa=0) }}`
-        .replace('/0/', `/${window.idProjeto}/`)
-        .replace('id_recompensa=0', `id_recompensa=${id}`);
-    abrirModal('confirmacao');
+    if (form) {
+        form.action = `{{ url_for('tabuleiro.excluir_recompensa', id_projeto=0, id_recompensa=0) }}`
+            .replace('/0/', `/${window.idProjeto}/`)
+            .replace('id_recompensa=0', `id_recompensa=${id}`);
+        abrirModal('confirmacao');
+    }
 }
 
-// Recomeçar jogo
+// Recomeçar jogo - ATUALIZADO PARA CHAMAR API
 function recomecar() {
-    if (confirm('Tem certeza que deseja recomeçar o jogo?')) {
-        // Remove marcações de casas visitadas
-        document.querySelectorAll('.casa.visitada').forEach(casa => {
-            casa.classList.remove('visitada');
+    if (confirm('Tem certeza que deseja recomeçar o jogo? Sua posição será resetada para o início.')) {
+        // Chamada para a API para resetar o progresso
+        fetch(`/tabuleiro/projeto/${window.idProjeto}/recomecar`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove marcações de casas visitadas
+                document.querySelectorAll('.casa.visitada').forEach(casa => {
+                    casa.classList.remove('visitada');
+                });
+                
+                // Remove jogador
+                if (config.jogadorElement) {
+                    config.jogadorElement.remove();
+                    config.nomeElement.remove();
+                    config.jogadorElement = null;
+                    config.nomeElement = null;
+                }
+                
+                // Reposiciona jogador no início
+                config.posicaoJogador = 0;
+                config.saldo = data.novo_saldo;
+                posicionarJogador(0);
+                atualizarSaldo();
+                
+                // Esconde botão recomeçar
+                document.getElementById('btnRecomecar').style.display = 'none';
+                
+                // Reseta o dado
+                document.getElementById('dado').textContent = '–';
+                document.getElementById('res-num').textContent = '–';
+                
+                // Recarrega recompensas ganhas
+                carregarRecompensasGanhas();
+                
+                flash("Jogo recomeçado com sucesso!", "success");
+            } else {
+                alert('Erro ao recomeçar jogo: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao recomeçar jogo');
         });
-        
-        // Remove jogador
-        if (config.jogadorElement) {
-            config.jogadorElement.remove();
-            config.nomeElement.remove();
-            config.jogadorElement = null;
-            config.nomeElement = null;
-        }
-        
-        // Reposiciona jogador no início
-        config.posicaoJogador = 0;
-        posicionarJogador(0);
-        
-        // Reseta saldo
-        config.saldo = 0;
-        atualizarSaldo();
-        
-        // Esconde botão recomeçar
-        document.getElementById('btnRecomecar').style.display = 'none';
-        
-        // Reseta o dado
-        document.getElementById('dado').textContent = '–';
-        document.getElementById('res-num').textContent = '–';
-        
-        // TODO: Chamar API para resetar progresso no servidor
     }
 }
 
 // Voltar para o projeto
 function voltarParaProjeto() {
     window.location.href = `/projeto/${window.idProjeto}`;
+}
+
+// Função auxiliar para mostrar mensagens flash
+function flash(mensagem, tipo) {
+    // Implementação básica - você pode adaptar para seu sistema de mensagens
+    alert(mensagem);
 }

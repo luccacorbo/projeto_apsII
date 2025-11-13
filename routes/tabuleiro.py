@@ -115,7 +115,7 @@ def mostrar_tabuleiro_projeto(id_projeto):
         """, (id_projeto, user_id))
         progresso = cur.fetchone()
         
-        # Buscar usuários online no projeto (membros ativos)
+        # Buscar usuários online no projeto (membros ativos) - ATUALIZADO PARA INCLUIR CRIADOR E TODOS OS MEMBROS
         cur.execute("""
             SELECT u.id_usuario, u.nome, pt.posicao_atual, pt.saldo
             FROM usuario u
@@ -123,11 +123,18 @@ def mostrar_tabuleiro_projeto(id_projeto):
             LEFT JOIN progresso_tabuleiro pt ON u.id_usuario = pt.id_usuario
             LEFT JOIN tabuleiro t ON pt.id_tabuleiro = t.id_tabuleiro AND t.id_projeto = %s
             WHERE pm.id_projeto = %s
-            ORDER BY pt.posicao_atual DESC
-        """, (id_projeto, id_projeto))
+            UNION
+            SELECT u.id_usuario, u.nome, pt.posicao_atual, pt.saldo
+            FROM usuario u
+            JOIN projetos p ON u.id_usuario = p.id_criador
+            LEFT JOIN progresso_tabuleiro pt ON u.id_usuario = pt.id_usuario
+            LEFT JOIN tabuleiro t ON pt.id_tabuleiro = t.id_tabuleiro AND t.id_projeto = %s
+            WHERE p.id_projeto = %s
+            ORDER BY posicao_atual DESC
+        """, (id_projeto, id_projeto, id_projeto, id_projeto))
         usuarios_online = cur.fetchall()
         
-        # Buscar recompensas conquistadas pelo usuário
+        # Buscar recompensas conquistadas pelo usuário - ATUALIZADO PARA MOSTRAR DATA DE CONQUISTA
         cur.execute("""
             SELECT r.titulo, r.descricao, hr.data_conquista, r.posicao
             FROM historico_recompensas hr
@@ -175,7 +182,7 @@ def mostrar_tabuleiro_projeto(id_projeto):
 
 @bp_tabuleiro.route("/projeto/<int:id_projeto>/adicionar_recompensa", methods=["POST"])
 def adicionar_recompensa(id_projeto):
-    """Adiciona recompensa ao tabuleiro do projeto"""
+    """Adiciona recompensa ao tabuleiro do projeto - ATUALIZADO PARA BLOQUEAR CASA 1"""
     if 'user_id' not in session:
         return redirect('/login')
     
@@ -193,6 +200,12 @@ def adicionar_recompensa(id_projeto):
     if not titulo or not posicao.isdigit():
         flash("Preencha título e uma posição válida.", "warning")
         return redirect(url_for('tabuleiro.mostrar_tabuleiro_projeto', id_projeto=id_projeto))
+    
+    # VALIDAÇÃO: Não permitir recompensa na casa 1
+    posicao_int = int(posicao)
+    if posicao_int == 1:
+        flash("A casa 1 não pode ter recompensa. Por favor, escolha outra casa.", "warning")
+        return redirect(url_for('tabuleiro.mostrar_tabuleiro_projeto', id_projeto=id_projeto))
 
     conn = cur = None
     try:
@@ -200,7 +213,7 @@ def adicionar_recompensa(id_projeto):
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO recompensa (titulo, descricao, posicao, id_projeto) VALUES (%s,%s,%s,%s)",
-            (titulo, descricao, int(posicao), id_projeto)
+            (titulo, descricao, posicao_int, id_projeto)
         )
         conn.commit()
         flash("Recompensa adicionada!", "success")
@@ -216,7 +229,7 @@ def adicionar_recompensa(id_projeto):
 
 @bp_tabuleiro.route("/projeto/<int:id_projeto>/editar_recompensa/<int:id_recompensa>", methods=["POST"])
 def editar_recompensa(id_projeto, id_recompensa):
-    """Edita recompensa do tabuleiro do projeto"""
+    """Edita recompensa do tabuleiro do projeto - ATUALIZADO PARA BLOQUEAR CASA 1"""
     if 'user_id' not in session:
         return redirect('/login')
     
@@ -234,6 +247,12 @@ def editar_recompensa(id_projeto, id_recompensa):
     if not titulo or not posicao.isdigit():
         flash("Preencha título e uma posição válida.", "warning")
         return redirect(url_for('tabuleiro.mostrar_tabuleiro_projeto', id_projeto=id_projeto))
+    
+    # VALIDAÇÃO: Não permitir recompensa na casa 1
+    posicao_int = int(posicao)
+    if posicao_int == 1:
+        flash("A casa 1 não pode ter recompensa. Por favor, escolha outra casa.", "warning")
+        return redirect(url_for('tabuleiro.mostrar_tabuleiro_projeto', id_projeto=id_projeto))
 
     conn = cur = None
     try:
@@ -241,7 +260,7 @@ def editar_recompensa(id_projeto, id_recompensa):
         cur = conn.cursor()
         cur.execute(
             "UPDATE recompensa SET titulo=%s, descricao=%s, posicao=%s WHERE id_recompensa=%s AND id_projeto=%s",
-            (titulo, descricao, int(posicao), id_recompensa, id_projeto)
+            (titulo, descricao, posicao_int, id_recompensa, id_projeto)
         )
         conn.commit()
         flash("Recompensa atualizada!", "success")
@@ -287,7 +306,7 @@ def excluir_recompensa(id_projeto, id_recompensa):
 
 @bp_tabuleiro.route("/projeto/<int:id_projeto>/girar_dado", methods=["POST"])
 def girar_dado(id_projeto):
-    """Gira o dado e move o jogador no tabuleiro"""
+    """Gira o dado e move o jogador no tabuleiro - ATUALIZADO PARA NÃO DAR BÔNUS DE SALDO"""
     if 'user_id' not in session:
         return jsonify({'error': 'Não logado'}), 401
     
@@ -331,7 +350,7 @@ def girar_dado(id_projeto):
             WHERE t.id_projeto = %s AND pt.id_usuario = %s
         """, (nova_posicao, id_projeto, user_id))
         
-        # Verificar se caiu em recompensa
+        # Verificar se caiu em recompensa APENAS NA POSIÇÃO FINAL
         cur.execute("""
             SELECT r.id_recompensa, r.titulo, r.descricao
             FROM recompensa r
@@ -341,19 +360,23 @@ def girar_dado(id_projeto):
         recompensa = cur.fetchone()
         
         if recompensa:
-            # Registrar recompensa conquistada
+            # Verificar se o usuário já conquistou esta recompensa
             cur.execute("""
-                INSERT INTO historico_recompensas (id_usuario, id_recompensa, id_projeto)
-                VALUES (%s, %s, %s)
+                SELECT id_historico FROM historico_recompensas 
+                WHERE id_usuario = %s AND id_recompensa = %s AND id_projeto = %s
             """, (user_id, recompensa['id_recompensa'], id_projeto))
             
-            # Dar saldo extra como recompensa
-            cur.execute("""
-                UPDATE progresso_tabuleiro pt
-                JOIN tabuleiro t ON pt.id_tabuleiro = t.id_tabuleiro
-                SET pt.saldo = pt.saldo + 5
-                WHERE t.id_projeto = %s AND pt.id_usuario = %s
-            """, (id_projeto, user_id))
+            recompensa_existente = cur.fetchone()
+            
+            if not recompensa_existente:
+                # Registrar recompensa conquistada (SEM DAR SALDO EXTRA)
+                cur.execute("""
+                    INSERT INTO historico_recompensas (id_usuario, id_recompensa, id_projeto)
+                    VALUES (%s, %s, %s)
+                """, (user_id, recompensa['id_recompensa'], id_projeto))
+            else:
+                # Usuário já tem esta recompensa
+                recompensa = None
         
         conn.commit()
         
@@ -362,12 +385,60 @@ def girar_dado(id_projeto):
             'resultado_dado': resultado_dado,
             'nova_posicao': nova_posicao,
             'recompensa': recompensa,
-            'saldo_restante': progresso['saldo'] - 1 + (5 if recompensa else 0)
+            'saldo_restante': progresso['saldo'] - 1  # REMOVIDO: + saldo_extra
         })
         
     except Exception as e:
         if conn: conn.rollback()
         return jsonify({'error': f'Erro ao girar dado: {e}'}), 500
+    finally:
+        try:
+            if cur: cur.close()
+        finally:
+            if conn: conn.close()
+
+@bp_tabuleiro.route("/projeto/<int:id_projeto>/recomecar", methods=["POST"])
+def recomecar_jogo(id_projeto):
+    """Recomeça o jogo para o usuário atual - NOVA ROTA"""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Não logado'}), 401
+    
+    user_id = session['user_id']
+    eh_criador, eh_membro = _verificar_acesso_projeto(id_projeto, user_id)
+    
+    if not eh_criador and not eh_membro:
+        return jsonify({'error': 'Acesso negado'}), 403
+
+    conn = cur = None
+    try:
+        conn = conectar()
+        cur = conn.cursor(dictionary=True)
+        
+        # Resetar posição e saldo do usuário
+        cur.execute("""
+            UPDATE progresso_tabuleiro pt
+            JOIN tabuleiro t ON pt.id_tabuleiro = t.id_tabuleiro
+            SET pt.posicao_atual = 0, pt.saldo = 0, pt.data_ultima_atualizacao = NOW()
+            WHERE t.id_projeto = %s AND pt.id_usuario = %s
+        """, (id_projeto, user_id))
+        
+        # Remover recompensas conquistadas pelo usuário neste projeto
+        cur.execute("""
+            DELETE FROM historico_recompensas 
+            WHERE id_usuario = %s AND id_projeto = %s
+        """, (user_id, id_projeto))
+        
+        conn.commit()
+        
+        return jsonify({
+            'success': True,
+            'nova_posicao': 0,
+            'novo_saldo': 0
+        })
+        
+    except Exception as e:
+        if conn: conn.rollback()
+        return jsonify({'error': f'Erro ao recomeçar jogo: {e}'}), 500
     finally:
         try:
             if cur: cur.close()
