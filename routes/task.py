@@ -32,7 +32,7 @@ def formatar_status(status):
     """Formata o status para exibição amigável"""
     status_map = {
         'todo': 'Pendente',
-        'doing': 'Em Andamento', 
+        'doing': 'Em Andamento',
         'done': 'Concluída'
     }
     return status_map.get(status, status)
@@ -97,11 +97,11 @@ def api_tarefas():
             JOIN projetos p ON t.id_projeto = p.id_projeto 
             LEFT JOIN usuario u ON t.id_responsavel = u.id_usuario
             WHERE t.id_responsavel = %s 
-               OR p.id_criador = %s
-               OR EXISTS (
-                   SELECT 1 FROM projeto_membros pm 
-                   WHERE pm.id_projeto = p.id_projeto AND pm.id_usuario = %s
-               )
+                OR p.id_criador = %s
+                OR EXISTS (
+                    SELECT 1 FROM projeto_membros pm 
+                    WHERE pm.id_projeto = p.id_projeto AND pm.id_usuario = %s
+                )
             ORDER BY t.data_criacao DESC
         ''', (id_usuario, id_usuario, id_usuario))
         
@@ -128,7 +128,8 @@ def api_tarefas():
         print(f"❌ Erro MySQL na API de tarefas: {e}")
         return jsonify({'error': f'Erro ao buscar tarefas: {str(e)}'}), 500
     finally:
-        close_db_connection(connection)
+        if connection:
+            close_db_connection(connection)
 
 
 @task.route('/api/tarefas/<int:id_tarefa>', methods=['PUT'])
@@ -143,19 +144,16 @@ def api_atualizar_tarefa(id_tarefa):
     
     novo_status = dados.get('status')
     
-    # ALTERAÇÃO: Removido o campo 'comentarios' que não existe mais na tabela tarefas
-    # Comentários agora são gerenciados pela tabela separada 'comentarios'
-    
     connection = conectar()
     if not connection:
         return jsonify({'error': 'Erro de conexão com o banco'}), 500
     
     try:
-        cursor = connection.cursor()
+        cursor = connection.cursor(dictionary=True) # MUDADO PARA dictionary=True
         
         # Verificação de permissões - usuário deve ser responsável, criador ou membro
         cursor.execute('''
-            SELECT t.id_tarefa 
+            SELECT t.*, p.id_criador as projeto_criador
             FROM tarefas t
             LEFT JOIN projetos p ON t.id_projeto = p.id_projeto
             LEFT JOIN projeto_membros pm ON t.id_projeto = pm.id_projeto AND pm.id_usuario = %s
@@ -163,19 +161,57 @@ def api_atualizar_tarefa(id_tarefa):
             AND (t.id_responsavel = %s OR p.id_criador = %s OR pm.id_usuario IS NOT NULL)
         ''', (session['user_id'], id_tarefa, session['user_id'], session['user_id']))
         
-        if not cursor.fetchone():
+        tarefa = cursor.fetchone()
+        
+        if not tarefa:
             return jsonify({'error': 'Tarefa não encontrada ou sem permissão'}), 404
         
-        # ALTERAÇÃO: Atualizar apenas o status, removendo o campo comentarios
-        cursor.execute('''
-            UPDATE tarefas 
-            SET status = %s
-            WHERE id_tarefa = %s
-        ''', (novo_status, id_tarefa))
+        # --- INÍCIO DA LÓGICA DE GAMIFICAÇÃO (COPIADA DO WORKSPACE.PY) ---
+        
+        # Atualizar status
+        cursor.execute('UPDATE tarefas SET status = %s WHERE id_tarefa = %s', (novo_status, id_tarefa))
+        
+        id_projeto = tarefa['id_projeto']
+        
+        # Se a tarefa foi concluída e ainda não gerou saldo
+        if (novo_status == 'done' and tarefa['status'] != 'done' and 
+            not tarefa['saldo_gerado'] and tarefa['id_responsavel']):
+            
+            print("✅ Gatilho de saldo ativado!") # DEBUG
+            
+            # Buscar tabuleiro do projeto
+            cursor.execute("SELECT id_tabuleiro FROM tabuleiro WHERE id_projeto = %s", (id_projeto,))
+            tabuleiro = cursor.fetchone()
+            
+            if tabuleiro:
+                # Atualizar saldo do usuário
+                cursor.execute("""
+                    INSERT INTO progresso_tabuleiro (id_usuario, id_tabuleiro, saldo, posicao_atual)
+                    VALUES (%s, %s, 1, 0)
+                    ON DUPLICATE KEY UPDATE 
+                        saldo = saldo + 1,
+                        data_ultima_atualizacao = NOW()
+                """, (tarefa['id_responsavel'], tabuleiro['id_tabuleiro']))
+                
+                # Registrar no histórico
+                cursor.execute("""
+                    INSERT INTO historico_saldo (id_usuario, id_tarefa, id_projeto, saldo_gerado)
+                    VALUES (%s, %s, %s, 1)
+                """, (tarefa['id_responsavel'], id_tarefa, id_projeto))
+                
+                # Marcar como saldo gerado
+                cursor.execute("UPDATE tarefas SET saldo_gerado = TRUE WHERE id_tarefa = %s", (id_tarefa,))
+                
+                print(f"✅ Saldo gerado para usuário {tarefa['id_responsavel']} pela tarefa {id_tarefa}") # DEBUG
+        
+        # --- FIM DA LÓGICA DE GAMIFICAÇÃO ---
         
         connection.commit()
         
-        if cursor.rowcount == 0:
+        if cursor.rowcount == 0 and novo_status == tarefa['status']:
+            # Se não atualizou nada (status já era o mesmo), ainda assim retorne sucesso
+            pass
+        elif cursor.rowcount == 0:
             return jsonify({'error': 'Tarefa não encontrada'}), 404
         
         return jsonify({'success': True, 'message': 'Tarefa atualizada com sucesso'})
@@ -185,7 +221,8 @@ def api_atualizar_tarefa(id_tarefa):
         connection.rollback()
         return jsonify({'error': f'Erro ao atualizar tarefa: {str(e)}'}), 500
     finally:
-        close_db_connection(connection)
+        if connection:
+            close_db_connection(connection)
 
 
 @task.route('/projeto/<int:id_projeto>/tarefa', methods=['POST'])
@@ -260,7 +297,8 @@ def criar_tarefa(id_projeto):
         print(f"❌ Erro ao criar tarefa: {e}")
         return f"Erro interno ao criar tarefa: {e}", 500
     finally:
-        close_db_connection(connection)
+        if connection:
+            close_db_connection(connection)
 
 
 @task.route('/projeto/<int:id_projeto>/tarefa/<int:id_tarefa>/excluir', methods=['POST'])
@@ -361,7 +399,8 @@ def api_minhas_tarefas():
         print(f"❌ Erro MySQL na API de minhas tarefas: {e}")
         return jsonify({'error': f'Erro ao buscar tarefas: {str(e)}'}), 500
     finally:
-        close_db_connection(connection)
+        if connection:
+            close_db_connection(connection)
 
 
 @task.route('/tarefa/<int:tarefa_id>')
@@ -446,17 +485,18 @@ def detalhes_tarefa(tarefa_id):
         primeiro_nome = usuario['nome'].split(' ')[0] if usuario and usuario['nome'] else 'Usuário'
         
         return render_template('tarefa.html', 
-                             tarefa=tarefa,
-                             primeiro_nome=primeiro_nome,
-                             formatar_status=formatar_status,
-                             formatar_data=formatar_data,
-                             formatar_data_completa=formatar_data_completa)
+                               tarefa=tarefa,
+                               primeiro_nome=primeiro_nome,
+                               formatar_status=formatar_status,
+                               formatar_data=formatar_data,
+                               formatar_data_completa=formatar_data_completa)
         
     except Exception as e:
         print(f"❌ Erro ao carregar detalhes da tarefa: {e}")
         return f"Erro interno: {str(e)}", 500
     finally:
-        close_db_connection(connection)
+        if connection:
+            close_db_connection(connection)
 
 @task.route('/api/tarefa/<int:tarefa_id>')
 def api_tarefa_especifica(tarefa_id):
@@ -516,7 +556,8 @@ def api_tarefa_especifica(tarefa_id):
         print(f"❌ Erro MySQL ao buscar tarefa específica: {e}")
         return jsonify({'error': f'Erro ao buscar tarefa: {str(e)}'}), 500
     finally:
-        close_db_connection(connection)
+        if connection:
+            close_db_connection(connection)
 
 @task.route('/api/tarefas/<int:tarefa_id>/comentarios', methods=['GET', 'POST'])
 def api_comentarios_tarefa(tarefa_id):
@@ -542,7 +583,7 @@ def api_comentarios_tarefa(tarefa_id):
         if not tarefa:
             return jsonify({'error': 'Tarefa não encontrada'}), 404
         
-        # Verificar se usuário é membro do projeto
+        # ✅ CORREÇÃO: Verificar se usuário é membro do projeto (criador ou membro adicionado)
         cursor.execute('''
             SELECT 1 FROM projetos 
             WHERE id_projeto = %s AND id_criador = %s
@@ -621,52 +662,9 @@ def api_comentarios_tarefa(tarefa_id):
             connection.rollback()
         return jsonify({'error': f'Erro interno: {str(e)}'}), 500
     finally:
-        close_db_connection(connection)
+        if connection:
+            close_db_connection(connection)
 
-
-    """API para excluir comentário permanentemente"""
-    if 'user_id' not in session:
-        return jsonify({'error': 'Usuário não logado'}), 401
-    
-    connection = conectar()
-    if not connection:
-        return jsonify({'error': 'Erro de conexão com o banco'}), 500
-    
-    try:
-        cursor = connection.cursor(dictionary=True)
-        
-        # Verificar se o comentário existe e se o usuário é o dono
-        cursor.execute('''
-            SELECT c.id_comentario, c.id_usuario 
-            FROM comentarios c
-            WHERE c.id_comentario = %s AND c.id_tarefa = %s
-        ''', (comentario_id, tarefa_id))
-        
-        comentario = cursor.fetchone()
-        if not comentario:
-            return jsonify({'error': 'Comentário não encontrado'}), 404
-        
-        # Verificar se usuário é o dono do comentário ou responsável pela tarefa
-        cursor.execute('''
-            SELECT 1 FROM tarefas 
-            WHERE id_tarefa = %s AND (id_responsavel = %s OR %s IN (id_responsavel, id_criador))
-        ''', (tarefa_id, session['user_id'], comentario['id_usuario']))
-        
-        if not cursor.fetchone():
-            return jsonify({'error': 'Sem permissão para excluir este comentário'}), 403
-        
-        # Excluir comentário permanentemente
-        cursor.execute('DELETE FROM comentarios WHERE id_comentario = %s', (comentario_id,))
-        connection.commit()
-        
-        return jsonify({'success': True, 'message': 'Comentário excluído com sucesso'})
-        
-    except Exception as e:
-        print(f"❌ Erro ao excluir comentário: {e}")
-        connection.rollback()
-        return jsonify({'error': f'Erro interno: {str(e)}'}), 500
-    finally:
-        close_db_connection(connection)
 
 @task.route('/api/tarefas/<int:tarefa_id>/arquivos', methods=['GET', 'POST'])
 def api_arquivos_tarefa(tarefa_id):
@@ -801,7 +799,8 @@ def api_arquivos_tarefa(tarefa_id):
             connection.rollback()
         return jsonify({'error': f'Erro interno: {str(e)}'}), 500
     finally:
-        close_db_connection(connection)
+        if connection:
+            close_db_connection(connection)
 
 @task.route('/api/tarefas/<int:tarefa_id>/comentarios/<int:comentario_id>', methods=['PUT'])
 def api_editar_comentario(tarefa_id, comentario_id):
@@ -870,7 +869,8 @@ def api_editar_comentario(tarefa_id, comentario_id):
         connection.rollback()
         return jsonify({'error': f'Erro interno: {str(e)}'}), 500
     finally:
-        close_db_connection(connection)
+        if connection:
+            close_db_connection(connection)
 
 @task.route('/api/tarefas/<int:tarefa_id>/arquivos/<int:arquivo_id>', methods=['DELETE'])
 def api_excluir_arquivos_tarefa(tarefa_id, arquivo_id):
@@ -941,7 +941,8 @@ def api_excluir_arquivos_tarefa(tarefa_id, arquivo_id):
         connection.rollback()
         return jsonify({'error': f'Erro interno: {str(e)}'}), 500
     finally:
-        close_db_connection(connection)
+        if connection:
+            close_db_connection(connection)
 
 @task.route('/api/tarefas/<int:tarefa_id>/comentarios/<int:comentario_id>', methods=['DELETE'])
 def api_excluir_comentario(tarefa_id, comentario_id):
@@ -982,7 +983,8 @@ def api_excluir_comentario(tarefa_id, comentario_id):
         connection.rollback()
         return jsonify({'error': f'Erro interno: {str(e)}'}), 500
     finally:
-        close_db_connection(connection)
+        if connection:
+            close_db_connection(connection)
 
 @task.route('/api/tarefas/<int:tarefa_id>/arquivos/<int:arquivo_id>/download')
 def download_arquivo(tarefa_id, arquivo_id):
@@ -1047,4 +1049,5 @@ def download_arquivo(tarefa_id, arquivo_id):
         print(f"❌ Erro ao fazer download do arquivo: {e}")
         return f"Erro interno: {str(e)}", 500
     finally:
-        close_db_connection(connection)
+        if connection:
+            close_db_connection(connection)
