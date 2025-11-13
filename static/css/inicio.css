@@ -1,4 +1,4 @@
-/* inicio.css - Versão Modernizada (mantendo estilo antigo) */
+/* inicio.css - Versão Modernizada e Totalmente Responsiva - REFATORADA */
 :root {
     --primary-color: #6366f1;
     --primary-hover: #4f46e5;
@@ -17,25 +17,44 @@
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     --border-radius: 16px;
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Novas variáveis para responsividade */
+    --container-padding-mobile: 16px;
+    --container-padding-tablet: 24px;
+    --container-padding-desktop: 30px;
+    --header-padding-mobile: 24px 16px;
+    --header-padding-desktop: 40px 20px;
+    --grid-gap-mobile: 16px;
+    --grid-gap-desktop: 30px;
+    --card-padding-mobile: 20px;
+    --card-padding-desktop: 25px;
 }
 
+/* Reset e configurações base para responsividade */
 .inicio-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 20px 30px 60px;
-    background: transparent; /* 🔹 Remove o fundo branco */
+    padding: var(--container-padding-mobile);
+    background: transparent;
     min-height: 100vh;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-/* Header Modernizado */
+/* Header Modernizado - Totalmente Responsivo */
 .inicio-header {
     text-align: center;
-    margin-bottom: 50px;
-    padding: 40px 20px;
+    margin-bottom: 40px;
+    padding: var(--header-padding-mobile);
     background: linear-gradient(135deg, #c0c1c5 0%, #667eea 100%);
     border-radius: var(--border-radius);
     color: white;
     position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .inicio-header::before {
@@ -50,45 +69,56 @@
 }
 
 .inicio-header h1 {
-    font-size: 3rem;
+    font-size: clamp(1.8rem, 5vw, 3rem);
     font-weight: 700;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
     position: relative;
     text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    line-height: 1.2;
+    word-wrap: break-word;
+    text-align: center;
+    width: 100%;
 }
 
 .inicio-header p {
-    font-size: 1.3rem;
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
     opacity: 0.9;
     font-weight: 300;
     position: relative;
-    max-width: 500px;
+    max-width: min(500px, 90%);
     margin: 0 auto;
     line-height: 1.6;
+    text-align: center;
 }
 
-/* Ações Rápidas */
+/* Ações Rápidas - Layout Adaptativo */
 .acoes-rapidas {
     display: flex;
-    gap: 20px;
+    gap: 16px;
     justify-content: center;
-    margin-bottom: 50px;
+    margin-bottom: 40px;
     flex-wrap: wrap;
 }
 
+/* Botões Responsivos */
 .btn {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    padding: 14px 28px;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
     border: none;
     border-radius: 12px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: clamp(0.875rem, 2vw, 1rem);
     text-decoration: none;
     transition: var(--transition);
     cursor: pointer;
     box-shadow: var(--shadow-md);
+    text-align: center;
+    flex: 0 1 auto;
+    min-width: min-content;
+    white-space: nowrap;
 }
 
 .btn-primary {
@@ -132,72 +162,84 @@
 }
 
 .btn-icon {
-    font-size: 1.2rem;
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    flex-shrink: 0;
 }
 
-/* Seção de Projetos */
+/* Seção de Projetos - Estrutura Responsiva */
 .projetos-section {
     margin-top: 30px;
 }
 
 .section-header {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
-    padding: 0 10px;
+    padding: 0 8px;
+    gap: 16px;
 }
 
 .section-header h2 {
     color: var(--text-primary);
     margin: 0;
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 4vw, 2rem);
     font-weight: 700;
+    line-height: 1.2;
 }
 
-/* 🔹 Novo agrupamento para o botão e título */
+/* Agrupamento para o botão e título */
 .section-left {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-/* 🔹 Ajuste do botão “Minhas Tarefas” */
+/* Ajuste do botão "Minhas Tarefas" */
 .tarefas-btn {
     padding: 8px 16px;
     font-size: 0.9rem;
+    white-space: nowrap;
 }
 
 /* Contador de projetos */
 .projetos-count {
     background: var(--primary-color);
     color: white;
-    padding: 8px 16px;
+    padding: 6px 12px;
     border-radius: 20px;
     font-size: 0.9rem;
     font-weight: 600;
     box-shadow: var(--shadow-sm);
+    white-space: nowrap;
 }
 
-/* Grid de Projetos - Lado a Lado */
+/* Grid de Projetos - Totalmente Adaptativo - REFATORADO */
 .projetos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: var(--grid-gap-mobile);
     align-items: start;
+    width: 100%;
 }
 
-/* Cards Modernizados */
+/* Cards Modernizados - Responsivos */
 .projeto-card {
     background: var(--card-background);
     border-radius: var(--border-radius);
-    padding: 25px;
+    padding: var(--card-padding-mobile);
     box-shadow: var(--shadow-md);
     border: 1px solid var(--border-color);
     transition: var(--transition);
     position: relative;
     overflow: hidden;
     height: fit-content;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 .projeto-card::before {
@@ -216,22 +258,25 @@
     border-color: var(--primary-color);
 }
 
-/* Header do card */
+/* Header do card responsivo */
 .card-header {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 20px;
-    gap: 15px;
+    gap: 12px;
 }
 
 .projeto-titulo {
     color: var(--text-primary);
     margin: 0;
-    font-size: 1.4rem;
+    font-size: clamp(1.2rem, 3vw, 1.4rem);
     font-weight: 700;
     line-height: 1.3;
     flex: 1;
+    min-width: 200px;
+    word-wrap: break-word;
 }
 
 .projeto-status {
@@ -242,18 +287,21 @@
     font-size: 0.75rem;
     font-weight: 600;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
-/* Corpo do card */
+/* Corpo do card responsivo */
 .card-body {
     margin-bottom: 25px;
+    flex: 1;
 }
 
 .projeto-descricao {
     color: var(--text-secondary);
     line-height: 1.6;
     margin-bottom: 20px;
-    font-size: 0.95rem;
+    font-size: clamp(0.9rem, 2vw, 0.95rem);
+    word-wrap: break-word;
 }
 
 .sem-descricao {
@@ -271,30 +319,36 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .meta-label {
     color: var(--text-muted);
     font-size: 0.85rem;
     min-width: 70px;
+    flex-shrink: 0;
 }
 
 .meta-value {
     color: var(--text-primary);
     font-size: 0.9rem;
     font-weight: 500;
+    word-wrap: break-word;
 }
 
-/* Rodapé do card */
+/* Rodapé do card responsivo */
 .card-footer {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     padding-top: 20px;
     border-top: 1px solid var(--border-color);
+    gap: 12px;
+    margin-top: auto;
 }
 
-/* Badges */
+/* Badges responsivas */
 .badge-criador {
     background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
     color: white;
@@ -303,6 +357,7 @@
     font-size: 0.75rem;
     font-weight: 600;
     box-shadow: var(--shadow-sm);
+    white-space: nowrap;
 }
 
 .badge-membro {
@@ -313,78 +368,286 @@
     font-size: 0.75rem;
     font-weight: 600;
     box-shadow: var(--shadow-sm);
+    white-space: nowrap;
 }
 
-/* Estado Vazio */
+/* Estado Vazio responsivo */
 .empty-state {
     text-align: center;
-    padding: 80px 40px;
+    padding: 60px 20px;
     background: var(--card-background);
     border-radius: var(--border-radius);
     border: 2px dashed var(--border-color);
     margin: 40px 0;
+    grid-column: 1 / -1;
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
-    .inicio-container {
-        padding: 20px 15px;
-    }
+/* ========== SISTEMA DE BREAKPOINTS APRIMORADO ========== */
 
+/* Dispositivos muito pequenos (até 359px) */
+@media (max-width: 359px) {
+    .inicio-container {
+        padding: 12px 8px;
+    }
+    
     .inicio-header {
-        padding: 30px 20px;
+        padding: 16px 12px;
+        margin-bottom: 24px;
+    }
+    
+    .inicio-header h1 {
+        font-size: 1.5rem;
+        line-height: 1.3;
+    }
+    
+    .inicio-header p {
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+    
+    .acoes-rapidas {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
         margin-bottom: 30px;
     }
-
-    .inicio-header h1 {
-        font-size: 2.2rem;
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 10px 16px;
     }
-
-    .inicio-header p {
-        font-size: 1.1rem;
+    
+    .projetos-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
     }
-
+    
     .section-header {
         flex-direction: column;
-        gap: 15px;
-        align-items: flex-start;
+        align-items: stretch;
+        gap: 12px;
+        margin-bottom: 20px;
     }
-
+    
     .section-left {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
         gap: 10px;
     }
-
+    
     .tarefas-btn {
         width: 100%;
     }
-
-    .projetos-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-
+    
     .card-header {
         flex-direction: column;
+        align-items: flex-start;
         gap: 10px;
     }
-
-    .projeto-titulo {
-        font-size: 1.3rem;
+    
+    .card-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .meta-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .projeto-card {
+        padding: 16px;
     }
 }
 
-@media (max-width: 480px) {
-    .inicio-header h1 {
-        font-size: 1.8rem;
+/* Smartphones pequenos (360px - 479px) */
+@media (min-width: 360px) and (max-width: 479px) {
+    .inicio-container {
+        padding: 14px 10px;
     }
-
-    .projeto-card {
-        padding: 20px;
+    
+    .inicio-header {
+        padding: 20px 14px;
     }
-
+    
+    .acoes-rapidas {
+        gap: 12px;
+    }
+    
+    .btn {
+        padding: 11px 18px;
+    }
+    
     .projetos-grid {
         grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}
+
+/* Smartphones médios (480px - 767px) */
+@media (min-width: 480px) and (max-width: 767px) {
+    .inicio-container {
+        padding: var(--container-padding-mobile);
+    }
+    
+    .projetos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 18px;
+    }
+    
+    .acoes-rapidas {
+        gap: 14px;
+    }
+}
+
+/* Tablets e dispositivos médios (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .inicio-container {
+        padding: var(--container-padding-tablet);
+    }
+    
+    .inicio-header {
+        padding: var(--header-padding-desktop);
+        margin-bottom: 50px;
+    }
+    
+    .acoes-rapidas {
+        gap: 20px;
+        margin-bottom: 50px;
+    }
+    
+    .btn {
+        padding: 14px 28px;
+        gap: 10px;
+    }
+    
+    .projetos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: var(--grid-gap-desktop);
+    }
+    
+    .projeto-card {
+        padding: var(--card-padding-desktop);
+    }
+    
+    .section-header {
+        padding: 0 10px;
+    }
+}
+
+/* Desktop e telas grandes (1024px - 1199px) */
+@media (min-width: 1024px) and (max-width: 1199px) {
+    .inicio-container {
+        padding: var(--container-padding-desktop) 30px 50px;
+    }
+    
+    .projetos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 25px;
+    }
+    
+    .section-header {
+        flex-wrap: nowrap;
+    }
+    
+    .card-header {
+        flex-wrap: nowrap;
+    }
+}
+
+/* Desktop wide (1200px - 1399px) */
+@media (min-width: 1200px) and (max-width: 1399px) {
+    .inicio-container {
+        padding: var(--container-padding-desktop) 40px 60px;
+    }
+    
+    .projetos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 30px;
+    }
+}
+
+/* Telas extra grandes (1400px+) */
+@media (min-width: 1400px) {
+    .inicio-container {
+        padding: var(--container-padding-desktop) 50px 70px;
+    }
+    
+    .projetos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 35px;
+    }
+}
+
+/* Modo paisagem em dispositivos móveis */
+@media (max-height: 500px) and (orientation: landscape) {
+    .inicio-header {
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .inicio-header h1 {
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+    }
+    
+    .empty-state {
+        padding: 40px 20px;
+    }
+    
+    .projetos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+}
+
+/* Suporte para dispositivos com hover */
+@media (hover: hover) and (pointer: fine) {
+    .projeto-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-xl);
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+}
+
+/* Dispositivos sem hover (touch) */
+@media (hover: none) and (pointer: coarse) {
+    .projeto-card:active {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .btn:active {
+        transform: scale(0.98);
+    }
+}
+
+/* Alto contraste para acessibilidade */
+@media (prefers-contrast: high) {
+    :root {
+        --border-color: #000000;
+        --text-secondary: #000000;
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+    
+    .projeto-card {
+        border: 2px solid var(--border-color);
+    }
+}
+
+/* Modo escuro automático (opcional) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #0f172a;
+        --card-background: #1e293b;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --text-muted: #64748b;
+        --border-color: #334155;
     }
 }
