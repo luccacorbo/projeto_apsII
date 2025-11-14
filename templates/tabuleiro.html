@@ -45,7 +45,7 @@
         </div>
       </div>
 
-      <!-- Painel de Usuários ATUALIZADO -->
+      <!-- Painel de Usuários -->
       <div class="painel-usuarios">
         <h3>👥 Membros do Projeto</h3>
         <div class="lista-usuarios" id="lista-usuarios">
@@ -91,7 +91,7 @@
     </div>
   </div>
 
-  <!-- Seção de Recompensas Ganhas ATUALIZADA -->
+  <!-- Seção de Recompensas Ganhas -->
   <div class="recompensas-ganhas">
     <h2>🏆 Recompensas Conquistadas</h2>
     <div class="grid-recompensas" id="grid-recompensas">
@@ -99,34 +99,41 @@
     </div>
   </div>
 
-  <!-- MODAIS ATUALIZADOS COM NOVA ESTRUTURA -->
+  <!-- MODAIS CORRIGIDOS - ESTRUTURA RESPONSIVA -->
 
-  <!-- Modal Adicionar Recompensa ATUALIZADO PARA BLOQUEAR CASA 1 -->
+  <!-- Modal Adicionar Recompensa -->
   {% if eh_criador or usuario_atual_eh_admin %}
   <div id="modal-adicionar" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="ttl-add">
     <div class="modal-container">
-      <div class="modal-card">
+      <div class="modal-card compact-modal">
         <button class="modal-close" data-modal-close>&times;</button>
         <div class="modal-header">
-          <h3 class="modal-title" id="ttl-add">➕ Adicionar Recompensa</h3>
+          <h3 class="modal-title" id="ttl-add">Adicionar Recompensa</h3>
         </div>
         <div class="modal-content">
           <form method="POST" action="{{ url_for('tabuleiro.adicionar_recompensa', id_projeto=projeto.id_projeto) }}" id="form-adicionar-recompensa">
-            <div class="modal-form">
+            <div class="modal-form compact-form">
               <div class="form-group">
-                <input type="text" name="titulo" placeholder="Título da recompensa" required class="form-input">
+                <label class="form-label">Título</label>
+                <input type="text" name="titulo" placeholder="Título da recompensa" required class="form-input compact">
               </div>
               <div class="form-group">
-                <input type="text" name="descricao" placeholder="Descrição detalhada" required class="form-input">
+                <label class="form-label">Descrição</label>
+                <input type="text" name="descricao" placeholder="Descrição detalhada" required class="form-input compact">
               </div>
-              <div class="form-group">
-                <input type="number" name="posicao" id="input-posicao" min="2" max="100" placeholder="Número da casa (2-100)" required class="form-input">
-                <small style="color: #666; font-size: 12px; margin-top: 5px;">A casa 1 não pode ter recompensa</small>
+              <div class="form-row-compact">
+                <div class="form-group compact">
+                  <label class="form-label">Casa</label>
+                  <input type="number" name="posicao" id="input-posicao" min="2" max="100" placeholder="Número (2-100)" required class="form-input compact">
+                </div>
               </div>
+              <small style="color: #666; font-size: 12px; margin-top: -10px; display: block;">
+                A casa 1 não pode ter recompensa
+              </small>
             </div>
             <div class="modal-footer">
-              <button type="submit" class="btn">💾 Salvar</button>
-              <button type="button" class="btn danger" onclick="fecharModal('adicionar')">❌ Cancelar</button>
+              <button type="submit" class="btn">Salvar</button>
+              <button type="button" class="btn danger" onclick="fecharModal('adicionar')">Cancelar</button>
             </div>
           </form>
         </div>
@@ -135,50 +142,64 @@
   </div>
   {% endif %}
 
-  <!-- Modal Editar Recompensas ATUALIZADO COM MELHOR VISUALIZAÇÃO -->
+  <!-- Modal Editar Recompensas -->
   {% if eh_criador %}
   <div id="modal-editar" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="ttl-edit">
     <div class="modal-container">
       <div class="modal-card">
         <button class="modal-close" data-modal-close>&times;</button>
-        <div class="modal-header">
-          <h3 class="modal-title" id="ttl-edit">✏️ Gerenciar Recompensas</h3>
-          <span class="modal-subtitle">{{ recompensas|length }} recompensa(s) cadastrada(s)</span>
+        <div class="modal-header with-counter">
+          <h3 class="modal-title" id="ttl-edit">Editar recompensas</h3>
+          <span class="recompensa-count">{{ recompensas|length }} recompensa(s)</span>
         </div>
         <div class="modal-content">
           {% if recompensas and recompensas|length > 0 %}
-            <div class="recompensas-list">
-              {% for r in recompensas %}
-              <div class="recompensa-item">
-                <form class="modal-form compact-form" method="POST" action="{{ url_for('tabuleiro.editar_recompensa', id_projeto=projeto.id_projeto, id_recompensa=r.id_recompensa) }}">
-                  <div class="form-row">
-                    <div class="form-group compact">
-                      <label class="form-label">Casa</label>
-                      <input type="number" name="posicao" value="{{ r.posicao }}" min="2" max="100" required class="form-input compact" style="max-width: 80px">
+            <table class="recompensas-table">
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th>Descrição</th>
+                  <th style="width: 80px;">Casa</th>
+                  <th style="width: 120px;">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in recompensas %}
+                <tr {% if r.posicao == 100 %}class="premio-final"{% endif %}>
+                  <td>
+                    <input type="text" name="titulo" value="{{ r.titulo }}" class="table-input" form="form-edit-{{ r.id_recompensa }}">
+                  </td>
+                  <td>
+                    <input type="text" name="descricao" value="{{ r.descricao }}" class="table-input" form="form-edit-{{ r.id_recompensa }}">
+                  </td>
+                  <td>
+                    <input type="number" name="posicao" value="{{ r.posicao }}" min="2" max="100" class="table-input" style="width: 60px;" form="form-edit-{{ r.id_recompensa }}">
+                  </td>
+                  <td>
+                    <div class="table-actions">
+                      <form id="form-edit-{{ r.id_recompensa }}" method="POST" action="{{ url_for('tabuleiro.editar_recompensa', id_projeto=projeto.id_projeto, id_recompensa=r.id_recompensa) }}">
+                        <button type="submit" class="btn-table save">Salvar</button>
+                      </form>
+                      <button type="button" class="btn-table delete" onclick="confirmarExclusao({{ r.id_recompensa }})">Exc.</button>
                     </div>
-                    <div class="form-group compact">
-                      <label class="form-label">Título</label>
-                      <input type="text" name="titulo" value="{{ r.titulo }}" placeholder="Título" required class="form-input compact">
-                    </div>
-                  </div>
-                  <div class="form-group compact">
-                    <label class="form-label">Descrição</label>
-                    <input type="text" name="descricao" value="{{ r.descricao }}" placeholder="Descrição" required class="form-input compact">
-                  </div>
-                  <div class="form-actions">
-                    <button class="btn small" type="submit">💾 Salvar</button>
-                    <button class="btn danger small" type="button" onclick="confirmarExclusao({{ r.id_recompensa }})">🗑️ Excluir</button>
-                  </div>
-                </form>
-              </div>
-              {% if not loop.last %}<hr class="divider">{% endif %}
-              {% endfor %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            
+            <!-- Prêmio Final -->
+            <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, var(--dourado), var(--dourado-escuro)); border-radius: 8px; text-align: center;">
+              <strong style="color: #222; font-size: 14px;">Prêmio final</strong>
+              <p style="color: #222; margin: 5px 0; font-size: 13px;">
+                Parabéns! Você completou o tabuleiro!
+              </p>
             </div>
           {% else %}
-            <div class="empty-state">
-              <div class="empty-icon">🎁</div>
-              <p class="empty-text">Nenhuma recompensa cadastrada ainda.</p>
-              <p class="empty-subtext">Adicione recompensas para tornar o jogo mais divertido!</p>
+            <div class="empty-table">
+              <div class="empty-table-icon">🎁</div>
+              <p>Nenhuma recompensa cadastrada ainda.</p>
+              <p style="font-size: 12px; margin-top: 5px;">Adicione recompensas para tornar o jogo mais divertido!</p>
             </div>
           {% endif %}
         </div>
@@ -209,7 +230,7 @@
     </div>
   </div>
 
-  <!-- Modal de Informações da Casa ATUALIZADO COM INTERATIVIDADE PARA CRIADOR -->
+  <!-- Modal de Informações da Casa -->
   <div id="modal-casa-info" class="modal-overlay" role="dialog" aria-modal="true">
     <div class="modal-container">
       <div class="modal-card casa-info">

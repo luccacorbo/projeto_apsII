@@ -808,7 +808,6 @@ body {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--verde), var(--roxo), var(--dourado));
 }
 
 .modal-title {
@@ -968,6 +967,390 @@ body {
   text-align: center;
 }
 
+/* ================================
+   MODAIS DE RECOMPENSAS - ESTILO TABELA
+================================ */
+
+/* Modal Adicionar Recompensa - Estilo Compacto */
+.modal-card.compact-modal {
+  max-width: 500px;
+}
+
+.modal-form.compact-form {
+  gap: 15px;
+}
+
+.form-row-compact {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.form-group.compact {
+  flex: 1;
+  min-width: 120px;
+}
+
+.form-input.compact {
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--azul-escuro);
+  font-size: 13px;
+  margin-bottom: 5px;
+  display: block;
+}
+
+/* Modal Editar Recompensas - Estilo Tabela */
+.recompensas-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+}
+
+.recompensas-table th {
+  background: var(--azul-claro);
+  color: white;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 12px 8px;
+  text-align: left;
+  border: none;
+}
+
+.recompensas-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 13px;
+}
+
+.recompensas-table tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.recompensas-table tr:hover {
+  background: #f1f5f9;
+}
+
+/* Inputs na tabela */
+.table-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 13px;
+  background: white;
+}
+
+.table-input:focus {
+  outline: none;
+  border-color: var(--azul-claro);
+  box-shadow: 0 0 0 2px rgba(74, 123, 217, 0.1);
+}
+
+/* Ações na tabela */
+.table-actions {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+.btn-table {
+  padding: 6px 10px;
+  font-size: 11px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.btn-table.save {
+  background: var(--verde);
+  color: white;
+}
+
+.btn-table.save:hover {
+  background: var(--verde-escuro);
+}
+
+.btn-table.delete {
+  background: #e74c3c;
+  color: white;
+}
+
+.btn-table.delete:hover {
+  background: #c0392b;
+}
+
+/* Prêmio Final - Destaque */
+.premio-final {
+  background: linear-gradient(135deg, var(--dourado), var(--dourado-escuro)) !important;
+  font-weight: 700;
+  color: #222;
+}
+
+.premio-final td {
+  border-bottom: none;
+  font-weight: 700;
+}
+
+/* Header do modal de edição com contador */
+.modal-header.with-counter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.recompensa-count {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Estados vazios */
+.empty-table {
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748b;
+}
+
+.empty-table-icon {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  opacity: 0.5;
+}
+
+/* ================================
+   RESPONSIVIDADE AVANÇADA PARA MODAIS
+================================ */
+
+/* Tablets (768px - 1024px) */
+@media (max-width: 1024px) {
+  .modal-container {
+    width: 95%;
+    max-width: 90%;
+  }
+  
+  .modal-content {
+    padding: 25px;
+  }
+  
+  .modal-header {
+    padding: 20px 25px 15px;
+  }
+  
+  .recompensas-table {
+    font-size: 12px;
+  }
+  
+  .table-input {
+    font-size: 12px;
+    padding: 4px 6px;
+  }
+}
+
+/* Tablets pequenos e celulares grandes (577px - 767px) */
+@media (max-width: 767px) and (min-width: 577px) {
+  .modal-container {
+    width: 98%;
+    max-width: 95%;
+  }
+  
+  .modal-content {
+    padding: 20px;
+  }
+  
+  .modal-header {
+    padding: 15px 20px 10px;
+  }
+  
+  .modal-footer {
+    padding: 15px 20px;
+    flex-direction: column;
+  }
+  
+  .recompensas-table {
+    display: block;
+    overflow-x: auto;
+  }
+  
+  .recompensas-table th,
+  .recompensas-table td {
+    white-space: nowrap;
+    min-width: 80px;
+    padding: 8px 6px;
+    font-size: 11px;
+  }
+  
+  .table-actions {
+    flex-direction: column;
+    gap: 3px;
+  }
+  
+  .btn-table {
+    font-size: 10px;
+    padding: 4px 6px;
+  }
+  
+  .form-row-compact {
+    flex-direction: column;
+  }
+}
+
+/* Celulares (481px - 576px) */
+@media (max-width: 576px) and (min-width: 481px) {
+  .modal-overlay {
+    padding: 10px;
+  }
+  
+  .modal-container {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .modal-content {
+    padding: 15px;
+  }
+  
+  .modal-header {
+    padding: 15px 15px 10px;
+  }
+  
+  .modal-close {
+    top: 10px;
+    right: 15px;
+    width: 35px;
+    height: 35px;
+    font-size: 18px;
+  }
+  
+  .recompensas-table th,
+  .recompensas-table td {
+    padding: 6px 4px;
+    font-size: 10px;
+  }
+  
+  .table-input {
+    padding: 3px 4px;
+    font-size: 10px;
+  }
+  
+  .btn-table {
+    font-size: 9px;
+    padding: 3px 5px;
+  }
+}
+
+/* Celulares pequenos (até 480px) */
+@media (max-width: 480px) {
+  .modal-overlay {
+    padding: 5px;
+  }
+  
+  .modal-container {
+    width: 100%;
+    max-height: 95vh;
+  }
+  
+  .modal-content {
+    padding: 15px 12px;
+    max-height: 70vh;
+  }
+  
+  .modal-header {
+    padding: 12px 15px 8px;
+  }
+  
+  .modal-title {
+    font-size: 18px;
+  }
+  
+  .modal-close {
+    top: 8px;
+    right: 12px;
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+  }
+  
+  .recompensas-table {
+    font-size: 10px;
+  }
+  
+  .recompensas-table th,
+  .recompensas-table td {
+    padding: 4px 2px;
+    font-size: 9px;
+  }
+  
+  .table-input {
+    padding: 2px 3px;
+    font-size: 9px;
+    min-width: 40px;
+  }
+  
+  .btn-table {
+    font-size: 8px;
+    padding: 2px 4px;
+    min-width: 40px;
+  }
+  
+  .form-input.compact {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+}
+
+/* Dispositivos muito pequenos (até 360px) */
+@media (max-width: 360px) {
+  .modal-content {
+    padding: 12px 10px;
+  }
+  
+  .modal-header {
+    padding: 10px 12px 6px;
+  }
+  
+  .recompensas-table th,
+  .recompensas-table td {
+    padding: 3px 1px;
+    font-size: 8px;
+  }
+  
+  .table-input {
+    padding: 1px 2px;
+    font-size: 8px;
+  }
+}
+
+/* Orientação paisagem em dispositivos móveis */
+@media (max-height: 500px) and (orientation: landscape) {
+  .modal-container {
+    max-height: 90vh;
+  }
+  
+  .modal-content {
+    max-height: 70vh;
+    padding: 15px;
+  }
+  
+  .recompensas-table {
+    font-size: 11px;
+  }
+}
+
 /* Animações para modais */
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -1059,12 +1442,6 @@ body.modal-open {
   gap: 8px;
 }
 
-.form-label {
-  font-weight: 600;
-  color: var(--azul-escuro);
-  font-size: 14px;
-}
-
 .form-input {
   padding: 12px 16px;
   border: 2px solid #e2e8f0;
@@ -1081,705 +1458,232 @@ body.modal-open {
 }
 
 /* ================================
-   RESPONSIVIDADE AVANÇADA
-================================ */
-
-/* Dispositivos grandes (desktops) */
-@media (min-width: 1201px) {
-  .tabuleiro-container {
-    flex-wrap: nowrap;
-  }
-}
-
-/* Tablets e dispositivos médios (768px - 1200px) */
-@media (max-width: 1200px) and (min-width: 769px) {
-  .tabuleiro-container {
-    flex-direction: row;
-  }
-  
-  .tabuleiro-lado {
-    min-width: min(100%, 500px);
-  }
-  
-  .controles-lado {
-    width: min(100%, 280px);
-  }
-}
-
-/* Tablets (768px - 1024px) */
-@media (max-width: 1024px) {
-  .tabuleiro-container {
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .controles-lado {
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-  
-  .controles-lado > * {
-    flex: 1;
-    min-width: min(250px, 100%);
-  }
-  
-  .page-tabuleiro .tabuleiro {
-    max-height: 50vh;
-  }
-  
-  .modal-container {
-    width: 95%;
-  }
-  
-  .modal-content {
-    padding: 25px;
-  }
-  
-  .modal-header {
-    padding: 20px 25px 15px;
-  }
-}
-
-/* Tablets pequenos e celulares grandes (577px - 767px) */
-@media (max-width: 767px) and (min-width: 577px) {
-  .page-tabuleiro .casa {
-    width: clamp(40px, 8vw, 50px);
-    height: clamp(40px, 8vw, 50px);
-    min-width: clamp(40px, 8vw, 50px);
-    min-height: clamp(40px, 8vw, 50px);
-  }
-  
-  .dado-2d {
-    width: 70px;
-    height: 70px;
-    font-size: 28px;
-  }
-  
-  .painel-dado,
-  .painel-acoes,
-  .info-jogador {
-    padding: 12px;
-  }
-  
-  .page-tabuleiro .linha {
-    gap: 12px;
-  }
-  
-  .controles-lado {
-    flex-direction: column;
-  }
-  
-  .modal-container {
-    width: 98%;
-  }
-  
-  .modal-content {
-    padding: 20px;
-  }
-  
-  .modal-header {
-    padding: 15px 20px 10px;
-  }
-  
-  .modal-footer {
-    padding: 15px 20px;
-    flex-direction: column;
-  }
-}
-
-/* Celulares (481px - 576px) */
-@media (max-width: 576px) and (min-width: 481px) {
-  .page-tabuleiro .casa {
-    width: 42px;
-    height: 42px;
-    min-width: 42px;
-    min-height: 42px;
-    font-size: 10px;
-  }
-  
-  .page-tabuleiro .tabuleiro {
-    padding: 15px 12px;
-    gap: 20px;
-  }
-  
-  .page-tabuleiro .linha {
-    gap: 10px;
-    min-height: 60px;
-  }
-  
-  .dado-2d {
-    width: 65px;
-    height: 65px;
-    font-size: 26px;
-  }
-  
-  .btn {
-    padding: 10px 12px;
-    font-size: 12px;
-  }
-  
-  .btn-girar-dado {
-    padding: 10px 16px;
-    font-size: 12px;
-    min-width: 110px;
-  }
-  
-  .modal-overlay {
-    padding: 10px;
-  }
-  
-  .modal-content {
-    padding: 15px;
-  }
-  
-  .modal-header {
-    padding: 15px 15px 10px;
-  }
-  
-  .modal-close {
-    top: 10px;
-    right: 15px;
-    width: 35px;
-    height: 35px;
-    font-size: 18px;
-  }
-}
-
-/* Celulares pequenos (até 480px) */
-@media (max-width: 480px) {
-  .page-tabuleiro .casa {
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
-    min-height: 38px;
-    font-size: 9px;
-  }
-  
-  .page-tabuleiro .tabuleiro {
-    padding: 12px 10px;
-    gap: 18px;
-  }
-  
-  .page-tabuleiro .linha {
-    gap: 8px;
-    min-height: 55px;
-  }
-  
-  .dado-2d {
-    width: 60px;
-    height: 60px;
-    font-size: 24px;
-  }
-  
-  .btn {
-    padding: 8px 10px;
-    font-size: 11px;
-  }
-  
-  .btn-girar-dado {
-    padding: 8px 14px;
-    font-size: 11px;
-    min-width: 100px;
-  }
-  
-  .grid-recompensas {
-    grid-template-columns: 1fr;
-  }
-  
-  /* Ajustes para labels em telas muito pequenas */
-  .page-tabuleiro .casa-start::after,
-  .page-tabuleiro .casa-finish::after {
-    font-size: 8px;
-    padding: 2px 6px;
-  }
-  
-  .modal-overlay {
-    padding: 5px;
-  }
-  
-  .modal-container {
-    width: 100%;
-  }
-  
-  .modal-content {
-    padding: 15px 12px;
-  }
-  
-  .modal-header {
-    padding: 12px 15px 8px;
-  }
-  
-  .modal-title {
-    font-size: 18px;
-  }
-}
-
-/* Dispositivos muito pequenos (até 360px) */
-@media (max-width: 360px) {
-  .page-tabuleiro .casa {
-    width: 35px;
-    height: 35px;
-    min-width: 35px;
-    min-height: 35px;
-    font-size: 8px;
-  }
-  
-  .page-tabuleiro .linha {
-    gap: 6px;
-    min-height: 50px;
-  }
-  
-  .page-tabuleiro .tabuleiro {
-    padding: 10px 8px;
-    gap: 15px;
-  }
-  
-  .dado-2d {
-    width: 55px;
-    height: 55px;
-    font-size: 22px;
-  }
-  
-  .modal-content {
-    padding: 12px 10px;
-  }
-  
-  .modal-header {
-    padding: 10px 12px 6px;
-  }
-}
-
-/* Orientação paisagem em dispositivos móveis */
-@media (max-height: 500px) and (orientation: landscape) {
-  .page-tabuleiro .tabuleiro {
-    max-height: 60vh;
-    min-height: min(400px, 60vh);
-  }
-  
-  .tabuleiro-container {
-    flex-direction: row;
-  }
-  
-  .controles-lado {
-    width: min(100%, 280px);
-  }
-  
-  .modal-container {
-    max-height: 90vh;
-  }
-  
-  .modal-content {
-    max-height: 70vh;
-  }
-}
-
-
-/* ================================
-   ESTILOS PARA MODAL DE EDIÇÃO MELHORADO
-================================ */
-
-/* Lista de recompensas no modal de edição */
-.recompensas-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.recompensa-item {
-    background: rgba(248, 250, 252, 0.8);
-    border-radius: 12px;
-    padding: 20px;
-    border: 1px solid rgba(226, 232, 240, 0.8);
-}
-
-/* Formulários compactos para melhor visualização */
-.modal-form.compact-form {
-    gap: 15px;
-}
-
-.form-row {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.form-group.compact {
-    flex: 1;
-    min-width: 120px;
-}
-
-.form-input.compact {
-    padding: 10px 12px;
-    font-size: 14px;
-}
-
-.form-label {
-    font-weight: 600;
-    color: var(--azul-escuro);
-    font-size: 13px;
-    margin-bottom: 5px;
-    display: block;
-}
-
-.form-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-start;
-    margin-top: 10px;
-}
-
-.btn.small {
-    padding: 8px 12px;
-    font-size: 12px;
-}
-
-/* Divisor entre itens */
-.divider {
-    border: none;
-    height: 1px;
-    background: rgba(226, 232, 240, 0.8);
-    margin: 10px 0;
-}
-
-/* Estado vazio */
-.empty-state {
-    text-align: center;
-    padding: 40px 20px;
-}
-
-.empty-icon {
-    font-size: 3rem;
-    margin-bottom: 15px;
-    opacity: 0.5;
-}
-
-.empty-text {
-    font-size: 16px;
-    color: #64748b;
-    margin-bottom: 8px;
-}
-
-.empty-subtext {
-    font-size: 14px;
-    color: #94a3b8;
-}
-
-/* Badges de status para casas */
-.status-badge {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    margin-top: 10px;
-}
-
-.status-badge.recompensa {
-    background: rgba(255, 211, 105, 0.2);
-    color: #b45309;
-    border: 1px solid rgba(255, 211, 105, 0.3);
-}
-
-.status-badge.inicio {
-    background: rgba(72, 187, 120, 0.2);
-    color: #047857;
-    border: 1px solid rgba(72, 187, 120, 0.3);
-}
-
-.status-badge.final {
-    background: rgba(139, 92, 246, 0.2);
-    color: #7c3aed;
-    border: 1px solid rgba(139, 92, 246, 0.3);
-}
-
-.status-badge.comum {
-    background: rgba(100, 116, 139, 0.1);
-    color: #475569;
-    border: 1px solid rgba(100, 116, 139, 0.2);
-}
-
-/* Ajustes responsivos para o modal de edição */
-@media (max-width: 768px) {
-    .form-row {
-        flex-direction: column;
-    }
-    
-    .form-group.compact {
-        min-width: 100%;
-    }
-    
-    .recompensa-item {
-        padding: 15px;
-    }
-    
-    .form-actions {
-        flex-direction: column;
-    }
-    
-    .btn.small {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-/* ================================
    ANIMAÇÕES DE MOVIMENTO E EFEITOS
 ================================ */
 
 /* Efeito de destaque na casa durante o movimento */
 .page-tabuleiro .casa.casa-destacada {
-    animation: pulse-destaque 0.3s ease-in-out;
-    box-shadow: 
-        0 0 0 3px rgba(255, 255, 255, 0.8),
-        0 0 20px rgba(74, 123, 217, 0.6),
-        0 0 30px rgba(74, 123, 217, 0.4);
-    transform: scale(1.15);
-    z-index: 10;
+  animation: pulse-destaque 0.3s ease-in-out;
+  box-shadow: 
+    0 0 0 3px rgba(255, 255, 255, 0.8),
+    0 0 20px rgba(74, 123, 217, 0.6),
+    0 0 30px rgba(74, 123, 217, 0.4);
+  transform: scale(1.15);
+  z-index: 10;
 }
 
 @keyframes pulse-destaque {
-    0% {
-        transform: scale(1);
-        box-shadow: 0 6px 15px var(--sombra);
-    }
-    50% {
-        transform: scale(1.15);
-        box-shadow: 
-            0 0 0 3px rgba(255, 255, 255, 0.8),
-            0 0 20px rgba(74, 123, 217, 0.6),
-            0 0 30px rgba(74, 123, 217, 0.4);
-    }
-    100% {
-        transform: scale(1);
-        box-shadow: 0 6px 15px var(--sombra);
-    }
+  0% {
+    transform: scale(1);
+    box-shadow: 0 6px 15px var(--sombra);
+  }
+  50% {
+    transform: scale(1.15);
+    box-shadow: 
+      0 0 0 3px rgba(255, 255, 255, 0.8),
+      0 0 20px rgba(74, 123, 217, 0.6),
+      0 0 30px rgba(74, 123, 217, 0.4);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 6px 15px var(--sombra);
+  }
 }
 
 /* Efeito especial na casa de chegada */
 .page-tabuleiro .casa.casa-chegada {
-    animation: chegada-especial 1s ease-in-out;
+  animation: chegada-especial 1s ease-in-out;
 }
 
 @keyframes chegada-especial {
-    0%, 100% {
-        transform: scale(1);
-        box-shadow: 0 6px 15px var(--sombra);
-    }
-    25% {
-        transform: scale(1.2);
-        box-shadow: 
-            0 0 0 4px rgba(255, 255, 255, 0.9),
-            0 0 30px rgba(46, 204, 113, 0.8),
-            0 0 50px rgba(46, 204, 113, 0.6);
-    }
-    50% {
-        transform: scale(1.1);
-        box-shadow: 
-            0 0 0 3px rgba(255, 255, 255, 0.8),
-            0 0 25px rgba(46, 204, 113, 0.7),
-            0 0 40px rgba(46, 204, 113, 0.5);
-    }
-    75% {
-        transform: scale(1.15);
-        box-shadow: 
-            0 0 0 3px rgba(255, 255, 255, 0.85),
-            0 0 20px rgba(46, 204, 113, 0.6),
-            0 0 35px rgba(46, 204, 113, 0.4);
-    }
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 6px 15px var(--sombra);
+  }
+  25% {
+    transform: scale(1.2);
+    box-shadow: 
+      0 0 0 4px rgba(255, 255, 255, 0.9),
+      0 0 30px rgba(46, 204, 113, 0.8),
+      0 0 50px rgba(46, 204, 113, 0.6);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 
+      0 0 0 3px rgba(255, 255, 255, 0.8),
+      0 0 25px rgba(46, 204, 113, 0.7),
+      0 0 40px rgba(46, 204, 113, 0.5);
+  }
+  75% {
+    transform: scale(1.15);
+    box-shadow: 
+      0 0 0 3px rgba(255, 255, 255, 0.85),
+      0 0 20px rgba(46, 204, 113, 0.6),
+      0 0 35px rgba(46, 204, 113, 0.4);
+  }
 }
 
 /* Animação das partículas */
 @keyframes voarParticula {
-    0% {
-        transform: 
-            translate(0, 0) 
-            rotate(0deg) 
-            scale(1);
-        opacity: 0.8;
-    }
-    50% {
-        opacity: 0.6;
-    }
-    100% {
-        transform: 
-            translate(
-                calc(cos(var(--angle)) * var(--distance) * 1px),
-                calc(sin(var(--angle)) * var(--distance) * 1px)
-            ) 
-            rotate(180deg) 
-            scale(0.3);
-        opacity: 0;
-    }
+  0% {
+    transform: 
+      translate(0, 0) 
+      rotate(0deg) 
+      scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: 
+      translate(
+        calc(cos(var(--angle)) * var(--distance) * 1px),
+        calc(sin(var(--angle)) * var(--distance) * 1px)
+      ) 
+      rotate(180deg) 
+      scale(0.3);
+    opacity: 0;
+  }
 }
 
 /* Container de partículas */
 .particulas-container {
-    position: fixed;
-    pointer-events: none;
-    z-index: 1000;
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
 }
 
 /* Estilo do jogador durante movimento */
 .page-tabuleiro .boneco.movendo {
-    animation: pular 0.3s ease-in-out;
+  animation: pular 0.3s ease-in-out;
 }
 
 @keyframes pular {
-    0%, 100% {
-        transform: translate(-50%, -50%);
-    }
-    50% {
-        transform: translate(-50%, -65%);
-    }
+  0%, 100% {
+    transform: translate(-50%, -50%);
+  }
+  50% {
+    transform: translate(-50%, -65%);
+  }
 }
 
 /* Efeito de trilha durante o movimento */
 .page-tabuleiro .casa.visitada.recentemente {
-    position: relative;
+  position: relative;
 }
 
 .page-tabuleiro .casa.visitada.recentemente::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 120%;
-    height: 120%;
-    background: radial-gradient(circle, rgba(74, 123, 217, 0.3) 0%, transparent 70%);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    animation: expandirTrilha 0.5s ease-out forwards;
-    z-index: -1;
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(74, 123, 217, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: expandirTrilha 0.5s ease-out forwards;
+  z-index: -1;
 }
 
 @keyframes expandirTrilha {
-    0% {
-        transform: translate(-50%, -50%) scale(0);
-        opacity: 0.8;
-    }
-    100% {
-        transform: translate(-50%, -50%) scale(1);
-        opacity: 0;
-    }
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
 }
 
 /* Efeito de conexão entre casas durante movimento */
 .caminho-horizontal.ativo,
 .caminho-vertical.ativo {
-    background: linear-gradient(90deg, var(--verde), var(--roxo), var(--dourado));
-    opacity: 0.9;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
-    animation: piscarCaminho 0.5s ease-in-out;
+  background: linear-gradient(90deg, var(--verde), var(--roxo), var(--dourado));
+  opacity: 0.9;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+  animation: piscarCaminho 0.5s ease-in-out;
 }
 
 @keyframes piscarCaminho {
-    0%, 100% {
-        opacity: 0.6;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-    }
-    50% {
-        opacity: 0.9;
-        box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
-    }
+  0%, 100% {
+    opacity: 0.6;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    opacity: 0.9;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+  }
 }
 
 /* Estado desabilitado durante movimento */
 .btn-girar-dado:disabled {
-    position: relative;
-    overflow: hidden;
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-girar-dado:disabled::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.4),
-        transparent
-    );
-    animation: loadingShimmer 1.5s infinite;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: loadingShimmer 1.5s infinite;
 }
 
 @keyframes loadingShimmer {
-    0% {
-        left: -100%;
-    }
-    100% {
-        left: 100%;
-    }
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 
 /* Feedback visual para o jogador durante movimento */
 .jogador-movendo {
-    animation: brilharJogador 0.8s ease-in-out infinite;
+  animation: brilharJogador 0.8s ease-in-out infinite;
 }
 
 @keyframes brilharJogador {
-    0%, 100% {
-        filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
-    }
-    50% {
-        filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)) 
-                drop-shadow(0 0 25px rgba(74, 123, 217, 0.6));
-    }
-}
-
-/* Responsividade para animações */
-@media (max-width: 768px) {
-    .page-tabuleiro .casa.casa-destacada {
-        transform: scale(1.1);
-    }
-    
-    @keyframes pulse-destaque {
-        0% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.1);
-        }
-        100% {
-            transform: scale(1);
-        }
-    }
-    
-    @keyframes chegada-especial {
-        0%, 100% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.15);
-        }
-    }
+  0%, 100% {
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)) 
+            drop-shadow(0 0 25px rgba(74, 123, 217, 0.6));
+  }
 }
 
 /* Efeito de confete para chegada em recompensa */
 .confetti {
-    position: fixed;
-    width: 10px;
-    height: 10px;
-    background: var(--dourado);
-    opacity: 0.8;
-    animation: cairConfetti 2s ease-in forwards;
-    z-index: 1001;
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  background: var(--dourado);
+  opacity: 0.8;
+  animation: cairConfetti 2s ease-in forwards;
+  z-index: 1001;
 }
 
 @keyframes cairConfetti {
-    0% {
-        transform: translateY(-100vh) rotate(0deg);
-        opacity: 0.8;
-    }
-    100% {
-        transform: translateY(100vh) rotate(360deg);
-        opacity: 0;
-    }
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
 }
 
 /* Scrollbar personalizada */
