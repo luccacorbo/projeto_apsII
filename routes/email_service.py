@@ -1,169 +1,152 @@
-import smtplib
-from email.message import EmailMessage
 import os
-from datetime import datetime, timedelta
 import secrets
+import requests
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
-load_dotenv()
+
+load_dotenv()  # Carrega variáveis locais (Railway usa variáveis internas automaticamente)
 
 class EmailService:
     def __init__(self):
-        # Configurações SMTP — agora para SendGrid
-        self.smtp_server = os.getenv('SMTP_SERVER', 'smtp.sendgrid.net')
-        self.smtp_port = int(os.getenv('SMTP_PORT', 587))
-
-        # Usuário e senha SMTP
-        # Para SendGrid:
-        # USER = "apikey"
-        # PASS = API KEY criada no painel
-        self.sender_email_user = os.getenv('EMAIL_USER')   # sempre "apikey"
-        self.sender_email_pass = os.getenv('EMAIL_PASSWORD')  # sua API KEY
-        self.sender_from_email = os.getenv('EMAIL_FROM')  # email de envio
-
-        # Base URL para links
+        # API Key do SendGrid
+        self.sendgrid_api_key = os.getenv("SENDGRID_API_KEY")
+        self.sender_from_email = os.getenv("EMAIL_FROM")
         self.base_url = os.getenv("BASE_URL", "http://localhost:5000")
 
-        # Verificação de variáveis
-        if not self.sender_email_user or not self.sender_email_pass or not self.sender_from_email:
-            print("⚠️ AVISO: Variáveis de email do SendGrid não estão configuradas corretamente.")
+        if not self.sendgrid_api_key or not self.sender_from_email:
+            print("⚠️ ERRO: SENDGRID_API_KEY ou EMAIL_FROM não configurados no Railway.")
 
-    # ---------------------------------------------------------------------
-    # ENVIO DE CONVITE
-    # ---------------------------------------------------------------------
+        # URL oficial da API SendGrid
+        self.sendgrid_url = "https://api.sendgrid.com/v3/mail/send"
+
+    # ================================================================
+    # ENVIAR CONVITE PARA PROJETO
+    # ================================================================
     def enviar_convite_projeto(self, email_convidado, nome_convidado, nome_projeto, nome_convidante, token_convite):
-        """Envia email de convite usando SendGrid SMTP"""
 
-        # Gerar link real de produção
         url_aceitacao = f"{self.base_url}/convite/aceitar/{token_convite}"
 
         assunto = f"🎉 Convite para o projeto: {nome_projeto}"
 
         mensagem_html = f"""
-        <html>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-                <h2 style="color: #4F46E5; text-align: center;">Convite para Projeto</h2>
-
-                <p>Olá <strong>{nome_convidado}</strong>,</p>
-
-                <p>Você foi convidado por <strong>{nome_convidante}</strong> para participar do projeto:</p>
-
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                    <h3 style="margin: 0; color: #4F46E5;">{nome_projeto}</h3>
-                </div>
-
-                <p>Para aceitar este convite, clique no botão abaixo:</p>
-
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="{url_aceitacao}" 
-                       style="background-color: #4F46E5; color: white; padding: 12px 24px; 
-                              text-decoration: none; border-radius: 5px; font-weight: bold;
-                              display: inline-block;">
-                        ✅ Aceitar Convite
-                    </a>
-                </div>
-
-                <p><strong>⚠️ Atenção:</strong> Este convite expira em 7 dias.</p>
-
-                <p>Se o botão não funcionar, copie este link no navegador:</p>
-                <p style="word-break: break-all; color: #4F46E5;">{url_aceitacao}</p>
-
-                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-                <p style="font-size: 12px; color: #666;">Se você não reconhece este convite, ignore este email.</p>
-            </div>
-        </body>
-        </html>
+        <h2 style="color:#4F46E5;">Convite para Projeto</h2>
+        <p>Olá <strong>{nome_convidado}</strong>,</p>
+        <p>Você foi convidado por <strong>{nome_convidante}</strong> para participar do projeto:</p>
+        <h3 style="color:#4F46E5;">{nome_projeto}</h3>
+        <p>Clique no botão abaixo para aceitar:</p>
+        <a href="{url_aceitacao}"
+           style="background:#4F46E5;color:white;padding:12px 24px;border-radius:5px;text-decoration:none;">
+           Aceitar Convite
+        </a>
+        <p>Se o botão não funcionar, acesse:<br>
+        {url_aceitacao}</p>
         """
 
+        payload = {
+            "personalizations": [
+                {
+                    "to": [{"email": email_convidado}],
+                    "subject": assunto
+                }
+            ],
+            "from": {"email": self.sender_from_email},
+            "content": [
+                {
+                    "type": "text/html",
+                    "value": mensagem_html
+                }
+            ]
+        }
+
+        print(f"📧 Enviando convite via SendGrid API para: {email_convidado}")
+
         try:
-            print(f"📧 Tentando enviar convite via SendGrid para: {email_convidado}")
+            response = requests.post(
+                self.sendgrid_url,
+                headers={
+                    "Authorization": f"Bearer {self.sendgrid_api_key}",
+                    "Content-Type": "application/json"
+                },
+                json=payload
+            )
 
-            msg = EmailMessage()
-            msg["Subject"] = assunto
-            msg["From"] = self.sender_from_email
-            msg["To"] = email_convidado
-            msg.set_content("Você recebeu um convite para participar de um projeto.")
-            msg.add_alternative(mensagem_html, subtype="html")
-
-            # Conectando via SendGrid SMTP
-            with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
-                server.starttls()
-                server.login(self.sender_email_user, self.sender_email_pass)
-                server.send_message(msg)
-
-            print(f"✅ Email de convite via SendGrid enviado para: {email_convidado}")
-            return True
+            if response.status_code in (200, 202):
+                print(f"✅ Email de convite enviado para {email_convidado}")
+                return True
+            else:
+                print("❌ ERRO AO ENVIAR EMAIL:")
+                print(response.status_code, response.text)
+                return False
 
         except Exception as e:
-            print(f"❌ Erro ao enviar email de convite (SendGrid): {e}")
+            print(f"❌ Erro crítico ao enviar email: {e}")
             return False
 
-    # ---------------------------------------------------------------------
-    # ENVIO DE LINK DE REDEFINIÇÃO
-    # ---------------------------------------------------------------------
+    # ================================================================
+    # ENVIAR REDEFINIÇÃO DE SENHA
+    # ================================================================
     def enviar_redefinicao_senha(self, email_usuario, nome_usuario, token_redefinicao):
-        """Envia email de redefinição de senha via SendGrid"""
 
         url_redefinicao = f"{self.base_url}/redefinir-senha/{token_redefinicao}"
 
         assunto = "🔐 Redefinição de Senha - FofoTech"
 
         mensagem_html = f"""
-        <html>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-                <h2 style="color: #4F46E5; text-align: center;">Redefinição de Senha</h2>
-
-                <p>Olá <strong>{nome_usuario}</strong>,</p>
-
-                <p>Recebemos uma solicitação para redefinir sua senha.</p>
-
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="{url_redefinicao}"
-                       style="background-color: #4F46E5; color: white; padding: 12px 24px;
-                              text-decoration: none; border-radius: 5px; font-weight: bold;">
-                        🔑 Redefinir Senha
-                    </a>
-                </div>
-
-                <p>Se o botão não funcionar, use este link:</p>
-                <p style="word-break: break-all; color: #4F46E5;">{url_redefinicao}</p>
-
-                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-                <p style="font-size: 12px; color: #666;">
-                    Se você não solicitou, ignore este email.
-                </p>
-            </div>
-        </body>
-        </html>
+        <h2 style="color:#4F46E5;">Redefinição de Senha</h2>
+        <p>Olá <strong>{nome_usuario}</strong>,</p>
+        <p>Para redefinir sua senha, clique no botão abaixo:</p>
+        <a href="{url_redefinicao}"
+           style="background:#4F46E5;color:white;padding:12px 24px;border-radius:5px;text-decoration:none;">
+           Redefinir Senha
+        </a>
+        <p>Ou use o link abaixo:<br>
+        {url_redefinicao}</p>
         """
 
+        payload = {
+            "personalizations": [
+                {
+                    "to": [{"email": email_usuario}],
+                    "subject": assunto
+                }
+            ],
+            "from": {"email": self.sender_from_email},
+            "content": [
+                {
+                    "type": "text/html",
+                    "value": mensagem_html
+                }
+            ]
+        }
+
+        print(f"📧 Enviando redefinição via SendGrid API para: {email_usuario}")
+
         try:
-            print(f"📧 Tentando enviar email de redefinição via SendGrid para: {email_usuario}")
+            response = requests.post(
+                self.sendgrid_url,
+                headers={
+                    "Authorization": f"Bearer {self.sendgrid_api_key}",
+                    "Content-Type": "application/json"
+                },
+                json=payload
+            )
 
-            msg = EmailMessage()
-            msg["Subject"] = assunto
-            msg["From"] = self.sender_from_email
-            msg["To"] = email_usuario
-            msg.set_content(f"Redefina sua senha acessando: {url_redefinicao}")
-            msg.add_alternative(mensagem_html, subtype="html")
-
-            with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
-                server.starttls()
-                server.login(self.sender_email_user, self.sender_email_pass)
-                server.send_message(msg)
-
-            print(f"✅ Email de redefinição via SendGrid enviado para: {email_usuario}")
-            return True
+            if response.status_code in (200, 202):
+                print(f"✅ Email de redefinição enviado para {email_usuario}")
+                return True
+            else:
+                print("❌ ERRO AO ENVIAR EMAIL:")
+                print(response.status_code, response.text)
+                return False
 
         except Exception as e:
-            print(f"❌ Erro ao enviar email de redefinição (SendGrid): {e}")
+            print(f"❌ Erro crítico no envio: {e}")
             return False
 
 
-# ============================================================================
-# FUNÇÕES AUXILIARES
-# ============================================================================
+# ================================================================
+# FUNÇÕES AUXILIARES (mantidas iguais)
+# ================================================================
 def gerar_token_convite():
     return secrets.token_urlsafe(32)
 
