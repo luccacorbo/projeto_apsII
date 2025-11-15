@@ -3,6 +3,8 @@ from email.message import EmailMessage
 import os
 from datetime import datetime, timedelta
 import secrets
+from dotenv import load_dotenv
+load_dotenv()
 
 class EmailService:
     def __init__(self):
@@ -24,7 +26,9 @@ class EmailService:
             return False
         
         # URL para aceitar o convite
-        url_aceitacao = f"http://localhost:5000/convite/aceitar/{token_convite}"
+        base_url = os.getenv("BASE_URL", "http://localhost:5000")
+        url_aceitacao = f"{base_url}/convite/aceitar/{token_convite}"
+
         
         assunto = f"🎉 Convite para o projeto: {nome_projeto}"
         
@@ -110,7 +114,8 @@ class EmailService:
             return False
         
         # URL para redefinir senha
-        url_redefinicao = f"http://localhost:5000/redefinir-senha/{token_redefinicao}"
+        url_redefinicao = f"{base_url}/redefinir-senha/{token_redefinicao}"
+
         
         assunto = "🔐 Redefinição de Senha - FofoTech"
         
