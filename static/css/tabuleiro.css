@@ -29,6 +29,11 @@ body {
   overflow-x: hidden;
 }
 
+/* Quando abrir modal, impede scroll de fundo e mantém posição atual */
+body.modal-open {
+  overflow: hidden;
+}
+
 .page-tabuleiro {
   display: flex;
   min-height: 100vh;
@@ -194,22 +199,22 @@ body {
 }
 
 @keyframes pulse-start {
-  0%, 100% { 
+  0%, 100% {
     box-shadow: 0 8px 25px rgba(43, 122, 11, .6);
     transform: scale(1);
   }
-  50% { 
+  50% {
     box-shadow: 0 12px 30px rgba(43, 122, 11, .9);
     transform: scale(1.05);
   }
 }
 
 @keyframes pulse-finish {
-  0%, 100% { 
+  0%, 100% {
     box-shadow: 0 8px 25px rgba(114, 38, 201, .7);
     transform: scale(1);
   }
-  50% { 
+  50% {
     box-shadow: 0 12px 30px rgba(114, 38, 201, 1);
     transform: scale(1.05);
   }
@@ -266,11 +271,11 @@ body {
 }
 
 @keyframes pulse-gift {
-  0%, 100% { 
+  0%, 100% {
     box-shadow: 0 0 15px rgba(255, 211, 105, .8);
     transform: scale(1);
   }
-  50% { 
+  50% {
     box-shadow: 0 0 30px rgba(255, 211, 105, 1);
     transform: scale(1.08);
   }
@@ -749,7 +754,7 @@ body {
    MODAIS REFATORADOS E MELHORADOS
 ================================ */
 
-/* Overlay do modal */
+/* Overlay do modal - FIXO e centralizado */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -763,34 +768,48 @@ body {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  overflow-y: auto;
+  /* important: keep overlay fixed to viewport; allow internal modal scrolling */
+  overflow: visible;
+  -webkit-overflow-scrolling: touch;
   animation: fadeIn 0.3s ease;
 }
 
+/* quando ativar, centraliza via flex (sempre relativo à viewport) */
 .modal-overlay.active {
   display: flex;
 }
 
-/* Container principal do modal */
+/* Container principal do modal - agora centralizado FIXAMENTE */
 .modal-container {
-  position: relative;
+  /* use fixed centering to ensure perfect center independent of scroll */
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+
   width: 90%;
   max-width: 600px;
-  max-height: 85vh;
-  margin: auto;
-  animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  max-height: 90vh;
+  margin: 0 !important;
+  /* remove qualquer animação que altere posição vertical */
+  animation: none !important;
+  z-index: 10001;
+  outline: none;
 }
 
-/* Card do modal - Versão melhorada */
+/* Card do modal - Versão melhorada (TAMANHO ORIGINAL) */
 .modal-card {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border-radius: 24px;
   padding: 0;
-  box-shadow: 
+  box-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.4),
     0 0 0 1px rgba(255, 255, 255, 0.1);
   overflow: hidden;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
 }
 
 /* Header do modal com gradiente */
@@ -824,19 +843,38 @@ body {
   font-weight: 500;
 }
 
-/* Conteúdo do modal */
+/* Conteúdo do modal: com scroll interno */
 .modal-content {
   padding: 30px;
-  max-height: 60vh;
+  max-height: calc(90vh - 160px); /* header + footer estima ~160px */
   overflow-y: auto;
 }
 
-/* Botão fechar melhorado */
+/* SCROLLBAR only for modal-content */
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--azul-claro), var(--azul-escuro));
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, var(--azul-escuro), var(--roxo));
+}
+
+/* Botão fechar - CINZA ESCURO, sem animação */
 .modal-close {
   position: absolute;
   top: 20px;
   right: 25px;
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--cinza-escuro);
   border: none;
   width: 40px;
   height: 40px;
@@ -847,14 +885,18 @@ body {
   cursor: pointer;
   color: white;
   font-size: 20px;
-  transition: all 0.3s ease;
+  /* remove transitions/transform that cause rotation */
+  transition: none;
+  transform: none;
   backdrop-filter: blur(10px);
-  z-index: 10001;
+  z-index: 10002;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
 
+/* hover suave sem rotação/zoom */
 .modal-close:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: rotate(90deg) scale(1.1);
+  background: var(--cinza);
+  transform: none;
 }
 
 /* Footer do modal */
@@ -1142,19 +1184,20 @@ body {
     width: 95%;
     max-width: 90%;
   }
-  
+
   .modal-content {
     padding: 25px;
+    max-height: calc(90vh - 140px);
   }
-  
+
   .modal-header {
     padding: 20px 25px 15px;
   }
-  
+
   .recompensas-table {
     font-size: 12px;
   }
-  
+
   .table-input {
     font-size: 12px;
     padding: 4px 6px;
@@ -1167,25 +1210,26 @@ body {
     width: 98%;
     max-width: 95%;
   }
-  
+
   .modal-content {
     padding: 20px;
+    max-height: calc(90vh - 120px);
   }
-  
+
   .modal-header {
     padding: 15px 20px 10px;
   }
-  
+
   .modal-footer {
     padding: 15px 20px;
     flex-direction: column;
   }
-  
+
   .recompensas-table {
     display: block;
     overflow-x: auto;
   }
-  
+
   .recompensas-table th,
   .recompensas-table td {
     white-space: nowrap;
@@ -1193,17 +1237,17 @@ body {
     padding: 8px 6px;
     font-size: 11px;
   }
-  
+
   .table-actions {
     flex-direction: column;
     gap: 3px;
   }
-  
+
   .btn-table {
     font-size: 10px;
     padding: 4px 6px;
   }
-  
+
   .form-row-compact {
     flex-direction: column;
   }
@@ -1214,20 +1258,21 @@ body {
   .modal-overlay {
     padding: 10px;
   }
-  
+
   .modal-container {
     width: 100%;
     max-width: 100%;
   }
-  
+
   .modal-content {
     padding: 15px;
+    max-height: calc(95vh - 100px);
   }
-  
+
   .modal-header {
     padding: 15px 15px 10px;
   }
-  
+
   .modal-close {
     top: 10px;
     right: 15px;
@@ -1235,18 +1280,18 @@ body {
     height: 35px;
     font-size: 18px;
   }
-  
+
   .recompensas-table th,
   .recompensas-table td {
     padding: 6px 4px;
     font-size: 10px;
   }
-  
+
   .table-input {
     padding: 3px 4px;
     font-size: 10px;
   }
-  
+
   .btn-table {
     font-size: 9px;
     padding: 3px 5px;
@@ -1258,25 +1303,25 @@ body {
   .modal-overlay {
     padding: 5px;
   }
-  
+
   .modal-container {
     width: 100%;
     max-height: 95vh;
   }
-  
+
   .modal-content {
     padding: 15px 12px;
-    max-height: 70vh;
+    max-height: calc(95vh - 90px);
   }
-  
+
   .modal-header {
     padding: 12px 15px 8px;
   }
-  
+
   .modal-title {
     font-size: 18px;
   }
-  
+
   .modal-close {
     top: 8px;
     right: 12px;
@@ -1284,29 +1329,29 @@ body {
     height: 30px;
     font-size: 16px;
   }
-  
+
   .recompensas-table {
     font-size: 10px;
   }
-  
+
   .recompensas-table th,
   .recompensas-table td {
     padding: 4px 2px;
     font-size: 9px;
   }
-  
+
   .table-input {
     padding: 2px 3px;
     font-size: 9px;
     min-width: 40px;
   }
-  
+
   .btn-table {
     font-size: 8px;
     padding: 2px 4px;
     min-width: 40px;
   }
-  
+
   .form-input.compact {
     padding: 8px 10px;
     font-size: 14px;
@@ -1318,17 +1363,17 @@ body {
   .modal-content {
     padding: 12px 10px;
   }
-  
+
   .modal-header {
     padding: 10px 12px 6px;
   }
-  
+
   .recompensas-table th,
   .recompensas-table td {
     padding: 3px 1px;
     font-size: 8px;
   }
-  
+
   .table-input {
     padding: 1px 2px;
     font-size: 8px;
@@ -1340,32 +1385,21 @@ body {
   .modal-container {
     max-height: 90vh;
   }
-  
+
   .modal-content {
     max-height: 70vh;
     padding: 15px;
   }
-  
+
   .recompensas-table {
     font-size: 11px;
   }
 }
 
-/* Animações para modais */
+/* Animações utilitárias (mantive as necessárias) */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { 
-    transform: translateY(50px) scale(0.9);
-    opacity: 0;
-  }
-  to { 
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
 }
 
 @keyframes bounce {
@@ -1377,53 +1411,6 @@ body {
 @keyframes borderGlow {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
-}
-
-/* Scrollbar personalizada para modais */
-.modal-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.modal-content::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 10px;
-}
-
-.modal-content::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, var(--azul-claro), var(--azul-escuro));
-  border-radius: 10px;
-}
-
-.modal-content::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, var(--azul-escuro), var(--roxo));
-}
-
-/* Estados para modais */
-body.modal-open {
-  overflow: hidden;
-}
-
-/* Efeitos de brilho para modais especiais */
-.glow-effect {
-  position: relative;
-  overflow: hidden;
-}
-
-.glow-effect::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 60%);
-  animation: rotateGlow 6s linear infinite;
-  pointer-events: none;
-}
-
-@keyframes rotateGlow {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 /* ================================
@@ -1464,7 +1451,7 @@ body.modal-open {
 /* Efeito de destaque na casa durante o movimento */
 .page-tabuleiro .casa.casa-destacada {
   animation: pulse-destaque 0.3s ease-in-out;
-  box-shadow: 
+  box-shadow:
     0 0 0 3px rgba(255, 255, 255, 0.8),
     0 0 20px rgba(74, 123, 217, 0.6),
     0 0 30px rgba(74, 123, 217, 0.4);
@@ -1479,7 +1466,7 @@ body.modal-open {
   }
   50% {
     transform: scale(1.15);
-    box-shadow: 
+    box-shadow:
       0 0 0 3px rgba(255, 255, 255, 0.8),
       0 0 20px rgba(74, 123, 217, 0.6),
       0 0 30px rgba(74, 123, 217, 0.4);
@@ -1502,21 +1489,21 @@ body.modal-open {
   }
   25% {
     transform: scale(1.2);
-    box-shadow: 
+    box-shadow:
       0 0 0 4px rgba(255, 255, 255, 0.9),
       0 0 30px rgba(46, 204, 113, 0.8),
       0 0 50px rgba(46, 204, 113, 0.6);
   }
   50% {
     transform: scale(1.1);
-    box-shadow: 
+    box-shadow:
       0 0 0 3px rgba(255, 255, 255, 0.8),
       0 0 25px rgba(46, 204, 113, 0.7),
       0 0 40px rgba(46, 204, 113, 0.5);
   }
   75% {
     transform: scale(1.15);
-    box-shadow: 
+    box-shadow:
       0 0 0 3px rgba(255, 255, 255, 0.85),
       0 0 20px rgba(46, 204, 113, 0.6),
       0 0 35px rgba(46, 204, 113, 0.4);
@@ -1526,9 +1513,9 @@ body.modal-open {
 /* Animação das partículas */
 @keyframes voarParticula {
   0% {
-    transform: 
-      translate(0, 0) 
-      rotate(0deg) 
+    transform:
+      translate(0, 0)
+      rotate(0deg)
       scale(1);
     opacity: 0.8;
   }
@@ -1536,12 +1523,12 @@ body.modal-open {
     opacity: 0.6;
   }
   100% {
-    transform: 
+    transform:
       translate(
         calc(cos(var(--angle)) * var(--distance) * 1px),
         calc(sin(var(--angle)) * var(--distance) * 1px)
-      ) 
-      rotate(180deg) 
+      )
+      rotate(180deg)
       scale(0.3);
     opacity: 0;
   }
@@ -1659,7 +1646,7 @@ body.modal-open {
     filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
   }
   50% {
-    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)) 
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8))
             drop-shadow(0 0 25px rgba(74, 123, 217, 0.6));
   }
 }
