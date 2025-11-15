@@ -705,12 +705,12 @@ function fecharTodosModais() {
 }
 
 // Confirmação de exclusão
+// Confirmação de exclusão - CORRIGIDA
 function confirmarExclusao(id) {
     const form = document.getElementById('form-excluir');
     if (form) {
-        form.action = `{{ url_for('tabuleiro.excluir_recompensa', id_projeto=0, id_recompensa=0) }}`
-            .replace('/0/', `/${window.idProjeto}/`)
-            .replace('id_recompensa=0', `id_recompensa=${id}`);
+        // Monta a URL corretamente para a rota Flask
+        form.action = `/tabuleiro/projeto/${window.idProjeto}/excluir/${id}`;
         abrirModal('confirmacao');
     }
 }
