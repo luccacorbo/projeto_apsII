@@ -2,7 +2,7 @@
 const config = {
     totalCasas: 100,
     casasPorLinha: 10,
-    posicaoJogador: window.posicaoAtual || 0,
+    posicaoJogador: window.posicaoAtual || 1,
     jogadorElement: null,
     nomeElement: null,
     saldo: window.saldo || 0,
@@ -373,7 +373,7 @@ function atualizarInfoJogador() {
     const nomeCompleto = window.nomeJogador;
     const primeiroNome = nomeCompleto.split(' ')[0];
     document.getElementById('nome-jogador-display').textContent = primeiroNome;
-    document.getElementById('posicao-atual').textContent = config.posicaoJogador + 1;
+    document.getElementById('posicao-atual').textContent = config.posicaoJogador;
 }
 
 // Atualiza o saldo e controla o estado do botão
@@ -403,7 +403,7 @@ function posicionarJogador(novaPosicao) {
     }
     
     config.posicaoJogador = novaPosicao;
-    const casa = document.querySelector(`.casa[data-numero="${novaPosicao + 1}"]`);
+    const casa = document.querySelector(`.casa[data-numero="${novaPosicao}"]`);
     
     if (casa) {
         casa.classList.add('visitada');
@@ -465,7 +465,12 @@ function rolarDado() {
             dado.classList.remove('rolling');
             config.saldo = data.saldo_restante;
             atualizarSaldo();
-            moverJogadorComAnimacao(config.posicaoJogador, data.nova_posicao - 1, data.resultado_dado);
+
+            // NÃO converter para 0-based - usar posições 1-based diretamente
+            const posInicial = config.posicaoJogador;
+            const posFinal = data.nova_posicao; // JÁ É 1-based
+            
+            moverJogadorComAnimacao(posInicial, posFinal, data.resultado_dado);
             
             if (data.recompensa) {
                 setTimeout(() => {
@@ -509,7 +514,7 @@ function moverJogadorComAnimacao(posicaoInicial, posicaoFinal, passos) {
         posicaoAtual++;
         posicionarJogador(posicaoAtual);
         
-        const casaAtual = document.querySelector(`.casa[data-numero="${posicaoAtual + 1}"]`);
+        const casaAtual = document.querySelector(`.casa[data-numero="${posicaoAtual}"]`);
         if (casaAtual) {
             casaAtual.classList.add('casa-destacada');
             setTimeout(() => {
