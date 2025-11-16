@@ -16,8 +16,6 @@ def login():
         email = request.form.get('email', '').strip()
         senha = request.form.get('senha', '')
         
-        print(f"🔍 DEBUG LOGIN - Email: {email}, Senha: {senha}")
-        
         if not email or not senha:
             # Novo: Verifica se a mensagem de sucesso (success) está na URL para exibir
             success_message = request.args.get('success')
@@ -37,10 +35,7 @@ def login():
             print(f"🔍 DEBUG - Usuário encontrado: {usuario}")
             
             if usuario:
-                print(f"🔍 DEBUG - Senha do banco: {usuario['senha']}")
-                print(f"🔍 DEBUG - Verificando senha...")
                 senha_valida = check_password(usuario['senha'], senha)
-                print(f"🔍 DEBUG - Senha válida: {senha_valida}")
             
             if usuario and check_password(usuario['senha'], senha):
                 session['user_id'] = usuario['id_usuario']
