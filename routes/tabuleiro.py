@@ -115,23 +115,29 @@ def mostrar_tabuleiro_projeto(id_projeto):
         """, (id_projeto, user_id))
         progresso = cur.fetchone()
         
-        # Buscar usuários online no projeto (membros ativos) - ATUALIZADO PARA INCLUIR CRIADOR E TODOS OS MEMBROS
+       # Buscar usuários online no projeto - VERSÃO DEFINITIVA
         cur.execute("""
-            SELECT u.id_usuario, u.nome, pt.posicao_atual, pt.saldo
+            SELECT 
+                u.id_usuario, 
+                u.nome, 
+                COALESCE(pt.posicao_atual, 1) as posicao_atual,
+                COALESCE(pt.saldo, 0) as saldo
             FROM usuario u
-            JOIN projeto_membros pm ON u.id_usuario = pm.id_usuario
-            LEFT JOIN progresso_tabuleiro pt ON u.id_usuario = pt.id_usuario
-            LEFT JOIN tabuleiro t ON pt.id_tabuleiro = t.id_tabuleiro AND t.id_projeto = %s
-            WHERE pm.id_projeto = %s
-            UNION
-            SELECT u.id_usuario, u.nome, pt.posicao_atual, pt.saldo
-            FROM usuario u
-            JOIN projetos p ON u.id_usuario = p.id_criador
-            LEFT JOIN progresso_tabuleiro pt ON u.id_usuario = pt.id_usuario
-            LEFT JOIN tabuleiro t ON pt.id_tabuleiro = t.id_tabuleiro AND t.id_projeto = %s
-            WHERE p.id_projeto = %s
-            ORDER BY posicao_atual DESC
-        """, (id_projeto, id_projeto, id_projeto, id_projeto))
+            LEFT JOIN progresso_tabuleiro pt ON u.id_usuario = pt.id_usuario 
+                AND pt.id_tabuleiro = (SELECT id_tabuleiro FROM tabuleiro WHERE id_projeto = %s)
+            WHERE u.id_usuario IN (
+                -- Membros que aceitaram convite DESTE projeto
+                SELECT pm.id_usuario 
+                FROM projeto_membros pm 
+                WHERE pm.id_projeto = %s AND pm.data_aceitacao IS NOT NULL
+                UNION 
+                -- Criador DESTE projeto
+                SELECT p.id_criador 
+                FROM projetos p 
+                WHERE p.id_projeto = %s
+            )
+            ORDER BY pt.posicao_atual DESC, u.nome ASC
+        """, (id_projeto, id_projeto, id_projeto))
         usuarios_online = cur.fetchall()
         
         # Buscar recompensas conquistadas pelo usuário - ATUALIZADO PARA MOSTRAR DATA DE CONQUISTA
