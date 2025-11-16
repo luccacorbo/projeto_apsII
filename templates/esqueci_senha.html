@@ -12,12 +12,12 @@
         <div class="left">
             <img src="{{ url_for('static', filename='imagens/robo.png') }}" alt="Robô" class="logo">
             <h1>FofoTech</h1>
-            <p class="welcome">Sem problemas!<br>Vamos recuperar seu acesso.</p>
+            <h2><p class="welcome">Sem problemas!<br>Vamos Recuperar Seu Acesso.</p></h2>
         </div>
         <div class="right">
             <form method="POST" action="/enviar-reset-link">
                 <h2>Recuperar Senha</h2>
-                <p>Informe seu e-mail para enviarmos o link de redefinição.</p>
+                <p>Informe seu e-mail para Enviarmos o Link de Redefinição.</p>
 
                 {% if error %}
                 <div class="error-message">{{ error }}</div>

@@ -50,7 +50,13 @@ function carregarTarefas() {
         return;
     }
     
-    grid.style.display = 'grid';
+    // MUDANÇA CRÍTICA:
+    // De 'grid.style.display = 'grid';' para 'grid.style.display = '';'
+    // Isso remove o 'display: none' inline e permite
+    // que a classe .tarefas-grid do CSS (que tem o display: grid
+    // e o grid-template-columns) assuma o controle.
+    grid.style.display = ''; 
+    
     emptyState.style.display = 'none';
     grid.innerHTML = '';
     
@@ -177,6 +183,8 @@ function formatarData(dataString) {
         if (isNaN(data.getTime())) {
             return 'Data inválida';
         }
+        // Adiciona +1 dia para corrigir fuso horário
+        data.setDate(data.getDate() + 1);
         return data.toLocaleDateString('pt-BR');
     } catch (error) {
         return 'Data inválida';

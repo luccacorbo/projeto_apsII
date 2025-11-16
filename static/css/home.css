@@ -1,147 +1,498 @@
+/* --- 1. Definições de Design System (CSS Variáveis) --- */
+:root {
+    /* Paleta com Sidebar Azul-Claro e Main Azul-Roxo */
+    --color-primary: #5D9CEC;
+    --color-primary-hover: #4A89D9;
+
+    /* Cores do Tema (Azul/Roxo e Branco) */
+    --color-primary-light: #9BB3FF;          /* Azul-Roxo (para o gradiente do main) */
+    --color-primary-hover-light: #E0E9FF;    /* MUDADO: Azul mais escuro (Hover da sidebar) */
+    
+    --color-dark: #2D3748;
+    --color-medium: #5A6578;
+    --color-light: #C0CCE6;                  /* Borda (Cinza-azulado médio) - VISÍVEL */
+    
+    --color-bg-app: #FFFFFF;
+    --color-bg-app-gradient: #F0F3FF;        /* Roxo/Azul bem claro (fim do gradiente) */
+    --color-bg-widget: #F0F5FF;              /* MUDADO: Fundo Sidebar (Azul bem clarinho) */
+
+    /* Novas cores para o header (combinando com a foto) */
+    --color-header-grad-1: #1f4287;          /* Azul Escuro (do seu tabuleiro.css) */
+    --color-header-grad-2: #4a7bd9;          /* Azul Médio (do seu tabuleiro.css) */
+
+    /* Cores de Semântica */
+    --color-error: #d93025;
+    --color-error-light: #ffebe6;
+    --color-success: #34A853;
+    --color-success-light: #e6f4ea;
+    
+    /* Cores de Badge */
+    --color-badge-admin: #5D9CEC;
+    --color-badge-membro: #6B7280;
+
+    /* Tipografia */
+    --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    
+    /* Outras Variáveis */
+    --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.08);
+    --border-radius-medium: 12px;
+    --border-radius-large: 16px;
+    --transition-speed: 0.3s ease;
+}
+
+/* --- Bloco de Modo Escuro REMOVIDO para forçar o tema claro --- */
+
+/* --- 2. Reset Básico e Estilos Globais --- */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #ffffff 0%, #8aa3eb 100%);
-  background-attachment: fixed; /* 🔹 FIX: Fundo fixo ao rolar */
-  color: #333;
-  display: flex;
-  min-height: 100vh; /* 🔹 FIX: Altura mínima em vez de fixa */
-  overflow-x: hidden; /* 🔹 ADD: Previne scroll horizontal */
+    font-family: var(--font-family-base);
+    background-color: var(--color-bg-app); 
+    color: var(--color-dark);
+    line-height: 1.6;
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-/* Menu lateral FIXO */
+/* --- 3. Sidebar (Menu Lateral) --- */
 .sidebar {
-  width: 230px;
-  background-color: #d6e6ff;
-  padding: 20px;
-  border-right: 3px solid #aac9ff;
-  display: flex;
-  flex-direction: column;
-  position: fixed; /* 🔹 FIX: Torna o menu fixo */
-  height: 100vh; /* 🔹 FIX: Ocupa 100% da altura da tela */
-  overflow-y: auto; /* 🔹 ADD: Scroll apenas se necessário */
-  z-index: 1000; /* 🔹 ADD: Garante que fique acima do conteúdo */
-  left: 0;
-  top: 0;
+    width: 250px;
+    background-color: var(--color-bg-widget); /* MUDANÇA: Azul bem clarinho */
+    border-right: 1px solid var(--color-light); /* Borda mais destacada */
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    transition: transform var(--transition-speed), width var(--transition-speed);
+    flex-shrink: 0;
 }
 
-.sidebar h2 {
-  text-align: center;
-  color: #2e5aa3;
-  margin-bottom: 25px;
+.sidebar-header h2 {
+    font-size: 2rem; 
+    font-weight: 800;
+    margin-bottom: 2rem;
+    padding-left: 0.5rem;
 }
 
-.sidebar ul {
-  list-style: none;
-  padding-left: 0;
+.sidebar-header h2 a {
+    color: var(--color-dark);
+    text-decoration: none;
+    transition: color var(--transition-speed);
+}
+.sidebar-header h2 a:hover {
+    color: var(--color-primary);
 }
 
-.sidebar ul li {
-  margin-bottom: 10px;
+.sidebar-nav {
+    list-style: none;
+    padding-left: 0;
+    flex-grow: 1; 
+    overflow-y: auto; 
+}
+
+.sidebar-nav li {
+    margin-bottom: 0.5rem;
 }
 
 .sidebar a {
-  text-decoration: none;
-  color: #2e5aa3;
-  font-weight: 500;
-  display: block;
-  padding: 8px 10px;
-  border-radius: 8px;
-  transition: 0.3s;
+    text-decoration: none;
+    color: var(--color-dark); 
+    font-weight: 700;
+    font-size: 1.25rem; 
+    display: block;
+    padding: 0.9rem 1.1rem; 
+    border-radius: var(--border-radius-medium);
+    transition: var(--transition-speed);
 }
 
-.sidebar a:hover {
-  background-color: #aac9ff;
+.sidebar-nav a:hover {
+    background-color: var(--color-primary-hover-light); /* MUDANÇA: Novo hover azul claro */
+    color: var(--color-primary-hover);
 }
 
-/* submenu*/
+.sidebar-nav a.active {
+    background-color: var(--color-primary-hover-light); /* MUDANÇA: Novo hover azul claro */
+    color: var(--color-primary);
+}
+
+/* --- 3.1. Seta (Chevron) e Animação --- */
+.menu-link {
+    display: flex; 
+    align-items: center; 
+}
+
+.menu-arrow {
+    display: inline-block;
+    width: 8px; 
+    height: 8px;
+    margin-right: 14px; 
+    border: solid var(--color-dark);
+    border-width: 0 3px 3px 0; 
+    transform: rotate(-45deg); 
+    transition: all var(--transition-speed);
+}
+
+.menu-link.active .menu-arrow {
+    transform: rotate(45deg); 
+    border-color: var(--color-primary);
+}
+
+.sidebar-nav a:hover .menu-arrow {
+    border-color: var(--color-primary-hover);
+}
+
+/* Submenu */
 .submenu {
-  margin-left: 15px;
-  background-color: #e6efff;
-  border-radius: 8px;
-  padding: 5px;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
+    padding-left: 2.2rem; 
+    padding-top: 0.5rem;
+    max-height: 0; 
+    overflow: hidden;
+    transition: max-height 0.3s ease-out; 
 }
 
-/* Área principal CORRIGIDA */
+.submenu a {
+    color: var(--color-medium);
+    font-weight: 500;
+    font-size: 1rem; 
+    padding: 0.6rem 0.75rem;
+}
+
+.submenu a:hover {
+    color: var(--color-primary);
+    background-color: transparent; 
+}
+
+.submenu .new-project-link {
+    font-weight: 700;
+    color: var(--color-primary);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+}
+.submenu .new-project-link:hover {
+    color: var(--color-primary-hover);
+}
+
+.icon-plus {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: var(--color-primary-light); /* Azul-Roxo claro (combina com o main) */
+    color: var(--color-primary);
+    border-radius: 6px;
+    margin-right: 10px;
+    font-weight: 700;
+    font-size: 1.1rem; 
+    line-height: 1;
+    transition: var(--transition-speed);
+}
+.new-project-link:hover .icon-plus {
+    background: var(--color-primary);
+    color: white;
+}
+
+
+/* --- 3.2. Footer do Sidebar --- */
+.sidebar-footer {
+    padding-top: 1rem;
+    text-align: center;
+    border-top: 1px solid var(--color-light); /* Borda mais destacada */
+}
+
+.sidebar-avatar {
+    width: 80px;
+    height: auto;
+    margin-bottom: 0.5rem;
+}
+
+.logout-link {
+    color: var(--color-medium);
+    font-size: 1rem; 
+    font-weight: 700;
+    text-decoration: none;
+    display: block;
+    padding: 0.5rem;
+    border-radius: var(--border-radius-medium);
+}
+.logout-link:hover {
+    background-color: var(--color-error-light);
+    color: var(--color-error);
+}
+
+
+/* --- 4. Conteúdo Principal --- */
 .main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  margin-left: 230px; /* 🔹 FIX: Compensa a largura do sidebar fixo */
-  width: calc(100% - 230px); /* 🔹 FIX: Largura total menos sidebar */
-  min-height: 100vh; /* 🔹 ADD: Garante altura mínima */
-  background: inherit; /* 🔹 ADD: Herda o fundo do body */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    position: relative; 
+    
+    /* Gradiente Azul-Roxo -> Quase Branco, com 65% */
+    background: var(--color-bg-app);
+    background: linear-gradient(to left, var(--color-primary-light) 0%, var(--color-primary-light) 65%, var(--color-bg-app-gradient) 100%);
+    
+    transition: margin-left var(--transition-speed), width var(--transition-speed);
+    
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-h1 {
-  font-size: 28px;
-  color: #2e5aa3;
-  margin-bottom: 10px;
+/* Trava o scroll do .main quando um modal está aberto */
+.main.modal-open {
+    overflow: hidden;
 }
 
-h2 {
-  font-size: 18px;
-  margin-bottom: 25px;
-}
 
-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* --- 5. Classes Globais (Botões) --- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: var(--font-family-base);
+    font-size: 1rem; 
+    font-weight: 700;
+    padding: 0.8rem 1.3rem; 
+    border: none;
+    border-radius: var(--border-radius-medium);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all var(--transition-speed);
+    box-shadow: var(--shadow-soft);
 }
-
-input, textarea {
-  width: 260px;
-  padding: 10px;
-  border: 2px solid #aac9ff;
-  border-radius: 10px;
-  margin-bottom: 12px;
-  outline: none;
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
 }
+.btn-primary { background-color: var(--color-primary); color: white; }
+.btn-primary:hover { background-color: var(--color-primary-hover); }
+.btn-secondary { background-color: var(--color-bg-app); color: var(--color-dark); border: 1px solid var(--color-light); }
+.btn-secondary:hover { border-color: var(--color-medium); }
+.btn-danger { background-color: var(--color-error); color: white; }
+.btn-danger:hover { background-color: #b9251a; }
+.btn-sm { font-size: 0.9rem; padding: 0.6rem 1rem; }
 
-textarea {
-  resize: none;
-  height: 80px;
-}
 
-/*Botões */
-button {
-  background-color: #2e5aa3;
-  color: #fff;
-  border: none;
-  padding: 10px 25px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: 0.3s;
-  margin: 5px;
-}
-
-button:hover {
-  background-color: #1f4287;
-}
-
-/* 🔹 ADD: Responsividade para telas menores */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 200px;
-    transform: translateX(-100%); /* Menu recolhido por padrão */
-    transition: transform 0.3s ease;
-  }
-  
-  .sidebar.active {
-    transform: translateX(0); /* Menu visível */
-  }
-  
-  .main {
-    margin-left: 0;
+/* --- 6. Footer da Aplicação --- */
+.app-footer {
     width: 100%;
-  }
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--color-medium);
+    font-size: 0.9rem; 
+    margin-top: auto; 
+    border-top: 1px solid var(--color-light); /* Borda mais destacada */
+    background: transparent; 
 }
+
+/* --- 7. Modal de Logout (Específico por ID) --- */
+.modal-overlay-global {
+    position: absolute; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100%; 
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center; 
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    transition: opacity var(--transition-speed);
+    padding: 2rem; 
+}
+
+.modal-overlay-global.visible {
+    opacity: 1;
+}
+
+.modal-content-global {
+    background: var(--color-bg-app);
+    padding: 2.5rem;
+    border-radius: var(--border-radius-large);
+    box-shadow: var(--shadow-medium);
+    max-width: 400px;
+    width: 90%;
+    transform: scale(0.95);
+    opacity: 0;
+    transition: all var(--transition-speed);
+}
+
+.modal-overlay-global.visible .modal-content-global {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.modal-content-global h3 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--color-dark);
+    margin-bottom: 0.5rem;
+}
+
+.modal-content-global p {
+    font-size: 1.1rem;
+    color: var(--color-medium);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.modal-actions-global {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+
+/* --- 8. Responsividade (Mobile e Toggle Desktop) --- */
+
+.hamburger-btn {
+    display: none; 
+    position: fixed;
+    top: 1rem;
+    left: 1rem; 
+    z-index: 1011; 
+    width: 44px;
+    height: 44px;
+    background: var(--color-bg-app);
+    border-radius: var(--border-radius-medium);
+    border: 1px solid var(--color-light); /* Borda mais destacada */
+    box-shadow: var(--shadow-soft);
+    cursor: pointer;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+.hamburger-btn span { display: block; width: 22px; height: 2px; background: var(--color-dark); transition: all var(--transition-speed); }
+.body.menu-active .hamburger-btn span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.body.menu-active .hamburger-btn span:nth-child(2) { opacity: 0; }
+.body.menu-active .hamburger-btn span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+
+/* Botão de Toggle (Desktop) */
+.sidebar-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 1rem;
+    left: 235px;
+    z-index: 1001; 
+    width: 30px;
+    height: 30px;
+    background: var(--color-bg-app);
+    border: 1px solid var(--color-light); /* Borda mais destacada */
+    border-radius: 50%;
+    box-shadow: var(--shadow-soft);
+    cursor: pointer;
+    transition: all var(--transition-speed);
+}
+.sidebar-toggle-btn:hover {
+    background: var(--color-primary-hover-light); /* MUDANÇA: Novo hover azul claro */
+    border-color: var(--color-primary);
+}
+
+.sidebar-toggle-btn .menu-arrow {
+    width: 6px;
+    height: 6px;
+    margin-right: 0;
+    margin-left: -2px; 
+    border-color: var(--color-dark);
+    border-width: 0 2px 2px 0;
+    transform: rotate(135deg); 
+}
+.sidebar-toggle-btn:hover .menu-arrow { border-color: var(--color-primary); }
+
+
+/* --- 9. Estados de Colapso (Desktop) --- */
+
+body.sidebar-collapsed .sidebar { transform: translateX(-100%); }
+body.sidebar-collapsed .main { margin-left: 0; width: 100%; }
+body.sidebar-collapsed .sidebar-toggle-btn { left: 1rem; }
+body.sidebar-collapsed .sidebar-toggle-btn .menu-arrow { transform: rotate(-45deg); margin-left: 2px; }
+
+
+/* --- 10. Media Queries (Mobile) --- */
+@media (max-width: 768px) {
+    body { overflow-y: auto; }
+    
+    .sidebar {
+        transform: translateX(-100%);
+        z-index: 1010;
+        background-color: var(--color-bg-app); 
+        border-right: 1px solid var(--color-light); /* Borda mais destacada */
+    }
+    
+    .sidebar.active { transform: translateX(0); box-shadow: var(--shadow-medium); }
+    
+    .main {
+        margin-left: 0;
+        width: 100%;
+        /* Gradiente 65% mantido em mobile */
+        background: linear-gradient(to left, var(--color-primary-light) 0%, var(--color-primary-light) 65%, var(--color-bg-app-gradient) 100%);
+        height: auto;
+        overflow-y: visible;
+    }
+
+    .hamburger-btn { display: flex; }
+    .sidebar-toggle-btn { display: none; }
+    body.menu-active { overflow: hidden; }
+    body.menu-active::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 1005;
+        transition: opacity var(--transition-speed);
+    }
+    
+    #logout-modal { position: fixed; }
+}
+
+/* --- 11. Estilos de Mensagem Flash --- */
+.flash-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius-medium);
+    font-family: var(--font-family-base);
+    font-weight: 700;
+    color: white;
+    z-index: 3000;
+    box-shadow: var(--shadow-medium);
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.flash-message.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+.flash-message.sucesso { background-color: var(--color-success); }
+.flash-message.erro { background-color: var(--color-error); }
+.flash-message.info { background-color: var(--color-primary); }
