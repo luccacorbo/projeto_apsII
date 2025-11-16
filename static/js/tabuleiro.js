@@ -2,8 +2,7 @@
 const config = {
     totalCasas: 100,
     casasPorLinha: 10,
-    // MUDANÇA: Convertido para 1-based. (Se posição 0, começa em 1)
-    posicaoJogador: (window.posicaoAtual || 0) + 1, 
+    posicaoJogador: window.posicaoAtual || 1, 
     jogadorElement: null,
     nomeElement: null,
     saldo: window.saldo || 0,
@@ -332,7 +331,7 @@ function carregarUsuariosOnline() {
         const primeiroNome = usuario.nome ? usuario.nome.split(' ')[0] : 'Usuário';
         // MUDANÇA: Posição 0 vira 1, Posição 5 vira 6, etc.
         const posicao = (usuario.posicao_atual !== null && usuario.posicao_atual !== undefined ? 
-            usuario.posicao_atual : 0) + 1;
+            usuario.posicao_atual : 1);
         
         usuarioItem.innerHTML = `
             <span class="usuario-nome">${primeiroNome}</span>
