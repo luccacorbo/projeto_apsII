@@ -2,7 +2,7 @@
 const config = {
     totalCasas: 100,
     casasPorLinha: 10,
-    posicaoJogador: window.posicaoAtual || 1, 
+    posicaoJogador: Math.max(1, window.posicaoAtual || 1),  
     jogadorElement: null,
     nomeElement: null,
     saldo: window.saldo || 0,
@@ -16,7 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
     atualizarSaldo();
     carregarUsuariosOnline();
     carregarRecompensasGanhas();
-    
+    if (config.posicaoJogador < 1 || config.posicaoJogador > config.totalCasas) {
+        config.posicaoJogador = 1;
+    }
     // Adiciona event listeners para modais
     inicializarModais();
     
@@ -330,8 +332,7 @@ function carregarUsuariosOnline() {
         
         const primeiroNome = usuario.nome ? usuario.nome.split(' ')[0] : 'Usuário';
         // MUDANÇA: Posição 0 vira 1, Posição 5 vira 6, etc.
-        const posicao = (usuario.posicao_atual !== null && usuario.posicao_atual !== undefined ? 
-            usuario.posicao_atual : 1);
+        const posicao = Math.max(1, usuario.posicao_atual || 1);
         
         usuarioItem.innerHTML = `
             <span class="usuario-nome">${primeiroNome}</span>
@@ -401,6 +402,9 @@ function atualizarSaldo() {
 
 // Posiciona o jogador em uma casa específica
 function posicionarJogador(novaPosicao) {
+
+    novaPosicao = Math.max(1, Math.min(novaPosicao, config.totalCasas));
+
     if (config.jogadorElement) {
         config.jogadorElement.remove();
         config.nomeElement.remove();
@@ -507,6 +511,10 @@ function rolarDado() {
 
 // Move o jogador com animação passo a passo
 function moverJogadorComAnimacao(posicaoInicial, posicaoFinal, passos) {
+    
+    posicaoInicial = Math.max(1, posicaoInicial);
+    posicaoFinal = Math.min(Math.max(1, posicaoFinal), config.totalCasas);
+
     if (config.emMovimento) return;
     
     config.emMovimento = true;
