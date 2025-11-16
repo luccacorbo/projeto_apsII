@@ -113,11 +113,22 @@ body {
 }
 
 .left {
-    /* Fundo agora é o gradiente azul escuro do header */
-    background: linear-gradient(135deg, var(--color-header-grad-darkest, #0F1E3A), var(--color-header-grad-dark, #1A3D63));
+    /* ======================================================
+      ALTERAÇÃO AQUI: Gradiente (Azul Médio-Escuro para Primário)
+      Um pouco mais escuro que o anterior.
+      ======================================================
+    */
+    background: linear-gradient(135deg, var(--azul, #2e5aa3), var(--color-primary, #5D9CEC));
+    
     color: white;
     text-align: center;
-    align-items: center;
+    align-items: center; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    padding: 20px; 
+
+    /* Layout MOBILE (painel EM CIMA) */
     border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
 }
 
