@@ -30,15 +30,18 @@ def _nome_usuario_atual():
             if conn: conn.close()
 
 def _verificar_acesso_projeto(id_projeto, user_id):
-    """Verifica se o usuário tem acesso ao projeto (criador ou membro)"""
+    """Verifica se o usuário tem acesso ao projeto (criador, administrador ou membro)"""
     conn = cur = None
     try:
         conn = conectar()
         cur = conn.cursor(dictionary=True)
         
-        # Verifica se é criador ou membro do projeto
+        # Verifica se é criador, administrador ou membro do projeto
         cur.execute("""
-            SELECT p.id_criador, pm.id_usuario as eh_membro
+            SELECT 
+                p.id_criador, 
+                pm.id_usuario as eh_membro,
+                pm.eh_administrador
             FROM projetos p
             LEFT JOIN projeto_membros pm ON p.id_projeto = pm.id_projeto AND pm.id_usuario = %s
             WHERE p.id_projeto = %s
@@ -47,16 +50,17 @@ def _verificar_acesso_projeto(id_projeto, user_id):
         projeto = cur.fetchone()
         
         if not projeto:
-            return False, False  # Projeto não existe
+            return False, False, False  # Projeto não existe
         
         eh_criador = projeto['id_criador'] == user_id
         eh_membro = projeto['eh_membro'] is not None
+        eh_administrador = bool(projeto['eh_administrador'])  # Converte para boolean
         
-        return eh_criador, eh_membro
+        return eh_criador, eh_membro, eh_administrador
         
     except Exception as e:
         print(f"Erro ao verificar acesso: {e}")
-        return False, False
+        return False, False, False
     finally:
         try:
             if cur: cur.close()
@@ -70,7 +74,7 @@ def mostrar_tabuleiro_projeto(id_projeto):
         return redirect('/login')
     
     user_id = session['user_id']
-    eh_criador, eh_membro = _verificar_acesso_projeto(id_projeto, user_id)
+    eh_criador, eh_membro, eh_administrador = _verificar_acesso_projeto(id_projeto, user_id)
     
     if not eh_criador and not eh_membro:
         flash("Acesso negado ao projeto", "danger")
@@ -183,6 +187,7 @@ def mostrar_tabuleiro_projeto(id_projeto):
                          recompensas_ganhas=recompensas_ganhas,
                          id_projeto=id_projeto,
                          eh_criador=eh_criador,
+                         usuario_atual_eh_admin=eh_administrador,  # ✅ NOVA VARIÁVEL PARA ADMIN
                          primeiro_nome=primeiro_nome,  # ✅ PARA O HEADER
                          nome_usuario=_nome_usuario_atual())
 
@@ -193,10 +198,10 @@ def adicionar_recompensa(id_projeto):
         return redirect('/login')
     
     user_id = session['user_id']
-    eh_criador, _ = _verificar_acesso_projeto(id_projeto, user_id)
+    eh_criador, eh_membro, eh_administrador = _verificar_acesso_projeto(id_projeto, user_id)
     
-    if not eh_criador:
-        flash("Apenas o criador do projeto pode adicionar recompensas", "warning")
+    if not eh_criador and not eh_administrador:
+        flash("Apenas o criador ou administradores do projeto podem adicionar recompensas", "warning")
         return redirect(url_for('tabuleiro.mostrar_tabuleiro_projeto', id_projeto=id_projeto))
 
     titulo = (request.form.get("titulo") or "").strip()
@@ -240,10 +245,10 @@ def editar_recompensa(id_projeto, id_recompensa):
         return redirect('/login')
     
     user_id = session['user_id']
-    eh_criador, _ = _verificar_acesso_projeto(id_projeto, user_id)
+    eh_criador, eh_membro, eh_administrador = _verificar_acesso_projeto(id_projeto, user_id)
     
-    if not eh_criador:
-        flash("Apenas o criador do projeto pode editar recompensas", "warning")
+    if not eh_criador and not eh_administrador:
+        flash("Apenas o criador ou administradores do projeto podem editar recompensas", "warning")
         return redirect(url_for('tabuleiro.mostrar_tabuleiro_projeto', id_projeto=id_projeto))
 
     titulo = (request.form.get("titulo") or "").strip()
@@ -287,10 +292,10 @@ def excluir_recompensa(id_projeto, id_recompensa):
         return redirect('/login')
     
     user_id = session['user_id']
-    eh_criador, _ = _verificar_acesso_projeto(id_projeto, user_id)
+    eh_criador, eh_membro, eh_administrador = _verificar_acesso_projeto(id_projeto, user_id)
     
-    if not eh_criador:
-        flash("Apenas o criador do projeto pode excluir recompensas", "warning")
+    if not eh_criador and not eh_administrador:
+        flash("Apenas o criador ou administradores do projeto podem excluir recompensas", "warning")
         return redirect(url_for('tabuleiro.mostrar_tabuleiro_projeto', id_projeto=id_projeto))
 
     conn = cur = None
@@ -317,7 +322,7 @@ def girar_dado(id_projeto):
         return jsonify({'error': 'Não logado'}), 401
     
     user_id = session['user_id']
-    eh_criador, eh_membro = _verificar_acesso_projeto(id_projeto, user_id)
+    eh_criador, eh_membro, eh_administrador = _verificar_acesso_projeto(id_projeto, user_id)
     
     if not eh_criador and not eh_membro:
         return jsonify({'error': 'Acesso negado'}), 403
@@ -410,7 +415,7 @@ def recomecar_jogo(id_projeto):
         return jsonify({'error': 'Não logado'}), 401
     
     user_id = session['user_id']
-    eh_criador, eh_membro = _verificar_acesso_projeto(id_projeto, user_id)
+    eh_criador, eh_membro, eh_administrador = _verificar_acesso_projeto(id_projeto, user_id)
     
     if not eh_criador and not eh_membro:
         return jsonify({'error': 'Acesso negado'}), 403
