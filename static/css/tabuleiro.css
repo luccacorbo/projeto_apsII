@@ -36,11 +36,28 @@ body.modal-open {
 
 .page-tabuleiro {
   display: flex;
-  min-height: 100vh;
   padding: clamp(10px, 3vw, 20px);
   gap: clamp(15px, 4vw, 30px);
   backdrop-filter: blur(6px);
   flex-direction: column;
+}
+
+/* NOVO: Div para o título, movido do HTML */
+.header-tabuleiro h1 {
+  color: #0f172a;
+  font-size: clamp(24px, 6vw, 36px);
+  font-weight: 800;
+  text-shadow: 1px 2px 4px rgba(0, 0, 0, .25);
+  margin-bottom: clamp(4px, 1vw, 8px);
+  text-align: center;
+}
+
+.header-tabuleiro .sub {
+  opacity: .9;
+  font-size: clamp(12px, 3vw, 16px);
+  color: #334155;
+  margin-bottom: clamp(10px, 3vw, 20px);
+  text-align: center;
 }
 
 /* Container principal com layout lado a lado */
@@ -50,38 +67,21 @@ body.modal-open {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  flex-wrap: wrap;
+  align-items: flex-start; /* Alinha os dois blocos no topo */
 }
 
 /* Lado esquerdo - Tabuleiro */
 .tabuleiro-lado {
-  flex: 1;
+  flex: 1; /* Ocupa o espaço disponível */
   display: flex;
   flex-direction: column;
-  min-width: min(100%, 600px);
-}
-
-.tabuleiro-lado h1 {
-  color: #0f172a;
-  font-size: clamp(24px, 6vw, 36px);
-  font-weight: 800;
-  text-shadow: 1px 2px 4px rgba(0, 0, 0, .25);
-  margin-bottom: clamp(4px, 1vw, 8px);
-  text-align: center;
-}
-
-.tabuleiro-lado .sub {
-  opacity: .9;
-  font-size: clamp(12px, 3vw, 16px);
-  color: #334155;
-  margin-bottom: clamp(10px, 3vw, 20px);
-  text-align: center;
+  min-width: 320px; /* Garante que não encolha demais */
 }
 
 /* Container do tabuleiro com proteção contra overflow */
 .tabuleiro-wrapper {
   width: 100%;
-  overflow: hidden;
+  overflow-x: auto; /* Habilita o scroll horizontal */
   border-radius: 24px;
   background: rgba(255, 255, 255, .15);
   border: 2px solid rgba(255, 255, 255, .4);
@@ -97,36 +97,39 @@ body.modal-open {
   display: flex;
   flex-direction: column;
   gap: clamp(20px, 4vw, 35px);
-  padding: clamp(15px, 3vw, 30px) clamp(12px, 3vw, 25px);
+  
+  /* ========================================================== */
+  /* ALTERAÇÃO AQUI: Aumenta o padding para dar espaço ao "INÍCIO" */
+  padding: 40px clamp(12px, 3vw, 25px); /* 40px em cima e embaixo */
+  /* ========================================================== */
+  
   position: relative;
-  overflow: auto;
-  max-height: 70vh;
-  min-height: min(500px, 70vh);
-  width: max-content;
+  overflow-x: hidden;
+  width: max-content; 
   min-width: 100%;
 }
 
 /* Caminho estilizado entre as casas */
 .caminho-horizontal {
   position: absolute;
-  height: clamp(6px, 1.5vw, 8px);
+  height: clamp(6px, 1.5vw, 8px); 
   background: linear-gradient(90deg, var(--verde), var(--roxo));
-  border-radius: 4px;
-  opacity: 0.6;
+  border-radius: 4px; 
+  opacity: 0.6; 
   z-index: 0;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3); 
+  border: 1px solid rgba(255, 255, 255, 0.3); 
 }
 
 .caminho-vertical {
   position: absolute;
-  width: clamp(6px, 1.5vw, 8px);
+  width: clamp(6px, 1.5vw, 8px); 
   background: linear-gradient(to bottom, var(--verde), var(--roxo));
-  border-radius: 4px;
-  opacity: 0.6;
+  border-radius: 4px; 
+  opacity: 0.6; 
   z-index: 0;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3); 
+  border: 1px solid rgba(255, 255, 255, 0.3); 
 }
 
 .page-tabuleiro .linha {
@@ -134,46 +137,13 @@ body.modal-open {
   justify-content: space-between;
   gap: clamp(12px, 3vw, 25px);
   position: relative;
-  width: 100%;
   min-height: clamp(70px, 12vw, 90px);
   flex-shrink: 0;
 }
 
-.linha {
-    display: flex;
-    justify-content: space-between;
-    position: relative;
-    margin-bottom: 10px;
-}
-
+/* Esta regra faz o zig-zag funcionar */
 .linha.invertida {
     flex-direction: row-reverse;
-}
-
-.casa {
-    width: 60px;
-    height: 60px;
-    border: 2px solid #ccc;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    background: white;
-    border-radius: 8px;
-}
-
-.caminho-horizontal {
-    position: absolute;
-    height: 8px;
-    background: linear-gradient(90deg, #4c4caf, #4c4caf);
-    z-index: -1;
-}
-
-.caminho-vertical {
-    position: absolute;
-    width: 8px;
-    background: linear-gradient(180deg, #4c4caf, #4c4caf);
-    z-index: -1;
 }
 
 /* Casa do tabuleiro - REDONDA com proteção contra corte */
@@ -254,9 +224,12 @@ body.modal-open {
 }
 
 .page-tabuleiro .casa-start::after {
-  content: "🎯 START";
+  content: "🎯 INÍCIO"; 
   position: absolute;
-  top: -35px;
+  /* ========================================================== */
+  /* ALTERAÇÃO AQUI: Aproxima a caixinha da casa */
+  top: -28px; 
+  /* ========================================================== */
   left: 50%;
   transform: translateX(-50%);
   font-size: clamp(9px, 2vw, 11px);
@@ -273,9 +246,12 @@ body.modal-open {
 }
 
 .page-tabuleiro .casa-finish::after {
-  content: "🏁 FINISH";
+  content: "🏁 FIM"; 
   position: absolute;
-  bottom: -35px;
+  /* ========================================================== */
+  /* ALTERAÇÃO AQUI: Aproxima a caixinha da casa */
+  bottom: -28px;
+  /* ========================================================== */
   left: 50%;
   transform: translateX(-50%);
   font-size: clamp(9px, 2vw, 11px);
@@ -397,11 +373,11 @@ body.modal-open {
 
 /* Lado direito - Controles */
 .controles-lado {
-  width: min(100%, 320px);
+  width: 320px; /* Largura fixa para PC */
+  flex-shrink: 0; /* Não encolhe */
   display: flex;
   flex-direction: column;
   gap: clamp(12px, 3vw, 20px);
-  flex-shrink: 0;
 }
 
 /* Painel de Dado - COMPACTO */
@@ -628,6 +604,7 @@ body.modal-open {
   font-style: italic;
   padding: clamp(8px, 2vw, 10px);
   font-size: clamp(11px, 2.5vw, 13px);
+  grid-column: 1 / -1; /* <-- Centraliza o texto */
 }
 
 /* Painel de Ações */
@@ -753,6 +730,7 @@ body.modal-open {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
   gap: clamp(10px, 2vw, 15px);
+  justify-content: center; /* <-- Centraliza os cards */
 }
 
 .card-recompensa {
@@ -784,7 +762,7 @@ body.modal-open {
 }
 
 /* ================================
-   MODAIS REFATORADOS E MELHORADOS
+   MODAIS (COMPLETO)
 ================================ */
 
 /* Overlay do modal - FIXO e centralizado */
@@ -801,36 +779,29 @@ body.modal-open {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  /* important: keep overlay fixed to viewport; allow internal modal scrolling */
   overflow: visible;
   -webkit-overflow-scrolling: touch;
   animation: fadeIn 0.3s ease;
 }
 
-/* quando ativar, centraliza via flex (sempre relativo à viewport) */
 .modal-overlay.active {
   display: flex;
 }
 
-/* Container principal do modal - agora centralizado FIXAMENTE */
 .modal-container {
-  /* use fixed centering to ensure perfect center independent of scroll */
   position: fixed !important;
   top: 50% !important;
   left: 50% !important;
   transform: translate(-50%, -50%) !important;
-
   width: 90%;
   max-width: 600px;
   max-height: 90vh;
   margin: 0 !important;
-  /* remove qualquer animação que altere posição vertical */
   animation: none !important;
   z-index: 10001;
   outline: none;
 }
 
-/* Card do modal - Versão melhorada (TAMANHO ORIGINAL) */
 .modal-card {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border-radius: 24px;
@@ -845,7 +816,6 @@ body.modal-open {
   max-height: 90vh;
 }
 
-/* Header do modal com gradiente */
 .modal-header {
   background: linear-gradient(135deg, var(--azul-claro), var(--azul-escuro));
   padding: 25px 30px 20px;
@@ -876,14 +846,12 @@ body.modal-open {
   font-weight: 500;
 }
 
-/* Conteúdo do modal: com scroll interno */
 .modal-content {
   padding: 30px;
   max-height: calc(90vh - 160px); /* header + footer estima ~160px */
   overflow-y: auto;
 }
 
-/* SCROLLBAR only for modal-content */
 .modal-content::-webkit-scrollbar {
   width: 6px;
 }
@@ -902,7 +870,6 @@ body.modal-open {
   background: linear-gradient(to bottom, var(--azul-escuro), var(--roxo));
 }
 
-/* Botão fechar - CINZA ESCURO, sem animação */
 .modal-close {
   position: absolute;
   top: 20px;
@@ -918,7 +885,6 @@ body.modal-open {
   cursor: pointer;
   color: white;
   font-size: 20px;
-  /* remove transitions/transform that cause rotation */
   transition: none;
   transform: none;
   backdrop-filter: blur(10px);
@@ -926,13 +892,11 @@ body.modal-open {
   box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
 
-/* hover suave sem rotação/zoom */
 .modal-close:hover {
   background: var(--cinza);
   transform: none;
 }
 
-/* Footer do modal */
 .modal-footer {
   padding: 20px 30px;
   background: rgba(248, 250, 252, 0.8);
@@ -943,7 +907,6 @@ body.modal-open {
   flex-wrap: wrap;
 }
 
-/* Modal de vitória - Especial */
 .modal-card.win {
   max-width: 500px;
   text-align: center;
@@ -1003,7 +966,6 @@ body.modal-open {
   border: 2px dashed var(--verde);
 }
 
-/* Modal de informações da casa */
 .modal-card.casa-info {
   max-width: 500px;
 }
@@ -1042,11 +1004,6 @@ body.modal-open {
   text-align: center;
 }
 
-/* ================================
-   MODAIS DE RECOMPENSAS - ESTILO TABELA
-================================ */
-
-/* Modal Adicionar Recompensa - Estilo Compacto */
 .modal-card.compact-modal {
   max-width: 500px;
 }
@@ -1082,7 +1039,6 @@ body.modal-open {
   display: block;
 }
 
-/* Modal Editar Recompensas - Estilo Tabela */
 .recompensas-table {
   width: 100%;
   border-collapse: collapse;
@@ -1113,7 +1069,6 @@ body.modal-open {
   background: #f1f5f9;
 }
 
-/* Inputs na tabela */
 .table-input {
   width: 100%;
   padding: 6px 8px;
@@ -1129,7 +1084,6 @@ body.modal-open {
   box-shadow: 0 0 0 2px rgba(74, 123, 217, 0.1);
 }
 
-/* Ações na tabela */
 .table-actions {
   display: flex;
   gap: 5px;
@@ -1167,7 +1121,6 @@ body.modal-open {
   background: #c0392b;
 }
 
-/* Prêmio Final - Destaque */
 .premio-final {
   background: linear-gradient(135deg, var(--dourado), var(--dourado-escuro)) !important;
   font-weight: 700;
@@ -1179,7 +1132,6 @@ body.modal-open {
   font-weight: 700;
 }
 
-/* Header do modal de edição com contador */
 .modal-header.with-counter {
   display: flex;
   justify-content: space-between;
@@ -1194,7 +1146,6 @@ body.modal-open {
   font-weight: 600;
 }
 
-/* Estados vazios */
 .empty-table {
   text-align: center;
   padding: 40px 20px;
@@ -1207,229 +1158,6 @@ body.modal-open {
   opacity: 0.5;
 }
 
-/* ================================
-   RESPONSIVIDADE AVANÇADA PARA MODAIS
-================================ */
-
-/* Tablets (768px - 1024px) */
-@media (max-width: 1024px) {
-  .modal-container {
-    width: 95%;
-    max-width: 90%;
-  }
-
-  .modal-content {
-    padding: 25px;
-    max-height: calc(90vh - 140px);
-  }
-
-  .modal-header {
-    padding: 20px 25px 15px;
-  }
-
-  .recompensas-table {
-    font-size: 12px;
-  }
-
-  .table-input {
-    font-size: 12px;
-    padding: 4px 6px;
-  }
-}
-
-/* Tablets pequenos e celulares grandes (577px - 767px) */
-@media (max-width: 767px) and (min-width: 577px) {
-  .modal-container {
-    width: 98%;
-    max-width: 95%;
-  }
-
-  .modal-content {
-    padding: 20px;
-    max-height: calc(90vh - 120px);
-  }
-
-  .modal-header {
-    padding: 15px 20px 10px;
-  }
-
-  .modal-footer {
-    padding: 15px 20px;
-    flex-direction: column;
-  }
-
-  .recompensas-table {
-    display: block;
-    overflow-x: auto;
-  }
-
-  .recompensas-table th,
-  .recompensas-table td {
-    white-space: nowrap;
-    min-width: 80px;
-    padding: 8px 6px;
-    font-size: 11px;
-  }
-
-  .table-actions {
-    flex-direction: column;
-    gap: 3px;
-  }
-
-  .btn-table {
-    font-size: 10px;
-    padding: 4px 6px;
-  }
-
-  .form-row-compact {
-    flex-direction: column;
-  }
-}
-
-/* Celulares (481px - 576px) */
-@media (max-width: 576px) and (min-width: 481px) {
-  .modal-overlay {
-    padding: 10px;
-  }
-
-  .modal-container {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .modal-content {
-    padding: 15px;
-    max-height: calc(95vh - 100px);
-  }
-
-  .modal-header {
-    padding: 15px 15px 10px;
-  }
-
-  .modal-close {
-    top: 10px;
-    right: 15px;
-    width: 35px;
-    height: 35px;
-    font-size: 18px;
-  }
-
-  .recompensas-table th,
-  .recompensas-table td {
-    padding: 6px 4px;
-    font-size: 10px;
-  }
-
-  .table-input {
-    padding: 3px 4px;
-    font-size: 10px;
-  }
-
-  .btn-table {
-    font-size: 9px;
-    padding: 3px 5px;
-  }
-}
-
-/* Celulares pequenos (até 480px) */
-@media (max-width: 480px) {
-  .modal-overlay {
-    padding: 5px;
-  }
-
-  .modal-container {
-    width: 100%;
-    max-height: 95vh;
-  }
-
-  .modal-content {
-    padding: 15px 12px;
-    max-height: calc(95vh - 90px);
-  }
-
-  .modal-header {
-    padding: 12px 15px 8px;
-  }
-
-  .modal-title {
-    font-size: 18px;
-  }
-
-  .modal-close {
-    top: 8px;
-    right: 12px;
-    width: 30px;
-    height: 30px;
-    font-size: 16px;
-  }
-
-  .recompensas-table {
-    font-size: 10px;
-  }
-
-  .recompensas-table th,
-  .recompensas-table td {
-    padding: 4px 2px;
-    font-size: 9px;
-  }
-
-  .table-input {
-    padding: 2px 3px;
-    font-size: 9px;
-    min-width: 40px;
-  }
-
-  .btn-table {
-    font-size: 8px;
-    padding: 2px 4px;
-    min-width: 40px;
-  }
-
-  .form-input.compact {
-    padding: 8px 10px;
-    font-size: 14px;
-  }
-}
-
-/* Dispositivos muito pequenos (até 360px) */
-@media (max-width: 360px) {
-  .modal-content {
-    padding: 12px 10px;
-  }
-
-  .modal-header {
-    padding: 10px 12px 6px;
-  }
-
-  .recompensas-table th,
-  .recompensas-table td {
-    padding: 3px 1px;
-    font-size: 8px;
-  }
-
-  .table-input {
-    padding: 1px 2px;
-    font-size: 8px;
-  }
-}
-
-/* Orientação paisagem em dispositivos móveis */
-@media (max-height: 500px) and (orientation: landscape) {
-  .modal-container {
-    max-height: 90vh;
-  }
-
-  .modal-content {
-    max-height: 70vh;
-    padding: 15px;
-  }
-
-  .recompensas-table {
-    font-size: 11px;
-  }
-}
-
-/* Animações utilitárias (mantive as necessárias) */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -1445,10 +1173,6 @@ body.modal-open {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
 }
-
-/* ================================
-   FORMULÁRIOS EM MODAIS
-================================ */
 
 .modal-form {
   display: flex;
@@ -1481,7 +1205,6 @@ body.modal-open {
    ANIMAÇÕES DE MOVIMENTO E EFEITOS
 ================================ */
 
-/* Efeito de destaque na casa durante o movimento */
 .page-tabuleiro .casa.casa-destacada {
   animation: pulse-destaque 0.3s ease-in-out;
   box-shadow:
@@ -1510,7 +1233,6 @@ body.modal-open {
   }
 }
 
-/* Efeito especial na casa de chegada */
 .page-tabuleiro .casa.casa-chegada {
   animation: chegada-especial 1s ease-in-out;
 }
@@ -1543,7 +1265,6 @@ body.modal-open {
   }
 }
 
-/* Animação das partículas */
 @keyframes voarParticula {
   0% {
     transform:
@@ -1567,14 +1288,12 @@ body.modal-open {
   }
 }
 
-/* Container de partículas */
 .particulas-container {
   position: fixed;
   pointer-events: none;
   z-index: 1000;
 }
 
-/* Estilo do jogador durante movimento */
 .page-tabuleiro .boneco.movendo {
   animation: pular 0.3s ease-in-out;
 }
@@ -1588,7 +1307,6 @@ body.modal-open {
   }
 }
 
-/* Efeito de trilha durante o movimento */
 .page-tabuleiro .casa.visitada.recentemente {
   position: relative;
 }
@@ -1618,7 +1336,6 @@ body.modal-open {
   }
 }
 
-/* Efeito de conexão entre casas durante movimento */
 .caminho-horizontal.ativo,
 .caminho-vertical.ativo {
   background: linear-gradient(90deg, var(--verde), var(--roxo), var(--dourado));
@@ -1638,7 +1355,6 @@ body.modal-open {
   }
 }
 
-/* Estado desabilitado durante movimento */
 .btn-girar-dado:disabled {
   position: relative;
   overflow: hidden;
@@ -1669,7 +1385,6 @@ body.modal-open {
   }
 }
 
-/* Feedback visual para o jogador durante movimento */
 .jogador-movendo {
   animation: brilharJogador 0.8s ease-in-out infinite;
 }
@@ -1684,7 +1399,6 @@ body.modal-open {
   }
 }
 
-/* Efeito de confete para chegada em recompensa */
 .confetti {
   position: fixed;
   width: 10px;
@@ -1706,8 +1420,23 @@ body.modal-open {
   }
 }
 
-/* Scrollbar personalizada */
 ::-webkit-scrollbar{width:10px}
 ::-webkit-scrollbar-track{background:#cdddfc;border-radius:8px}
 ::-webkit-scrollbar-thumb{background:#2e5aa3;border-radius:8px}
 ::-webkit-scrollbar-thumb:hover{background:#1f4287}
+
+
+/* ================================
+   RESPONSIVIDADE (NOVO BLOCO)
+================================ */
+
+/* Para tablets e celulares, faz os controles irem para baixo */
+@media (max-width: 900px) { 
+    .tabuleiro-container {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .controles-lado {
+        width: min(100%, 380px); /* Ocupa a largura inteira, max 380px */
+    }
+}

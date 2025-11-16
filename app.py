@@ -31,4 +31,4 @@ def inject_user():
     return user_data
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)
