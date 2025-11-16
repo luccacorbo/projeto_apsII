@@ -298,12 +298,21 @@
 /* Estado Vazio responsivo */
 .empty-state {
     text-align: center;
-    padding: 60px 20px;
-    background: var(--color-bg-app); 
+    padding: 40px 20px; /* Espaço interno diminuído */
+    background: transparent; /* Fundo transparente */
     border-radius: var(--border-radius-large);
-    border: 2px dashed var(--color-light);
-    margin: 40px 0;
+    
+    /* Borda removida */
+    border: none; 
+    
+    margin: 20px 0; /* Espaço externo diminuído */
     grid-column: 1 / -1;
+    
+    /* ======================================================
+      ALTERAÇÃO AQUI: Sombra personalizada, mais forte e destacada.
+      ======================================================
+    */
+    box-shadow: var(--shadow-medium);
 }
 
 .empty-icon {
