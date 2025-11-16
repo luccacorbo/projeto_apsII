@@ -52,7 +52,7 @@
             <div class="painel-acoes">
                 <h3>⚡ Ações</h3>
                 <div class="actions">
-                    {% if eh_criador %}
+                    {% if eh_criador or usuario_atual_eh_admin %}
                     <button type="button" class="btn" onclick="abrirModal('adicionar')">
                         ➕ Adicionar Recompensa
                     </button>
@@ -132,7 +132,7 @@
 </div>
 {% endif %}
 
-{% if eh_criador %}
+{% if eh_criador or usuario_atual_eh_admin %}
 <div id="modal-editar" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="ttl-edit">
     <div class="modal-container">
         <div class="modal-card">
