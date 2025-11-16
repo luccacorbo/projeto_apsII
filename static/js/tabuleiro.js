@@ -234,7 +234,9 @@ function excluirRecompensaCasa() {
     }
 }
 
-// Cria caminhos estilizados entre as casas
+// ==========================================================
+// FUNÇÃO MODIFICADA PARA CORRIGIR AS LINHAS
+// ==========================================================
 function criarCaminhos() {
     const tabuleiro = document.getElementById('tabuleiro');
     const linhas = Array.from(tabuleiro.querySelectorAll('.linha'));
@@ -255,43 +257,69 @@ function criarCaminhos() {
             caminhoHorizontal.className = 'caminho-horizontal';
             
             // Posição Y (vertical) é o centro da casa, relativo ao topo da linha
-            const y = casa1.offsetTop + (casa1.offsetHeight / 2) - (4); // 4 é metade da altura da linha
+            const y = casa1.offsetTop + (casa1.offsetHeight / 2) - 4; // 4 é metade da altura da linha (8px)
             
-            // Posição X (horizontal)
-            const x1 = Math.min(casa1.offsetLeft + casa1.offsetWidth, casa2.offsetLeft + casa2.offsetWidth);
-            const x2 = Math.max(casa1.offsetLeft, casa2.offsetLeft);
+            // Posição X (horizontal) - DE CENTRO A CENTRO
+            const centro1 = casa1.offsetLeft + (casa1.offsetWidth / 2);
+            const centro2 = casa2.offsetLeft + (casa2.offsetWidth / 2);
+            
+            const left = Math.min(centro1, centro2);
+            const width = Math.abs(centro1 - centro2);
             
             caminhoHorizontal.style.top = `${y}px`;
-            caminhoHorizontal.style.left = `${x1}px`;
-            caminhoHorizontal.style.width = `${x2 - x1}px`;
+            caminhoHorizontal.style.left = `${left}px`;
+            caminhoHorizontal.style.width = `${width}px`;
             
-            linha.appendChild(caminhoHorizontal); // Adiciona à linha, não ao tabuleiro
+            linha.appendChild(caminhoHorizontal); // Adiciona à linha
         }
         
         // Caminhos verticais
         if (i < linhas.length - 1) {
             const proximaLinha = linhas[i + 1];
             
-            // A casa de conexão é a última da linha atual
-            const casaAtual = casas[casas.length - 1]; 
-            // A casa de destino é a última da próxima linha (pois as linhas são invertidas)
-            const casaSeguinte = proximaLinha.querySelectorAll('.casa')[casas.length - 1]; 
+            // Lógica CORRIGIDA para zig-zag:
+            // A casa de conexão é a ÚLTIMA casa da linha atual (DOM order)
+            const casaAtual = casas[casas.length - 1]; // e.g., casa 10, casa 20
+            
+            // A casa de destino depende se a PRÓXIMA linha é invertida
+            let casaSeguinte;
+            if (proximaLinha.classList.contains('invertida')) {
+                // Se a próxima linha é D->E (11-20), conecta na ÚLTIMA casa (e.g., casa 11)
+                const casasProximaLinha = proximaLinha.querySelectorAll('.casa');
+                casaSeguinte = casasProximaLinha[casasProximaLinha.length - 1];
+            } else {
+                // Se a próxima linha é E->D (21-30), conecta na PRIMEIRA casa (e.g., casa 21)
+                casaSeguinte = proximaLinha.querySelectorAll('.casa')[0];
+            }
+            
+            // LÓGICA CORRIGIDA para o X (horizontal)
+            // O 'offsetLeft' é relativo ao PAI (.linha), que está sendo invertido
+            // Precisamos do offsetLeft da casa EM RELAÇÃO AO TABULEIRO.
+            
+            // Posição X (horizontal) - Pega o centro da casa atual
+            const x = casaAtual.offsetLeft + (casaAtual.offsetWidth / 2) - 4; // 4 é metade da largura da linha (8px)
+            
+            // Posição Y (vertical) - DE CENTRO A CENTRO
+            // Soma o offsetTop da LINHA + o offsetTop da CASA (relativo à linha)
+            const centro1 = linha.offsetTop + casaAtual.offsetTop + (casaAtual.offsetHeight / 2);
+            const centro2 = proximaLinha.offsetTop + casaSeguinte.offsetTop + (casaSeguinte.offsetHeight / 2);
+
+            const top = Math.min(centro1, centro2);
+            const height = Math.abs(centro1 - centro2);
 
             const caminhoVertical = document.createElement('div');
             caminhoVertical.className = 'caminho-vertical';
-
-            const x = casaAtual.offsetLeft + (casaAtual.offsetWidth / 2) - 4; // 4 é metade da largura da linha
-            const y1 = linha.offsetTop + casaAtual.offsetTop + casaAtual.offsetHeight;
-            const y2 = proximaLinha.offsetTop + casaSeguinte.offsetTop;
-
             caminhoVertical.style.left = `${x}px`;
-            caminhoVertical.style.top = `${y1}px`;
-            caminhoVertical.style.height = `${y2 - y1}px`;
+            caminhoVertical.style.top = `${top}px`;
+            caminhoVertical.style.height = `${height}px`;
             
             tabuleiro.appendChild(caminhoVertical); // Adiciona ao tabuleiro principal
         }
     }
 }
+// ==========================================================
+// FIM DA FUNÇÃO MODIFICADA
+// ==========================================================
 
 
 // Adiciona recompensas ao tabuleiro
