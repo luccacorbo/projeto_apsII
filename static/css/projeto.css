@@ -249,13 +249,14 @@
 }
 
 /* ================================
-    MODAIS - TOTALMENTE CORRIGIDOS
+    MODAIS - ESTILO ANTERIOR (ORIGINAL)
 ================================ */
 
+/* Modais - Manter estilo original */
 .modal {
     display: none;
     position: fixed;
-    z-index: 9999;
+    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
@@ -263,101 +264,80 @@
     background-color: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(5px);
     animation: fadeIn 0.3s ease;
-    overflow-y: auto;
-    padding: 40px 20px;
 }
 
 .modal-content {
-    background: var(--color-bg-app);
-    margin: 0 auto;
-    border-radius: var(--border-radius-large);
-    width: 100%;
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    margin: 3% auto;
+    border-radius: 20px;
+    width: 90%;
     max-width: 600px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     animation: slideIn 0.3s ease;
+    padding: 30px;
     position: relative;
-    border: 1px solid var(--color-light);
+    overflow: hidden;
 }
 
 .close {
     position: absolute;
-    top: 20px;
+    top: 15px;
     right: 25px;
     font-size: 2rem;
     cursor: pointer;
-    color: var(--color-medium);
+    color: #555;
     background: none;
     border: none;
     line-height: 1;
-    z-index: 11;
-    transition: all 0.3s ease;
 }
 
 .close:hover {
-    color: var(--color-error);
-    transform: scale(1.1);
+    color: #e74c3c;
 }
 
-.modal-header {
-    background: var(--color-bg-widget);
-    padding: 25px 30px;
-    color: var(--color-dark);
-    border-bottom: 1px solid var(--color-light);
-    border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
-}
-
-.modal-header h2 {
-    color: var(--color-dark);
-    margin: 0;
+.modal-content h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
     font-size: 1.5rem;
-    padding-right: 40px;
 }
 
-.modal-body {
-    padding: 30px;
-}
-
-/* Formulários */
-form input, 
-form textarea, 
-form select {
+/* Formulários dentro dos modais */
+form input, form textarea, form select {
     width: 100%;
     padding: 12px 15px;
-    border: 1px solid var(--color-light);
-    border-radius: var(--border-radius-medium);
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
     font-size: 1rem;
     margin-bottom: 15px;
-    background-color: var(--color-bg-app-gradient);
-    color: var(--color-dark);
-    transition: all var(--transition-speed);
+    background: white;
+    transition: all 0.3s ease;
     font-family: inherit;
-    box-sizing: border-box;
 }
 
 form input:focus,
 form textarea:focus,
 form select:focus {
     outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px var(--color-primary-light);
-    background-color: var(--color-bg-app);
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 form label {
     display: block;
     margin-bottom: 8px;
-    color: var(--color-dark);
+    color: #2c3e50;
     font-weight: 600;
 }
 
 .required-hint {
     display: block;
     font-size: 0.8rem;
-    color: var(--color-error);
+    color: #e74c3c;
     margin-top: -10px;
     margin-bottom: 15px;
 }
 
+/* Estilos para lista de membros */
 .members-list {
     margin-top: 20px;
 }
@@ -367,21 +347,21 @@ form label {
     justify-content: space-between;
     align-items: center;
     padding: 12px;
-    border-bottom: 1px solid var(--color-light);
-    background: transparent;
+    border-bottom: 1px solid #eee;
+    background: rgba(255, 255, 255, 0.5);
     border-radius: 8px;
     margin-bottom: 8px;
 }
 
 .member-item.creator {
-    background: var(--color-primary-hover-light);
+    background: rgba(102, 126, 234, 0.1);
     font-weight: bold;
 }
 
 .add-member-form {
     margin-bottom: 25px;
     padding-bottom: 20px;
-    border-bottom: 2px solid var(--color-light);
+    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
 }
 
 .input-group {
