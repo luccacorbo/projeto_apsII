@@ -1,15 +1,24 @@
 <aside class="sidebar">
-  <h2>FofoTech</h2>
-  <ul>
+  <div class="sidebar-header">
+    <h2>
+      <a href="{{ url_for('home.retornaInicio') }}">FofoTech</a>
+    </h2>
+  </div>
+
+  <!-- Navegação principal que cresce -->
+  <ul class="sidebar-nav">
     <li><a href="{{ url_for('home.retornaInicio') }}">Página Inicial</a></li>
 
     <li class="menu-item">
       <a href="#" class="menu-link" onclick="toggleSubmenu(event)">
-        <span class="arrow">▼ </span>Projetos
+        <span class="menu-arrow"></span>Projetos
       </a>
       <ul class="submenu" id="workspaceSubmenu">
-        <li><a href="{{ url_for('work.criar_projeto') }}">+ Criar Projeto</a></li>
-        <!-- Lista de projetos será carregada via JavaScript -->
+        <li>
+          <a href="{{ url_for('work.criar_projeto') }}" class="new-project-link">
+            Criar Projeto
+          </a>
+        </li>
         <div id="lista-projetos">
           <li class="loading">Carregando projetos...</li>
         </div>
@@ -19,5 +28,14 @@
     <li><a href="{{ url_for('home.minhasTarefas') }}">Minhas Tarefas</a></li>
     <li><a href="{{ url_for('home.meuPerfil') }}">Perfil</a></li>
   </ul>
+
+  <!-- Footer do Sidebar com Robô e Sair -->
+  <div class="sidebar-footer">
+    <!--<img src="{{ url_for('static', filename='imagens/robo.png') }}" alt="Mascote FofoTech" class="sidebar-avatar"> -->
+    <!-- Este link será interceptado pelo script.js para mostrar o pop-up de confirmação -->
+    <a href="{{ url_for('auth.logout') }}" class="logout-link">Sair</a>
+  </div>
 </aside>
+
+<!-- O sidebar.js é carregado aqui -->
 <script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>

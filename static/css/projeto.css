@@ -1,33 +1,71 @@
 @charset "UTF-8";
 /* ================================
-   Estilo Principal - projeto.css
-   Apenas correções de layout para consistência
+    Estilo Principal - projeto.css
+    Tema Claro (Azul/Branco) e Correção de Footer
 ================================ */
+
+/* --- 1. Definições de Design System (CSS Variáveis) --- */
+:root {
+    --color-primary: #5D9CEC;
+    --color-primary-hover: #4A89D9;
+    --color-primary-light: #9BB3FF;
+    --color-primary-hover-light: #F0F5FF;
+    --color-dark: #2D3748;
+    --color-medium: #5A6578;
+    --color-light: #C0CCE6;
+    --color-bg-app: #FFFFFF;
+    --color-bg-app-gradient: #F0F3FF;
+    --color-bg-widget: #F0F5FF;
+    --color-header-grad-1: #1f4287;
+    --color-header-grad-2: #4a7bd9;
+    --color-header-grad-darkest: #0F1E3A;
+    --color-header-grad-dark: #1A3D63;
+    --color-error: #d93025;
+    --color-error-light: #ffebe6;
+    --color-success: #34A853;
+    --color-success-light: #e6f4ea;
+    --color-badge-admin: #5D9CEC;
+    --color-badge-membro: #6B7280;
+    --font-family-base: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.08);
+    --border-radius-medium: 12px;
+    --border-radius-large: 16px;
+    --transition-speed: 0.3s ease;
+}
 
 /* Container principal */
 .projeto-detalhes-container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
-    min-height: 100vh;
     width: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Header do Projeto - Altura consistente */
+/* Header do Projeto */
 .projeto-header {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
+    background: 
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none" fill="none"><path d="M0,100 L100,0 L100,100 Z" fill="%23FFFFFF" opacity="0.1"/></svg>'),
+        linear-gradient(135deg, var(--color-header-grad-darkest), var(--color-header-grad-dark)); 
+    background-size: cover, cover;
+    background-repeat: no-repeat;
+    background-position: center, center;
+    border-radius: var(--border-radius-large);
     padding: 25px 30px;
     margin-bottom: 30px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    min-height: 120px; /* Altura mínima para layout consistente */
+    box-shadow: var(--shadow-medium);
+    border: none;
+    min-height: 120px; 
     flex-wrap: wrap;
     gap: 15px;
+    position: relative;
+    z-index: 10;
 }
 
 .projeto-info {
@@ -38,21 +76,23 @@
 .projeto-info h1 {
     font-size: clamp(1.8rem, 4vw, 2.2rem);
     font-weight: 700;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: unset;
+    background-clip: unset;
 }
 
 .projeto-descricao {
-    color: #7f8c8d;
+    color: rgba(255, 255, 255, 0.8);
     margin: 10px 0;
     font-size: clamp(0.9rem, 2vw, 1rem);
 }
 
 .projeto-meta {
     font-size: 0.9rem;
-    color: #95a5a6;
+    color: rgba(255, 255, 255, 0.7);
     display: flex;
     gap: 8px;
     align-items: center;
@@ -65,62 +105,76 @@
     gap: 10px;
     margin-left: 40px;
     align-items: center;
-    min-height: 40px; /* Altura mínima mesmo sem botões */
+    min-height: 40px; 
 }
 
-/* Botões - Manter estilo original */
+/* Botões */
 .btn {
-    padding: 10px 18px;
-    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: var(--font-family-base);
+    font-size: 1rem; 
+    font-weight: 700;
+    padding: 0.8rem 1.3rem; 
     border: none;
+    border-radius: var(--border-radius-medium);
     cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    font-family: inherit;
-    font-size: clamp(0.85rem, 2vw, 1rem);
+    text-decoration: none;
+    transition: all var(--transition-speed);
+    box-shadow: var(--shadow-soft);
 }
 
-.btn-primary {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
-
-.btn-primary:hover {
+.btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    box-shadow: var(--shadow-medium);
 }
 
-.btn-secondary {
-    background: #ecf0f1;
-    color: #2c3e50;
+.btn-primary { 
+    background-color: var(--color-primary); 
+    color: white; 
 }
 
-.btn-secondary:hover {
-    background: #d0d6d9;
-    transform: translateY(-2px);
+.btn-primary:hover { 
+    background-color: var(--color-primary-hover); 
 }
 
-.btn-danger {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
-    color: white;
-    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+.btn-secondary { 
+    background-color: var(--color-bg-app); 
+    color: var(--color-dark); 
+    border: 1px solid var(--color-light); 
 }
 
-.btn-danger:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(231, 76, 60, 0.4);
+.btn-secondary:hover { 
+    border-color: var(--color-medium); 
+    background-color: var(--color-bg-widget);
 }
 
-/* Layout Principal com Kanban e Estatísticas na Lateral */
+.btn-danger { 
+    background-color: var(--color-error); 
+    color: white; 
+}
+
+.btn-danger:hover { 
+    background-color: #b9251a; 
+}
+
+.btn-sm { 
+    font-size: 0.9rem; 
+    padding: 0.6rem 1rem; 
+}
+
+/* Layout Principal */
 .main-content-layout {
     display: grid;
     grid-template-columns: 1fr 300px;
     gap: 25px;
     align-items: start;
+    flex-grow: 1;
 }
 
-/* Kanban Board - Layout consistente */
+/* Kanban Board */
 .kanban-board {
     display: flex;
     gap: 25px;
@@ -131,19 +185,19 @@
 }
 
 .kanban-column {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(8px);
-    border-radius: 15px;
+    background: var(--color-bg-widget);
+    backdrop-filter: none;
+    border-radius: var(--border-radius-large);
     padding: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    min-height: 600px; /* Altura mínima consistente */
+    border: 1px solid var(--color-light);
+    box-shadow: var(--shadow-soft);
+    min-height: 600px; 
     flex: 1;
     display: flex;
     flex-direction: column;
     min-width: 0;
-    min-width: min(300px, 100%); /* LARGURA MÍNIMA PARA AS COLUNAS */
-    max-width: 400px; /* LARGURA MÁXIMA PARA AS COLUNAS */
+    min-width: min(300px, 100%); 
+    max-width: 400px; 
 }
 
 .column-header {
@@ -152,23 +206,23 @@
     align-items: center;
     margin-bottom: 15px;
     padding-bottom: 10px;
-    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+    border-bottom: 2px solid var(--color-primary-light); 
     flex-shrink: 0;
 }
 
 .column-header h3 {
-    color: #2c3e50;
+    color: var(--color-dark);
     font-size: clamp(1rem, 2.5vw, 1.2rem);
     margin: 0;
 }
 
 .task-count {
     font-weight: 700;
-    color: #667eea;
+    color: var(--color-primary);
     font-size: 0.9rem;
 }
 
-/* Cards de Tarefas */
+/* Lista de Tarefas */
 .tasks-list {
     flex: 1;
     min-height: 500px;
@@ -178,123 +232,30 @@
     gap: 12px;
 }
 
-.task-card {
-    background: white;
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 0;
-    border-left: 6px solid #667eea;
-    cursor: grab;
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.task-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-.task-card:active {
-    cursor: grabbing;
-}
-
-.task-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 8px;
-    gap: 10px;
-}
-
-.task-header h4 {
-    margin: 0;
-    flex: 1;
-    color: #2c3e50;
-    font-size: clamp(0.9rem, 2vw, 1rem);
-}
-
-.priority-badge {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    color: white;
-    text-transform: capitalize;
-    font-weight: 600;
-    flex-shrink: 0;
-}
-
-.priority-alta { background: #e74c3c; }
-.priority-media { background: #f39c12; }
-.priority-baixa { background: #3498db; }
-
-.task-description {
-    color: #7f8c8d;
-    margin: 10px 0;
-    font-size: 0.9rem;
-    line-height: 1.4;
-}
-
-.task-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.85rem;
-    color: #95a5a6;
-    margin-top: 10px;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.due-date {
-    color: #e74c3c;
-    font-weight: 600;
-}
-
-/* Ações dentro da tarefa */
-.task-actions {
-    display: flex;
-    gap: 6px;
-    justify-content: flex-end;
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.task-actions button {
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: 0.2s;
-    padding: 4px;
-}
-
-.task-actions button:hover {
-    transform: scale(1.2);
-}
-
-/* Estados vazios */
 .tasks-list:empty {
     min-height: 200px;
-    border: 2px dashed #e0e0e0;
+    border: 2px dashed var(--color-light);
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #95a5a6;
+    color: var(--color-medium);
     font-style: italic;
+    background: rgba(255,255,255,0.2);
 }
 
 .tasks-list:empty::after {
     content: "Sem tarefas";
 }
 
-/* Modais - Manter estilo original */
+/* ================================
+    MODAIS - TOTALMENTE CORRIGIDOS
+================================ */
+
 .modal {
     display: none;
     position: fixed;
-    z-index: 1000;
+    z-index: 9999;
     left: 0;
     top: 0;
     width: 100%;
@@ -302,80 +263,101 @@
     background-color: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(5px);
     animation: fadeIn 0.3s ease;
+    overflow-y: auto;
+    padding: 40px 20px;
 }
 
 .modal-content {
-    background: linear-gradient(135deg, #ffffff, #f8f9fa);
-    margin: 3% auto;
-    border-radius: 20px;
-    width: 90%;
+    background: var(--color-bg-app);
+    margin: 0 auto;
+    border-radius: var(--border-radius-large);
+    width: 100%;
     max-width: 600px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     animation: slideIn 0.3s ease;
-    padding: 30px;
     position: relative;
-    overflow: hidden;
+    border: 1px solid var(--color-light);
 }
 
 .close {
     position: absolute;
-    top: 15px;
+    top: 20px;
     right: 25px;
     font-size: 2rem;
     cursor: pointer;
-    color: #555;
+    color: var(--color-medium);
     background: none;
     border: none;
     line-height: 1;
+    z-index: 11;
+    transition: all 0.3s ease;
 }
 
 .close:hover {
-    color: #e74c3c;
+    color: var(--color-error);
+    transform: scale(1.1);
 }
 
-.modal-content h2 {
-    color: #2c3e50;
-    margin-bottom: 20px;
+.modal-header {
+    background: var(--color-bg-widget);
+    padding: 25px 30px;
+    color: var(--color-dark);
+    border-bottom: 1px solid var(--color-light);
+    border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
+}
+
+.modal-header h2 {
+    color: var(--color-dark);
+    margin: 0;
     font-size: 1.5rem;
+    padding-right: 40px;
 }
 
-/* Formulários dentro dos modais */
-form input, form textarea, form select {
+.modal-body {
+    padding: 30px;
+}
+
+/* Formulários */
+form input, 
+form textarea, 
+form select {
     width: 100%;
     padding: 12px 15px;
-    border: 2px solid #e9ecef;
-    border-radius: 10px;
+    border: 1px solid var(--color-light);
+    border-radius: var(--border-radius-medium);
     font-size: 1rem;
     margin-bottom: 15px;
-    background: white;
-    transition: all 0.3s ease;
+    background-color: var(--color-bg-app-gradient);
+    color: var(--color-dark);
+    transition: all var(--transition-speed);
     font-family: inherit;
+    box-sizing: border-box;
 }
 
 form input:focus,
 form textarea:focus,
 form select:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+    background-color: var(--color-bg-app);
 }
 
 form label {
     display: block;
     margin-bottom: 8px;
-    color: #2c3e50;
+    color: var(--color-dark);
     font-weight: 600;
 }
 
 .required-hint {
     display: block;
     font-size: 0.8rem;
-    color: #e74c3c;
+    color: var(--color-error);
     margin-top: -10px;
     margin-bottom: 15px;
 }
 
-/* Estilos para lista de membros */
 .members-list {
     margin-top: 20px;
 }
@@ -385,21 +367,21 @@ form label {
     justify-content: space-between;
     align-items: center;
     padding: 12px;
-    border-bottom: 1px solid #eee;
-    background: rgba(255, 255, 255, 0.5);
+    border-bottom: 1px solid var(--color-light);
+    background: transparent;
     border-radius: 8px;
     margin-bottom: 8px;
 }
 
 .member-item.creator {
-    background: rgba(102, 126, 234, 0.1);
+    background: var(--color-primary-hover-light);
     font-weight: bold;
 }
 
 .add-member-form {
     margin-bottom: 25px;
     padding-bottom: 20px;
-    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+    border-bottom: 2px solid var(--color-light);
 }
 
 .input-group {
@@ -424,7 +406,7 @@ form label {
     to { transform: translateY(0); opacity: 1; }
 }
 
-/* Container do título com menu */
+/* Menu do Projeto */
 .projeto-title-container {
     display: flex;
     justify-content: space-between;
@@ -432,10 +414,10 @@ form label {
     position: relative;
 }
 
-/* Menu do projeto */
 .projeto-menu {
     position: relative;
     margin-left: 15px;
+    z-index: 2000;
 }
 
 .menu-btn {
@@ -445,12 +427,13 @@ form label {
     cursor: pointer;
     padding: 5px 10px;
     border-radius: 5px;
-    color: #667eea;
+    color: rgba(255, 255, 255, 0.7);
     transition: all 0.3s ease;
 }
 
 .menu-btn:hover {
-    background: rgba(102, 126, 234, 0.1);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
 }
 
 .menu-dropdown {
@@ -462,15 +445,14 @@ form label {
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     min-width: 150px;
-    z-index: 100;
-    border: 1px solid #e0e0e0;
+    z-index: 3000;
+    border: 1px solid var(--color-light);
 }
 
-/* ================================
-   Estilo dos botões do menu ⋮
-================================ */
+.menu-dropdown.mostrar {
+    display: block;
+}
 
-/* Estilo geral do botão no menu */
 .menu-dropdown .menu-item {
     width: 100%;
     text-align: left;
@@ -479,86 +461,63 @@ form label {
     padding: 10px 15px;
     cursor: pointer;
     font-size: 0.9rem;
-    color: #2c3e50;
+    color: var(--color-dark);
     transition: all 0.2s ease;
 }
 
-/* Botão "Sair do Projeto" */
 .menu-dropdown .menu-item:nth-child(1) {
-    color: #8d8d8d;
+    color: var(--color-medium);
     font-weight: 600;
 }
 
 .menu-dropdown .menu-item:nth-child(1):hover {
-    color: #5d5d5d;
+    color: var(--color-dark);
     transform: translateX(3px);
 }
 
-/* Botão "Excluir Projeto" */
 .menu-dropdown .menu-item:nth-child(2) {
-    color: #8d8d8d;
+    color: var(--color-error);
     font-weight: 600;
 }
 
 .menu-dropdown .menu-item:nth-child(2):hover {
-    color: #5d5d5d;
+    color: #b9251a;
     transform: translateX(3px);
 }
 
-.projeto-header {
-    position: relative;
-    z-index: 10;
-}
-
-.projeto-menu {
-    position: relative;
-    z-index: 2000;
-}
-
-.menu-dropdown {
-    position: absolute;
-    top: 40px;
-    right: 0;
-    background: white;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    min-width: 180px;
-    display: none;
-    z-index: 3000 !important;
-}
-
-.menu-dropdown.mostrar {
-    display: block;
-}
-
-/* ================================
-   Filtros e Novo Layout de Cards
-================================ */
-
-/* Container de Filtros */
+/* Filtros */
 .filtros-container {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
+    background: var(--color-bg-app);
+    backdrop-filter: none;
+    border-radius: var(--border-radius-large);
     padding: 20px;
     margin-bottom: 25px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--color-light);
+}
+
+.filtros-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .filtros-titulo {
     font-size: clamp(1rem, 2.5vw, 1.1rem);
     font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 15px;
+    color: var(--color-dark);
+    margin: 0;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.filtros-titulo::before {
-    font-size: 1.2rem;
+.filtros-actions {
+    display: flex;
+    gap: 10px;
 }
 
 .filtros-form {
@@ -576,43 +535,99 @@ form label {
 .filtro-group label {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #5d6d7e;
+    color: var(--color-medium);
     margin-bottom: 5px;
 }
 
 .filtro-group select {
     padding: 10px 12px;
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
+    border: 1px solid var(--color-light);
+    border-radius: var(--border-radius-medium);
     font-size: 0.9rem;
-    background: white;
+    background: var(--color-bg-app-gradient);
     transition: all 0.3s ease;
+    font-family: var(--font-family-base);
 }
 
 .filtro-group select:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.btn-filtrar, .btn-limpar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: var(--font-family-base);
+    font-weight: 700;
+    border: none;
+    border-radius: var(--border-radius-medium);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all var(--transition-speed);
+    box-shadow: var(--shadow-soft);
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+    height: 42px;
+}
+
+.btn-filtrar:hover,
+.btn-limpar:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.btn-filtrar {
+    background-color: var(--color-primary); 
+    color: white; 
+}
+
+.btn-filtrar:hover {
+    background-color: var(--color-primary-hover); 
 }
 
 .btn-limpar {
-    background: #95a5a6;
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    height: fit-content;
+    background-color: var(--color-bg-app); 
+    color: var(--color-dark); 
+    border: 1px solid var(--color-light); 
 }
 
 .btn-limpar:hover {
-    background: #7f8c8d;
-    transform: translateY(-2px);
+    border-color: var(--color-medium); 
+    background-color: var(--color-bg-widget);
 }
 
-/* Estatísticas na Lateral Direita */
+.filtros-form .btn-limpar {
+    display: none;
+}
+
+.filtro-pesquisa {
+    grid-column: 1 / -1;
+    margin-bottom: 10px;
+}
+
+.filtro-pesquisa input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--color-light);
+    border-radius: var(--border-radius-medium);
+    font-size: 1rem;
+    background: var(--color-bg-app-gradient);
+    transition: all 0.3s ease;
+    font-family: inherit;
+    color: var(--color-dark);
+    box-sizing: border-box;
+}
+
+.filtro-pesquisa input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+/* Estatísticas Laterais */
 .estatisticas-lateral {
     display: flex;
     flex-direction: column;
@@ -620,13 +635,13 @@ form label {
 }
 
 .estatistica-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(8px);
+    background: var(--color-bg-app);
+    backdrop-filter: none;
     padding: 25px;
-    border-radius: 15px;
+    border-radius: var(--border-radius-large);
     text-align: center;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--color-light);
     transition: all 0.3s ease;
     min-height: 120px;
     display: flex;
@@ -644,34 +659,51 @@ form label {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: var(--color-primary);
 }
 
 .estatistica-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-medium);
 }
 
 .estatistica-card.membros::before {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: var(--color-badge-admin);
 }
 
 .estatistica-card.pendentes::before {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: var(--color-error);
 }
 
 .estatistica-card.andamento::before {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: #f39c12;
 }
 
 .estatistica-card.concluidas::before {
-    background: linear-gradient(135deg, #27ae60, #229954);
+    background: var(--color-success);
+}
+
+.estatistica-card.tabuleiro::before {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.estatistica-card.tabuleiro:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(52, 152, 219, 0.2);
+}
+
+.estatistica-card.tabuleiro {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.estatistica-card.tabuleiro:active {
+    transform: scale(0.95);
 }
 
 .estatistica-numero {
     font-size: clamp(2rem, 5vw, 2.5rem);
     font-weight: 700;
-    color: #2c3e50;
+    color: var(--color-dark);
     line-height: 1;
     margin: 5px 0;
 }
@@ -679,45 +711,43 @@ form label {
 .estatistica-label {
     font-size: 0.9rem;
     font-weight: 600;
-    color: #7f8c8d;
+    color: var(--color-medium);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-/* Novo Design para Cards de Tarefas */
+.estatistica-descricao {
+    font-size: 0.8rem;
+    color: var(--color-medium);
+    margin-top: 5px;
+    font-style: italic;
+}
+
+.icone-tabuleiro {
+    width: clamp(36px, 8vw, 48px);
+    height: clamp(36px, 8vw, 48px);
+    display: block;
+    margin: 0 auto 8px auto;
+}
+
+/* Cards de Tarefas Modernos */
 .task-card-modern {
-    background: linear-gradient(135deg, #ffffff, #f8f9fa);
-    border-radius: 12px;
+    background: var(--color-bg-app);
+    border-radius: var(--border-radius-medium);
     padding: 18px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-soft);
     margin-bottom: 0;
-    border-left: 5px solid #667eea;
+    border-left: 5px solid var(--color-header-grad-darkest);
     cursor: grab;
     transition: all 0.4s ease;
     position: relative;
     overflow: hidden;
-     min-width: min(280px, 100%); /* LARGURA MÍNIMA PARA O CARD INTEIRO */
-}
-
-.task-card-modern::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.02), rgba(118, 75, 162, 0.02));
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    min-width: min(280px, 100%); 
 }
 
 .task-card-modern:hover {
     transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-}
-
-.task-card-modern:hover::before {
-    opacity: 1;
+    box-shadow: var(--shadow-medium);
 }
 
 .task-card-modern:active {
@@ -737,7 +767,7 @@ form label {
 .task-header-modern h4 {
     margin: 0;
     flex: 1;
-    color: #2c3e50;
+    color: var(--color-dark);
     font-size: clamp(0.95rem, 2vw, 1.05rem);
     font-weight: 600;
     line-height: 1.3;
@@ -773,7 +803,7 @@ form label {
 }
 
 .task-description-modern {
-    color: #5d6d7e;
+    color: var(--color-medium);
     margin: 12px 0;
     font-size: 0.9rem;
     line-height: 1.5;
@@ -783,7 +813,6 @@ form label {
 
 .task-footer-modern {
     display: flex;
-    grid-template-columns: 1fr auto;
     justify-content: space-between;
     align-items: center;
     font-size: 0.8rem;
@@ -791,7 +820,7 @@ form label {
     position: relative;
     z-index: 2;
     padding-top: 12px;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    border-top: 1px solid var(--color-light);
     gap: 10px;
     min-height: 30px; 
     width: 100%;
@@ -802,7 +831,7 @@ form label {
     display: flex;
     align-items: center;
     gap: 6px;
-    color: #5d6d7e;
+    color: var(--color-medium);
     font-weight: 500;
     justify-self: start;
     min-width: 0;
@@ -813,18 +842,18 @@ form label {
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, var(--color-header-grad-darkest), var(--color-header-grad-dark));
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-size: 0.7rem;
     font-weight: bold;
-    flex-shrink: 0
+    flex-shrink: 0;
 }
 
 .due-date-modern {
-    color: #e74c3c;
+    color: var(--color-error);
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -833,10 +862,10 @@ form label {
     justify-self: end;
     flex-shrink: 0;
 }
-/* Estados de drag and drop para novos cards */
+
 .tasks-list.drag-over {
-    background: rgba(102, 126, 234, 0.05);
-    border: 2px dashed #667eea;
+    background: var(--color-primary-hover-light);
+    border: 2px dashed var(--color-primary);
     border-radius: 12px;
 }
 
@@ -846,82 +875,7 @@ form label {
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
 }
 
-/* ================================
-   Correções para Filtros
-================================ */
-
-.filtros-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.filtros-titulo {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #2c3e50;
-    margin: 0;
-}
-
-.filtros-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.btn-filtrar {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    height: fit-content;
-}
-
-.btn-filtrar:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(102, 126, 234, 0.4);
-}
-
-.btn-limpar {
-    background: #95a5a6;
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    height: fit-content;
-}
-
-.btn-limpar:hover {
-    background: #7f8c8d;
-    transform: translateY(-2px);
-}
-
-/* Remove o botão limpar duplicado do formulário */
-.filtros-form .btn-limpar {
-    display: none;
-}
-
-/* Ajusta o layout do formulário de filtros */
-.filtros-form {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    align-items: end;
-}
-
-/* ================================
-   Estilos para botões de ação
-================================ */
-
+/* Botões de Ação */
 .btn-acao-tarefa {
     border: none;
     background: transparent;
@@ -930,14 +884,15 @@ form label {
     transition: 0.2s;
     padding: 4px;
     border-radius: 4px;
+    color: var(--color-medium);
 }
 
 .btn-acao-tarefa:hover {
     transform: scale(1.2);
     background: rgba(0, 0, 0, 0.1);
+    color: var(--color-error);
 }
 
-/* Garantir que os botões não sejam afetados pelo hover do card */
 .task-actions {
     position: relative;
     z-index: 10;
@@ -948,36 +903,7 @@ form label {
     z-index: 20;
 }
 
-/* ================================
-   Estilo para barra de pesquisa acima
-================================ */
-
-.filtro-pesquisa {
-    grid-column: 1 / -1;
-    margin-bottom: 10px;
-}
-
-.filtro-pesquisa input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #e9ecef;
-    border-radius: 10px;
-    font-size: 1rem;
-    background: white;
-    transition: all 0.3s ease;
-    font-family: inherit;
-}
-
-.filtro-pesquisa input:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-/* ================================
-   Estilos para Modal de Membros
-================================ */
-
+/* Modal de Membros */
 .membros-lista-container {
     max-height: 500px;
     overflow-y: auto;
@@ -993,22 +919,22 @@ form label {
     border-radius: 10px;
     margin-bottom: 10px;
     transition: all 0.3s ease;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--color-light);
 }
 
 .membro-item.criador {
-    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 193, 7, 0.1));
+    background: #fffbef;
     border-left: 4px solid #FFD700;
 }
 
 .membro-item.administrador {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-    border-left: 4px solid #667eea;
+    background: var(--color-primary-hover-light);
+    border-left: 4px solid var(--color-primary);
 }
 
 .membro-item.membro-normal {
-    background: rgba(255, 255, 255, 0.5);
-    border-left: 4px solid #95a5a6;
+    background: var(--color-bg-app);
+    border-left: 4px solid var(--color-medium);
 }
 
 .membro-item:hover {
@@ -1027,7 +953,7 @@ form label {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, var(--color-header-grad-1), var(--color-header-grad-2));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1046,20 +972,20 @@ form label {
 
 .membro-nome {
     font-weight: 600;
-    color: #2c3e50;
+    color: var(--color-dark);
     font-size: 1rem;
     margin-bottom: 2px;
 }
 
 .membro-email {
-    color: #7f8c8d;
+    color: var(--color-medium);
     font-size: 0.85rem;
     margin-bottom: 4px;
 }
 
 .membro-cargo {
     font-size: 0.75rem;
-    color: #667eea;
+    color: var(--color-primary);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -1076,18 +1002,17 @@ form label {
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 600;
-    background: rgba(255, 215, 0, 0.2);
+    background: #fff8e1;
     color: #b8860b;
-    border: 1px solid rgba(255, 215, 0, 0.3);
+    border: 1px solid #ffecb3;
 }
 
 .admin-badge {
-    background: rgba(102, 126, 234, 0.2);
-    color: #667eea;
-    border: 1px solid rgba(102, 126, 234, 0.3);
+    background: var(--color-primary-hover-light);
+    color: var(--color-primary);
+    border: 1px solid var(--color-light);
 }
 
-/* Menu dos membros */
 .membro-menu {
     position: relative;
 }
@@ -1099,13 +1024,13 @@ form label {
     cursor: pointer;
     padding: 5px 8px;
     border-radius: 5px;
-    color: #7f8c8d;
+    color: var(--color-medium);
     transition: all 0.3s ease;
 }
 
 .menu-btn-membro:hover {
     background: rgba(0, 0, 0, 0.1);
-    color: #2c3e50;
+    color: var(--color-dark);
 }
 
 .menu-dropdown-membro {
@@ -1118,7 +1043,7 @@ form label {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     min-width: 200px;
     z-index: 1000;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--color-light);
 }
 
 .menu-dropdown-membro.mostrar {
@@ -1133,9 +1058,9 @@ form label {
     padding: 10px 15px;
     cursor: pointer;
     font-size: 0.9rem;
-    color: #838383;
+    color: var(--color-medium);
     transition: all 0.2s ease;
-    border-bottom: 1px solid #f8f9fa;
+    border-bottom: 1px solid var(--color-light);
 }
 
 .menu-dropdown-membro .menu-item:last-child {
@@ -1143,121 +1068,40 @@ form label {
 }
 
 .menu-dropdown-membro .menu-item:hover {
-    background: #f8f9fa;
-    color: #838383;
+    background: var(--color-bg-widget);
+    color: var(--color-dark);
 }
 
 .menu-dropdown-membro .btn-remover {
-    color: #e74c3c;
+    color: var(--color-error);
 }
 
 .menu-dropdown-membro .btn-remover:hover {
-    color: #c0392b;
+    color: #b9251a;
 }
 
-/* Scrollbar personalizada */
 .membros-lista-container::-webkit-scrollbar {
     width: 6px;
 }
 
 .membros-lista-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: var(--color-light);
     border-radius: 10px;
 }
 
 .membros-lista-container::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
+    background: var(--color-medium);
     border-radius: 10px;
 }
 
 .membros-lista-container::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
+    background: var(--color-dark);
 }
 
 /* ================================
-   Estilos para o Card do Tabuleiro
+    RESPONSIVIDADE
 ================================ */
 
-.estatistica-card.tabuleiro::before {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-}
-
-.estatistica-card.tabuleiro:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(52, 152, 219, 0.2);
-}
-
-.icone-tabuleiro {
-  width: clamp(36px, 8vw, 48px);
-  height: clamp(36px, 8vw, 48px);
-  display: block;
-  margin: 0 auto 8px auto;
-}
-
-.estatistica-descricao {
-    font-size: 0.8rem;
-    color: #7f8c8d;
-    margin-top: 5px;
-    font-style: italic;
-}
-
-/* Efeito de brilho no hover para o card do tabuleiro */
-.estatistica-card.tabuleiro {
-    position: relative;
-    overflow: hidden;
-}
-
-.estatistica-card.tabuleiro::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        45deg,
-        transparent,
-        rgba(255, 255, 255, 0.1),
-        transparent
-    );
-    transform: rotate(45deg);
-    transition: all 0.5s ease;
-    opacity: 0;
-}
-
-.estatistica-card.tabuleiro:hover::after {
-    animation: shine 1.5s ease;
-}
-
-@keyframes shine {
-    0% {
-        transform: translateX(-100%) translateY(-100%) rotate(45deg);
-        opacity: 0;
-    }
-    50% {
-        opacity: 1;
-    }
-    100% {
-        transform: translateX(100%) translateY(100%) rotate(45deg);
-        opacity: 0;
-    }
-}
-
-/* Indicador visual de clique */
-.estatistica-card.tabuleiro {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.estatistica-card.tabuleiro:active {
-    transform: scale(0.95);
-}
-
-/* ================================
-   RESPONSIVIDADE - APENAS MELHORIAS
-   (Mantendo todo o conteúdo original)
-================================ */
-
-/* Tablets (768px - 1024px) */
 @media (max-width: 1024px) {
     .kanban-board {
         flex-wrap: wrap;
@@ -1298,8 +1142,7 @@ form label {
     }
 }
 
-/* Tablets pequenos e celulares grandes (576px - 767px) */
-@media (max-width: 767px) and (min-width: 576px) {
+@media (max-width: 767px) {
     .projeto-detalhes-container {
         padding: 15px;
     }
@@ -1335,9 +1178,31 @@ form label {
     .due-date-modern {
         align-self: flex-end;
     }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10px auto;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+    
+    .membro-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .membro-acoes {
+        align-self: flex-end;
+    }
+    
+    .menu-dropdown-membro {
+        right: -50px;
+    }
 }
 
-/* Celulares (até 575px) */
 @media (max-width: 575px) {
     .projeto-detalhes-container {
         padding: 10px;
@@ -1417,11 +1282,18 @@ form label {
         align-self: flex-start;
     }
     
+    .modal {
+        padding: 20px 10px;
+    }
+    
     .modal-content {
-        margin: 10% auto;
+        margin: 10px auto;
         width: 95%;
-        padding: 20px;
         border-radius: 12px;
+    }
+    
+    .modal-body {
+        padding: 20px;
     }
     
     .input-group {
@@ -1437,7 +1309,6 @@ form label {
     }
 }
 
-/* Dispositivos muito pequenos (até 360px) */
 @media (max-width: 480px) {
     .kanban-column {
         padding: 15px;
@@ -1458,14 +1329,21 @@ form label {
     .task-card-modern {
         padding: 12px;
     }
-}
-
-/* Orientação paisagem em dispositivos móveis */
-@media (max-height: 500px) and (orientation: landscape) {
-    .projeto-detalhes-container {
-        min-height: auto;
+    
+    .modal-content {
+        width: 98%;
     }
     
+    .modal-header {
+        padding: 20px;
+    }
+    
+    .modal-header h2 {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
     .kanban-column {
         min-height: 400px;
     }
@@ -1473,66 +1351,12 @@ form label {
     .tasks-list {
         min-height: 300px;
     }
-}
-
-/* Estados de drag and drop */
-.tasks-list.drag-over {
-    background: rgba(102, 126, 234, 0.1);
-    border: 2px dashed #667eea;
-    border-radius: 10px;
-}
-
-.task-card.dragging {
-    opacity: 0.5;
-    transform: scale(0.95);
-}
-
-/* Responsividade para novos elementos */
-@media (max-width: 1024px) {
-    .filtros-form {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .filtros-form {
-        grid-template-columns: 1fr;
+    
+    .modal {
+        padding: 10px 20px;
     }
     
-    .task-header-modern {
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .priority-badge-modern {
-        align-self: flex-start;
-    }
-    
-    .membro-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-    
-    .membro-acoes {
-        align-self: flex-end;
-    }
-    
-    .menu-dropdown-membro {
-        right: -50px;
-    }
-}
-
-@media (max-width: 480px) {
-    .estatistica-card {
-        padding: 20px 15px;
-    }
-    
-    .estatistica-numero {
-        font-size: 2rem;
-    }
-    
-    .task-card-modern {
-        padding: 15px;
+    .modal-content {
+        margin: 5px auto;
     }
 }

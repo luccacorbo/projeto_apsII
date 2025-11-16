@@ -1,427 +1,395 @@
-/* login.css - Versão Totalmente Responsiva */
+/* --- 1. Definições de Design System (CSS Variáveis) --- */
 :root {
-    --primary-color: #0052cc;
-    --primary-hover: #003d99;
-    --primary-light: #e6f3ff;
-    --background-color: #f0fafc;
-    --text-primary: #003399;
-    --text-secondary: #666;
-    --border-color: #ccc;
-    --border-radius: 20px;
-    --shadow: 0px 4px 10px rgba(0,0,0,0.1);
-    --transition: all 0.3s ease;
+    /* Paleta com Sidebar Azul-Claro e Main Azul-Roxo */
+    --color-primary: #5D9CEC;
+    --color-primary-hover: #4A89D9;
+
+    /* Cores do Tema (Azul/Roxo e Branco) */
+    --color-primary-light: #9BB3FF;          /* Azul-Roxo (para o gradiente do main) */
+    --color-primary-hover-light: #F0F5FF;    /* Azul bem clarinho (Hover da sidebar) */
     
-    /* Variáveis responsivas */
-    --container-padding-mobile: 20px;
-    --container-padding-tablet: 30px;
-    --container-padding-desktop: 40px;
-    --logo-size-mobile: 80px;
-    --logo-size-desktop: 120px;
+    --color-dark: #2D3748;
+    --color-medium: #5A6578;
+    --color-light: #C0CCE6;                  /* Borda (Cinza-azulado médio) - VISÍVEL */
+    
+    --color-bg-app: #FFFFFF;
+    --color-bg-app-gradient: #F0F3FF;        /* Roxo/Azul bem claro (fim do gradiente) */
+    --color-bg-widget: #F0F5FF;              /* Fundo Sidebar (Azul bem clarinho) */
+
+    /* Novas cores para o header (combinando com a foto) */
+    --color-header-grad-1: #1f4287;          /* Azul Escuro (do seu tabuleiro.css) */
+    --color-header-grad-2: #4a7bd9;          /* Azul Médio (do seu tabuleiro.css) */
+    
+    /* Cores do Header Escuro (para o .left do login) */
+    --color-header-grad-darkest: #0F1E3A;
+    --color-header-grad-dark: #1A3D63;
+
+    /* Cores de Semântica */
+    --color-error: #d93025;
+    --color-error-light: #ffebe6;
+    --color-success: #34A853;
+    --color-success-light: #e6f4ea;
+    
+    /* Cores de Badge */
+    --color-badge-admin: #5D9CEC;
+    --color-badge-membro: #6B7280;
+
+    /* MUDANÇA: Fonte trocada para Roboto */
+    --font-family-base: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    
+    /* Outras Variáveis */
+    --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.08);
+    --border-radius-medium: 12px;
+    --border-radius-large: 16px;
+    --transition-speed: 0.3s ease;
 }
 
-/* Reset e configurações base */
-* {
+/* --- 1.1. Definições de Design System (Modo Escuro) --- */
+/* Bloco de Modo Escuro REMOVIDO para forçar o tema claro */
+
+
+/* --- 2. Reset Básico e Estilos Globais --- */
+*, *::before, *::after {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: var(--background-color);
+    font-family: var(--font-family-base);
+    /* Fundo do body agora é o gradiente do .main */
+    background: linear-gradient(to left, var(--color-primary-light) 0%, var(--color-primary-light) 65%, var(--color-bg-app-gradient) 100%);
+    color: var(--color-dark);
+    line-height: 1.6;
+    
     display: flex;
+    flex-direction: column; 
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    margin: 0;
-    padding: var(--container-padding-mobile);
+    padding: 1rem;
 }
 
-/* Container principal responsivo */
+/* Wrapper para centralizar o container (sem incluir o footer) */
+.page-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    flex-grow: 1; 
+}
+
+/* --- 3. Container Principal do Login --- */
 .container {
     display: flex;
-    flex-direction: column;
-    background: white;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
+    flex-direction: column; 
+    background: var(--color-bg-app); 
+    border-radius: var(--border-radius-large);
+    box-shadow: var(--shadow-medium);
     overflow: hidden;
     max-width: 900px;
     width: 100%;
-    min-height: 500px;
+    animation: fadeIn 0.5s ease-out;
 }
 
-/* Layout para telas maiores */
-@media (min-width: 768px) {
-    .container {
-        flex-direction: row;
-        min-height: 600px;
-    }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* Seção esquerda - Logo e boas-vindas */
-.left {
-    padding: var(--container-padding-desktop);
-    text-align: center;
-    background: var(--background-color);
+/* --- 4. Divisões: Esquerda (Branding) e Direita (Form) --- */
+.left, .right {
+    padding: 2rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
-    flex: 1;
-    order: 2;
 }
 
-@media (min-width: 768px) {
-    .left {
-        order: 1;
-        padding: var(--container-padding-desktop);
-    }
+.left {
+    /* Fundo agora é o gradiente azul escuro do header */
+    background: linear-gradient(135deg, var(--color-header-grad-darkest, #0F1E3A), var(--color-header-grad-dark, #1A3D63));
+    color: white;
+    text-align: center;
+    align-items: center;
+    border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
 }
 
 .logo {
-    width: var(--logo-size-mobile);
-    height: auto;
-    margin-bottom: 20px;
-    max-width: 100%;
+    width: 80px;
+    margin-bottom: 1rem;
+    transition: transform var(--transition-speed);
 }
 
-@media (min-width: 768px) {
-    .logo {
-        width: var(--logo-size-desktop);
-        margin-bottom: 30px;
-    }
+.logo:hover {
+    transform: scale(1.05);
+}
+
+.left h1 {
+    /* MUDANÇA: Fonte maior */
+    font-size: 2.75rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: white;
 }
 
 .welcome {
-    font-size: clamp(1.5rem, 4vw, 2rem);
-    color: var(--text-primary);
-    font-weight: bold;
-    line-height: 1.3;
-    margin-bottom: 10px;
+    /* MUDANÇA: Fonte maior ("sem dó") */
+    font-size: 1.4rem; 
+    color: white;
+    opacity: 0.9;
+    line-height: 1.5; /* Espaçamento entre linhas */
+    margin: 0;
+    font-weight: 300; /* Fonte mais leve para o parágrafo */
+    padding: 0 1rem; /* Evita que o texto grude nas bordas em telas pequenas */
 }
 
-.welcome-subtitle {
-    font-size: clamp(1rem, 2.5vw, 1.2rem);
-    color: var(--text-secondary);
-    line-height: 1.4;
-    max-width: 300px;
-}
-
-/* Seção direita - Formulário */
 .right {
-    padding: var(--container-padding-desktop);
-    background: var(--primary-light);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    flex: 1;
-    order: 1;
+    background: var(--color-bg-app); 
+    border-radius: 0 0 var(--border-radius-large) var(--border-radius-large);
 }
 
-@media (min-width: 768px) {
-    .right {
-        order: 2;
-        border-radius: 0 var(--border-radius) var(--border-radius) 0;
-    }
-}
-
-.form-header {
-    margin-bottom: 30px;
-    text-align: center;
-}
-
-.form-title {
-    font-size: clamp(1.5rem, 4vw, 1.8rem);
-    color: var(--text-primary);
-    font-weight: bold;
-    margin-bottom: 8px;
-}
-
-.form-subtitle {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-}
-
-/* Formulário responsivo */
+/* --- 5. Estilos do Formulário --- */
 form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-label {
-    font-weight: 600;
-    color: var(--text-primary);
-    font-size: 0.9rem;
-}
-
-input {
-    padding: 15px;
-    border-radius: 12px;
-    border: 2px solid var(--border-color);
-    font-size: 1rem;
-    transition: var(--transition);
     width: 100%;
 }
 
-input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
-}
-
-/* Botão responsivo */
-button {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 16px;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    margin-top: 10px;
-    width: 100%;
-}
-
-button:hover {
-    background-color: var(--primary-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Links responsivos */
-.form-links {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 20px;
+form h2 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--color-dark);
     text-align: center;
+    margin-bottom: 1.5rem;
 }
 
-.forgot-password, .register-link {
-    color: var(--primary-color);
-    text-decoration: none;
+form label {
     font-size: 0.9rem;
-    transition: var(--transition);
+    font-weight: 700;
+    color: var(--color-medium);
+    margin-bottom: 0.5rem;
 }
 
-.forgot-password:hover, .register-link:hover {
-    color: var(--primary-hover);
+form input {
+    font-family: var(--font-family-base);
+    font-size: 1rem;
+    padding: 0.9rem 1rem;
+    margin-bottom: 1.25rem;
+    border: 1px solid var(--color-light);
+    border-radius: var(--border-radius-medium);
+    background-color: var(--color-bg-app-gradient); 
+    color: var(--color-dark);
+    transition: all var(--transition-speed);
+}
+
+form input:hover {
+    border-color: var(--color-medium);
+}
+
+form input:focus {
+    background-color: var(--color-bg-app); 
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light); 
+    outline: none;
+}
+
+form button {
+    font-family: var(--font-family-base);
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.9rem 1.5rem;
+    border: none;
+    border-radius: var(--border-radius-medium);
+    cursor: pointer;
+    background-color: var(--color-primary);
+    color: white;
+    width: 100%;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    transition: all var(--transition-speed);
+}
+
+form button:hover {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-medium);
+}
+
+/* Estilo padrão para links (ex: "Esqueceu sua senha?") */
+form a {
+    color: var(--color-primary);
+    font-weight: 700;
+    text-decoration: none;
+    transition: all var(--transition-speed);
+}
+
+form a:hover {
+    color: var(--color-primary-hover);
     text-decoration: underline;
 }
 
-/* Divisor visual */
-.form-divider {
+/* Parágrafo de rodapé do form (ex: "Não possui conta?") */
+form p {
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 1rem;
+    color: var(--color-medium);
     display: flex;
     align-items: center;
-    text-align: center;
-    margin: 20px 0;
-    color: var(--text-secondary);
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Estilo para o link "Cadastre-se" (página de login) */
+form p a {
+    display: inline-block;
+    padding: 0.6rem 1rem;
     font-size: 0.9rem;
-}
-
-.form-divider::before,
-.form-divider::after {
-    content: '';
-    flex: 1;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.form-divider span {
-    padding: 0 15px;
-}
-
-/* ========== BREAKPOINTS ESPECÍFICOS ========== */
-
-/* Telas muito pequenas (até 359px) */
-@media (max-width: 359px) {
-    body {
-        padding: 15px;
-    }
+    font-weight: 700;
+    text-decoration: none;
     
+    background-color: var(--color-bg-app); 
+    color: var(--color-primary-hover); 
+    border: 1px solid var(--color-light); 
+    border-radius: var(--border-radius-medium);
+    box-shadow: var(--shadow-soft);
+    transition: all var(--transition-speed);
+}
+
+form p a:hover {
+    background-color: var(--color-primary-hover-light); 
+    color: var(--color-primary-hover);
+    border-color: var(--color-primary);
+    text-decoration: none; 
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+
+form a.forgot-password {
+    text-align: center;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+/* --- 6. Mensagens de Erro e Sucesso --- */
+.error-message, .success-message {
+    padding: 1rem;
+    border-radius: var(--border-radius-medium);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    text-align: center;
+    border: 1px solid transparent;
+}
+
+.error-message {
+    background-color: var(--color-error-light);
+    color: var(--color-error);
+    border-color: var(--color-error);
+}
+
+.success-message {
+    background-color: var(--color-success-light);
+    color: var(--color-success);
+    border-color: var(--color-success);
+}
+
+/* --- 7. Footer Genérico --- */
+.page-footer {
+    width: 100%;
+    text-align: center;
+    padding: 1.5rem 1rem;
+    color: var(--color-medium);
+    font-size: 0.85rem;
+    margin-top: 1rem; 
+}
+
+/* --- 8. Responsividade (Desktop) --- */
+@media (min-width: 768px) {
     .container {
-        border-radius: 15px;
+        flex-direction: row; 
+        min-height: 600px;
     }
-    
+
     .left, .right {
-        padding: 25px 20px;
+        flex: 1;
+        padding: 3rem;
+    }
+
+    .left {
+        border-radius: var(--border-radius-large) 0 0 var(--border-radius-large);
+    }
+
+    .right {
+        border-radius: 0 var(--border-radius-large) var(--border-radius-large) 0;
     }
     
     .logo {
-        width: 70px;
-        margin-bottom: 15px;
+        width: 100px; 
+    }
+
+    .left h1 {
+        font-size: 2.75rem;
     }
     
     .welcome {
-        font-size: 1.3rem;
+        /* MUDANÇA: Fonte maior ("sem dó") */
+        font-size: 1.8rem; 
+        line-height: 1.5;
     }
+
+    form h2 {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+    }
+}
+
+/* --- 9. Estilo para Link no .left (Página de Cadastro) --- */
+
+/* Alinha o parágrafo "Já possui conta?" */
+.left p {
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 1.5rem; 
+    color: rgba(255, 255, 255, 0.8); 
     
-    input, button {
-        padding: 12px;
-    }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
 }
 
-/* Smartphones (360px - 479px) */
-@media (min-width: 360px) and (max-width: 479px) {
-    .left, .right {
-        padding: 30px 25px;
-    }
-}
-
-/* Tablets pequenos (480px - 767px) */
-@media (min-width: 480px) and (max-width: 767px) {
-    .container {
-        max-width: 450px;
-    }
+/* Estiliza o link "Entrar" como um botão secundário (versão dark) */
+.left p a {
+    display: inline-block;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
     
-    .left, .right {
-        padding: 40px 35px;
-    }
-    
-    .form-links {
-        flex-direction: row;
-        justify-content: space-between;
-    }
+    background-color: transparent;
+    color: white; 
+    border: 1px solid var(--color-light); 
+    border-radius: var(--border-radius-medium);
+    box-shadow: var(--shadow-soft);
+    transition: all var(--transition-speed);
 }
 
-/* Tablets (768px - 1023px) */
-@media (min-width: 768px) and (max-width: 1023px) {
-    body {
-        padding: 30px;
-    }
-    
-    .container {
-        max-width: 700px;
-    }
-    
-    .left, .right {
-        padding: 40px 35px;
-    }
-}
-
-/* Desktop (1024px - 1199px) */
-@media (min-width: 1024px) and (max-width: 1199px) {
-    .container {
-        max-width: 850px;
-    }
-}
-
-/* Desktop wide (1200px+) */
-@media (min-width: 1200px) {
-    .container {
-        max-width: 900px;
-    }
-}
-
-/* Modo paisagem em dispositivos móveis */
-@media (max-height: 600px) and (orientation: landscape) {
-    body {
-        padding: 15px;
-        align-items: flex-start;
-    }
-    
-    .container {
-        min-height: auto;
-        margin: 20px 0;
-    }
-    
-    .left, .right {
-        padding: 25px;
-    }
-    
-    .logo {
-        width: 60px;
-        margin-bottom: 15px;
-    }
-}
-
-/* Alto contraste para acessibilidade */
-@media (prefers-contrast: high) {
-    :root {
-        --border-color: #000;
-        --text-secondary: #000;
-        --shadow: 0px 4px 10px rgba(0,0,0,0.3);
-    }
-    
-    input {
-        border-width: 2px;
-    }
-}
-
-/* Modo escuro automático */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --background-color: #1a1a1a;
-        --primary-light: #2d3748;
-        --text-primary: #e2e8f0;
-        --text-secondary: #a0aec0;
-        --border-color: #4a5568;
-    }
-    
-    .container {
-        background: #2d3748;
-    }
-    
-    input {
-        background: #4a5568;
-        color: #e2e8f0;
-        border-color: #718096;
-    }
-}
-
-/* Animações suaves */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.container {
-    animation: fadeIn 0.6s ease-out;
-}
-
-/* Estados de loading para o botão */
-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none !important;
-}
-
-button.loading {
-    position: relative;
-    color: transparent;
-}
-
-button.loading::after {
-    content: '';
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    top: 50%;
-    left: 50%;
-    margin-left: -10px;
-    margin-top: -10px;
-    border: 2px solid #ffffff;
-    border-radius: 50%;
-    border-right-color: transparent;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+/* Efeito hover para o botão "Entrar" no .left */
+.left p a:hover {
+    background-color: rgba(255, 255, 255, 0.1); 
+    border-color: white;
+    text-decoration: none; 
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
 }

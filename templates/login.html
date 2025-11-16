@@ -4,17 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FofoTech - Login</title>
+    
+    <!-- Importação da Fonte (Essencial para o design) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='imagens/robo.png') }}" type="image/png">
 </head>
 <body>
-    <div class="container">
-        <div class="left">
-            <img src="{{ url_for('static', filename='imagens/robo.png') }}" alt="Robô" class="logo">
-            <h1>FofoTech</h1>
-            <p class="welcome">Bem-vindo!<br>Vamos conquistar suas tarefas pendentes!</p>
-        </div>
-        <div class="right">
+
+    <!-- Wrapper genérico para o conteúdo da página -->
+    <div class="page-wrapper">
+        <div class="container">
+            <div class="left">
+                <img src="{{ url_for('static', filename='imagens/robo.png') }}" alt="Robô" class="logo">
+                <h1>FofoTech</h1>
+                <p class="welcome"><h2>Bem-Vindo!<br>Vamos Conquistar suas Tarefas Pendentes!</h2></p>
+            </div>
+            <div class="right">
+                
                 {% if success %}
                 <div class="success-message">
                     {{ success }}
@@ -27,20 +37,29 @@
                 </div>
                 {% endif %}
 
-            <form method="POST" action="/login">
-                <h2>Entrar</h2>
-                <label for="email">E-mail</label>
-                <input type="email" name="email" required>
-                
-                <label for="senha">Senha</label>
-                <input type="password" name="senha" required>
-                
-                <button type="submit">Entrar</button>
-                <a href="/esqueci-minha-senha">Esqueceu a senha?</a>
-                <p>Não tem conta? <a href="cadastro">Cadastrar</a></p>
-            </form>
+                <form method="POST" action="/login">
+                    <h2>Entrar</h2>
+                    
+                    <label for="email">E-mail</label>
+                    <input type="email" name="email" required>
+                    
+                    <label for="senha">Senha</label>
+                    <input type="password" name="senha" required>
+                    
+                    <button type="submit">Entrar</button>
+                    
+                    <a href="/esqueci-minha-senha" class="forgot-password">Esqueceu a senha?</a>
+                    <p>Não tem conta? <a href="cadastro">Cadastrar</a></p>
+                </form>
+            </div>
         </div>
     </div>
+
+    <!-- Footer genérico para todas as páginas -->
+    <footer class="page-footer">
+        © 2025 – FofoTechs. Todos os direitos reservados.
+    </footer>
+
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

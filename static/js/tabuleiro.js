@@ -2,7 +2,8 @@
 const config = {
     totalCasas: 100,
     casasPorLinha: 10,
-    posicaoJogador: window.posicaoAtual || 1,
+    // MUDANÇA: Convertido para 1-based. (Se posição 0, começa em 1)
+    posicaoJogador: (window.posicaoAtual || 0) + 1, 
     jogadorElement: null,
     nomeElement: null,
     saldo: window.saldo || 0,
@@ -27,7 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const posicaoInput = document.getElementById('input-posicao');
             if (posicaoInput && parseInt(posicaoInput.value) === 1) {
                 e.preventDefault();
-                alert('A casa 1 não pode ter recompensa. Por favor, escolha outra casa.');
+                // MUDANÇA: Usando a nova função flash
+                mostrarNotificacao('A casa 1 não pode ter recompensa. Por favor, escolha outra casa.', 'erro');
                 posicaoInput.focus();
             }
         });
@@ -101,7 +103,8 @@ function inicializarTabuleiro() {
     adicionarRecompensas();
     
     // Cria caminhos entre as casas
-    criarCaminhos();
+    // MUDANÇA: Atrasar a criação de caminhos para garantir que o layout esteja estável
+    setTimeout(criarCaminhos, 100); 
     
     // Posiciona o jogador na posição atual
     posicionarJogador(config.posicaoJogador);
@@ -180,7 +183,7 @@ function mostrarInfoCasa(numero) {
                 btnExcluir.style.display = 'block';
                 btnAdicionar.style.display = 'none';
                 btnExcluir.dataset.recompensaId = recompensa.id_recompensa;
-            } else if (numero !== 1) {
+            } else if (numero !== 1) { // Não pode adicionar recompensa na casa 1
                 btnAdicionar.style.display = 'block';
                 btnEditar.style.display = 'none';
                 btnExcluir.style.display = 'none';
@@ -201,11 +204,9 @@ function mostrarInfoCasa(numero) {
 
 // Funções para criador
 function editarRecompensaCasa() {
-    const numeroCasa = document.querySelector('.info-casa-numero')?.textContent.split(': ')[1];
-    if (numeroCasa) {
-        fecharModal('casa-info');
-        abrirModal('editar');
-    }
+    // Ação de editar agora só abre o modal de edição
+    fecharModal('casa-info');
+    abrirModal('editar');
 }
 
 function adicionarRecompensaCasa() {
@@ -235,59 +236,62 @@ function excluirRecompensaCasa() {
 // Cria caminhos estilizados entre as casas
 function criarCaminhos() {
     const tabuleiro = document.getElementById('tabuleiro');
-    const linhas = tabuleiro.querySelectorAll('.linha');
+    const linhas = Array.from(tabuleiro.querySelectorAll('.linha'));
     
-    linhas.forEach((linha, index) => {
-        const casas = linha.querySelectorAll('.casa');
+    // Limpa caminhos antigos
+    tabuleiro.querySelectorAll('.caminho-horizontal, .caminho-vertical').forEach(c => c.remove());
+
+    for (let i = 0; i < linhas.length; i++) {
+        const linha = linhas[i];
+        const casas = Array.from(linha.querySelectorAll('.casa'));
         
-        // Caminhos horizontais entre casas
-        for (let i = 0; i < casas.length - 1; i++) {
-            const casa1 = casas[i];
-            const casa2 = casas[i + 1];
-            
-            const rect1 = casa1.getBoundingClientRect();
-            const rect2 = casa2.getBoundingClientRect();
-            const tabuleiroRect = tabuleiro.getBoundingClientRect();
+        // Caminhos horizontais
+        for (let j = 0; j < casas.length - 1; j++) {
+            const casa1 = casas[j];
+            const casa2 = casas[j + 1];
             
             const caminhoHorizontal = document.createElement('div');
             caminhoHorizontal.className = 'caminho-horizontal';
             
-            const x1 = rect1.right - tabuleiroRect.left;
-            const x2 = rect2.left - tabuleiroRect.left;
-            const y = rect1.top - tabuleiroRect.top + rect1.height / 2;
+            // Posição Y (vertical) é o centro da casa, relativo ao topo da linha
+            const y = casa1.offsetTop + (casa1.offsetHeight / 2) - (4); // 4 é metade da altura da linha
             
-            caminhoHorizontal.style.left = `${x1}px`;
+            // Posição X (horizontal)
+            const x1 = Math.min(casa1.offsetLeft + casa1.offsetWidth, casa2.offsetLeft + casa2.offsetWidth);
+            const x2 = Math.max(casa1.offsetLeft, casa2.offsetLeft);
+            
             caminhoHorizontal.style.top = `${y}px`;
+            caminhoHorizontal.style.left = `${x1}px`;
             caminhoHorizontal.style.width = `${x2 - x1}px`;
             
-            tabuleiro.appendChild(caminhoHorizontal);
+            linha.appendChild(caminhoHorizontal); // Adiciona à linha, não ao tabuleiro
         }
         
-        // Caminhos verticais entre linhas (exceto última linha)
-        if (index < linhas.length - 1) {
-            const proximaLinha = linhas[index + 1];
-            const ultimaCasa = casas[casas.length - 1];
-            const primeiraProximaCasa = proximaLinha.querySelector('.casa');
+        // Caminhos verticais
+        if (i < linhas.length - 1) {
+            const proximaLinha = linhas[i + 1];
             
-            const rect1 = ultimaCasa.getBoundingClientRect();
-            const rect2 = primeiraProximaCasa.getBoundingClientRect();
-            const tabuleiroRect = tabuleiro.getBoundingClientRect();
-            
+            // A casa de conexão é a última da linha atual
+            const casaAtual = casas[casas.length - 1]; 
+            // A casa de destino é a última da próxima linha (pois as linhas são invertidas)
+            const casaSeguinte = proximaLinha.querySelectorAll('.casa')[casas.length - 1]; 
+
             const caminhoVertical = document.createElement('div');
             caminhoVertical.className = 'caminho-vertical';
-            
-            const x = rect1.left - tabuleiroRect.left + rect1.width / 2;
-            const y1 = rect1.bottom - tabuleiroRect.top;
-            const y2 = rect2.top - tabuleiroRect.top;
-            
+
+            const x = casaAtual.offsetLeft + (casaAtual.offsetWidth / 2) - 4; // 4 é metade da largura da linha
+            const y1 = linha.offsetTop + casaAtual.offsetTop + casaAtual.offsetHeight;
+            const y2 = proximaLinha.offsetTop + casaSeguinte.offsetTop;
+
             caminhoVertical.style.left = `${x}px`;
             caminhoVertical.style.top = `${y1}px`;
             caminhoVertical.style.height = `${y2 - y1}px`;
             
-            tabuleiro.appendChild(caminhoVertical);
+            tabuleiro.appendChild(caminhoVertical); // Adiciona ao tabuleiro principal
         }
-    });
+    }
 }
+
 
 // Adiciona recompensas ao tabuleiro
 function adicionarRecompensas() {
@@ -326,8 +330,9 @@ function carregarUsuariosOnline() {
         usuarioItem.className = 'usuario-item';
         
         const primeiroNome = usuario.nome ? usuario.nome.split(' ')[0] : 'Usuário';
-        const posicao = usuario.posicao_atual !== null && usuario.posicao_atual !== undefined ? 
-            usuario.posicao_atual : 0;
+        // MUDANÇA: Posição 0 vira 1, Posição 5 vira 6, etc.
+        const posicao = (usuario.posicao_atual !== null && usuario.posicao_atual !== undefined ? 
+            usuario.posicao_atual : 0) + 1;
         
         usuarioItem.innerHTML = `
             <span class="usuario-nome">${primeiroNome}</span>
@@ -429,7 +434,9 @@ function posicionarJogador(novaPosicao) {
         
         if (config.emMovimento) {
             setTimeout(() => {
-                config.jogadorElement.classList.remove('movendo', 'jogador-movendo');
+                if (config.jogadorElement) {
+                    config.jogadorElement.classList.remove('movendo', 'jogador-movendo');
+                }
             }, 300);
         }
     }
@@ -466,7 +473,7 @@ function rolarDado() {
             config.saldo = data.saldo_restante;
             atualizarSaldo();
 
-            // NÃO converter para 0-based - usar posições 1-based diretamente
+            // Usa as posições 1-based diretamente
             const posInicial = config.posicaoJogador;
             const posFinal = data.nova_posicao; // JÁ É 1-based
             
@@ -475,10 +482,12 @@ function rolarDado() {
             if (data.recompensa) {
                 setTimeout(() => {
                     mostrarMensagemRecompensa(data.recompensa.titulo, data.recompensa.descricao);
-                }, data.resultado_dado * 300 + 500);
+                    // Atualiza a lista de recompensas ganhas
+                    carregarRecompensasGanhas(); 
+                }, (posFinal - posInicial) * 300 + 500); // Baseia no número de passos
             }
         } else {
-            alert('Erro: ' + data.error);
+            mostrarNotificacao('Erro: ' + data.error, 'erro');
             dado.textContent = '–';
             resultadoElem.textContent = '–';
             dado.classList.remove('rolling');
@@ -488,7 +497,7 @@ function rolarDado() {
     })
     .catch(error => {
         console.error('Erro:', error);
-        alert('Erro ao girar dado');
+        mostrarNotificacao('Erro ao girar dado. Verifique a conexão.', 'erro');
         dado.textContent = '–';
         resultadoElem.textContent = '–';
         dado.classList.remove('rolling');
@@ -533,7 +542,7 @@ function moverJogadorComAnimacao(posicaoInicial, posicaoFinal, passos) {
                 btnGirar.textContent = '🎲 Girar Dado';
             }
             
-            const casaFinal = document.querySelector(`.casa[data-numero="${posicaoFinal + 1}"]`);
+            const casaFinal = document.querySelector(`.casa[data-numero="${posicaoFinal}"]`);
             if (casaFinal) {
                 casaFinal.classList.add('casa-chegada');
                 setTimeout(() => {
@@ -541,7 +550,7 @@ function moverJogadorComAnimacao(posicaoInicial, posicaoFinal, passos) {
                 }, 1000);
             }
             
-            if (posicaoFinal + 1 === config.totalCasas) {
+            if (posicaoFinal === config.totalCasas) {
                 setTimeout(() => {
                     mostrarMensagemVitoria("🎉 Parabéns! Você chegou ao final do tabuleiro!");
                     document.getElementById('btnRecomecar').style.display = 'block';
@@ -566,7 +575,6 @@ function criarEfeitoParticulas(elemento) {
     
     for (let i = 0; i < 8; i++) {
         const particula = document.createElement('div');
-        particula.className = 'particula';
         particula.style.position = 'absolute';
         particula.style.width = '6px';
         particula.style.height = '6px';
@@ -664,7 +672,8 @@ function abrirModal(tipo) {
             modal.classList.add('no-close-on-outside');
         }
         
-        modal.style.display = 'flex';
+        modal.style.display = 'flex'; // MUDANÇA: Usar display flex
+        modal.classList.add('active'); // Adiciona classe active
         modal.setAttribute('aria-modal', 'true');
         document.body.classList.add('modal-open');
         
@@ -680,6 +689,7 @@ function fecharModal(tipo) {
     const modal = document.getElementById(`modal-${tipo}`);
     if (modal) {
         modal.style.display = 'none';
+        modal.classList.remove('active');
         modal.setAttribute('aria-modal', 'false');
         modal.classList.remove('no-close-on-outside');
         document.body.classList.remove('modal-open');
@@ -689,6 +699,7 @@ function fecharModal(tipo) {
 // Nova função para fechar modal por elemento
 function fecharModalPorElemento(modalElement) {
     modalElement.style.display = 'none';
+    modalElement.classList.remove('active');
     modalElement.setAttribute('aria-modal', 'false');
     modalElement.classList.remove('no-close-on-outside');
     document.body.classList.remove('modal-open');
@@ -698,13 +709,13 @@ function fecharModalPorElemento(modalElement) {
 function fecharTodosModais() {
     document.querySelectorAll('.modal-overlay').forEach(modal => {
         modal.style.display = 'none';
+        modal.classList.remove('active');
         modal.setAttribute('aria-modal', 'false');
         modal.classList.remove('no-close-on-outside');
     });
     document.body.classList.remove('modal-open');
 }
 
-// Confirmação de exclusão
 // Confirmação de exclusão - CORRIGIDA
 function confirmarExclusao(id) {
     const form = document.getElementById('form-excluir');
@@ -717,46 +728,64 @@ function confirmarExclusao(id) {
 
 // Recomeçar jogo
 function recomecar() {
-    if (confirm('Tem certeza que deseja recomeçar o jogo? Sua posição será resetada para o início.')) {
-        fetch(`/tabuleiro/projeto/${window.idProjeto}/recomecar`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.querySelectorAll('.casa.visitada').forEach(casa => {
-                    casa.classList.remove('visitada');
+    // MUDANÇA: Usar o modal de confirmação
+    const modal = document.getElementById('modal-confirmacao');
+    if(modal) {
+        modal.querySelector('.modal-title').textContent = 'Recomeçar Jogo';
+        modal.querySelector('.modal-content p').textContent = 'Tem certeza que deseja recomeçar o jogo? Sua posição será resetada para o início.';
+        
+        const form = document.getElementById('form-excluir'); // Reutiliza o formulário de exclusão
+        form.action = `/tabuleiro/projeto/${window.idProjeto}/recomecar`;
+        form.querySelector('.btn.danger').textContent = 'Sim, Recomeçar';
+        
+        abrirModal('confirmacao');
+        
+        // Adiciona um handler para o submit, pois o padrão é excluir
+        form.onsubmit = function(e) {
+            e.preventDefault(); 
+            fetch(form.action, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload(); // Simplesmente recarrega a página
+                    } else {
+                        mostrarNotificacao('Erro ao recomeçar o jogo: ' + data.error, 'erro');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    mostrarNotificacao('Erro ao recomeçar o jogo.', 'erro');
                 });
-                
-                if (config.jogadorElement) {
-                    config.jogadorElement.remove();
-                    config.nomeElement.remove();
-                    config.jogadorElement = null;
-                    config.nomeElement = null;
-                }
-                
-                config.posicaoJogador = 0;
-                config.saldo = data.novo_saldo;
-                posicionarJogador(0);
-                atualizarSaldo();
-                document.getElementById('btnRecomecar').style.display = 'none';
-                document.getElementById('dado').textContent = '–';
-                document.getElementById('res-num').textContent = '–';
-                carregarRecompensasGanhas();
-                flash("Jogo recomeçado com sucesso!", "success");
-            } else {
-                alert('Erro ao recomeçar jogo: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            alert('Erro ao recomeçar jogo');
-        });
+            
+            // Reseta o formulário para o estado de exclusão
+            resetarModalConfirmacao();
+        };
+        
+        // Garante que se o usuário fechar o modal, o formulário volte ao normal
+        modal.querySelector('[data-modal-close]').onclick = resetarModalConfirmacao;
+        modal.querySelector('.btn.secondary').onclick = resetarModalConfirmacao;
     }
 }
+
+// Reseta o modal de confirmação para o estado padrão (excluir)
+function resetarModalConfirmacao() {
+    const modal = document.getElementById('modal-confirmacao');
+    if(modal) {
+        modal.querySelector('.modal-title').textContent = 'Confirmar Exclusão';
+        modal.querySelector('.modal-content p').textContent = 'Tem certeza que deseja excluir esta recompensa?';
+        
+        const form = document.getElementById('form-excluir');
+        form.querySelector('.btn.danger').textContent = 'Sim, Excluir';
+        form.action = ''; // Limpa a ação
+        form.onsubmit = null; // Remove o handler customizado
+        
+        // Reatribui os botões de fechar
+        modal.querySelector('[data-modal-close]').onclick = () => fecharModal('confirmacao');
+        modal.querySelector('.btn.secondary').onclick = () => fecharModal('confirmacao');
+    }
+    fecharModal('confirmacao');
+}
+
 
 // Voltar para o projeto
 function voltarParaProjeto() {
@@ -764,43 +793,15 @@ function voltarParaProjeto() {
 }
 
 // Função auxiliar para mostrar mensagens flash
-function flash(mensagem, tipo) {
-    alert(mensagem);
-}
-
-// Configurar modais com a nova estrutura
-function configurarModais() {
-    // Fechar modal ao clicar fora
-    document.querySelectorAll('.modal-overlay').forEach(modal => {
-        modal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                const modalId = this.id.replace('modal-', '');
-                fecharModal(modalId);
-            }
-        });
-    });
+function mostrarNotificacao(mensagem, tipo) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${tipo}`; // 'success' ou 'error'
+    notification.textContent = mensagem;
     
-    // Fechar modal com ESC
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            document.querySelectorAll('.modal-overlay.active').forEach(modal => {
-                const modalId = modal.id.replace('modal-', '');
-                fecharModal(modalId);
-            });
-        }
-    });
+    document.body.appendChild(notification);
     
-    // Botões de fechar
-    document.querySelectorAll('[data-modal-close]').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const modal = this.closest('.modal-overlay');
-            const modalId = modal.id.replace('modal-', '');
-            fecharModal(modalId);
-        });
-    });
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+    }, 4000);
 }
-
-// Inicializar modais quando o DOM estiver carregado
-document.addEventListener('DOMContentLoaded', function() {
-    configurarModais();
-});

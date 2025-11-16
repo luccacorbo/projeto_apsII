@@ -6,289 +6,263 @@
 
 {% block content %}
 
-<!-- ========================================= -->
-<!--        CONTAINER PRINCIPAL DA PÁGINA      -->
-<!-- ========================================= -->
-
 <div class="page-tabuleiro">
-  <div class="tabuleiro-container">
-    
-    <!-- Lado Esquerdo - Tabuleiro -->
-    <div class="tabuleiro-lado">
-      <h1>Tabuleiro de Recompensas - {{ projeto.nome }}</h1>
-      <p class="sub">Jogue o dado e avance para ganhar recompensas!</p>
-
-      <div id="tabuleiro"
-           class="tabuleiro"
-           data-total-casas="100"
-           data-por-linha="10"
-           data-username="{{ nome_usuario or 'Jogador' }}">
-      </div>
-    </div>
-
-    <!-- Lado Direito - Controles -->
-    <div class="controles-lado">
-      
-      <!-- Painel do Dado -->
-      <div class="painel-dado">
-        <h3>🎲 Seu Dado</h3>
-        <div class="dado-wrap" aria-live="polite">
-          <div id="dado" class="dado-2d" role="img" aria-label="Face do dado">–</div>
-          <p class="resultado">Último resultado:</p>
-          <div class="resultado-numero" id="res-num">–</div>
-        </div>
+    <div class="tabuleiro-container">
         
-        <div class="btn-girar-container">
-          <button type="button" id="btnGirarDado" class="btn-girar-dado" onclick="rolarDado()">
-            🎲 Girar Dado
-          </button>
-          <div class="saldo-container">
-            <div class="saldo-label">Saldo:</div>
-            <div class="saldo-valor" id="saldo-valor">0</div>
-          </div>
-        </div>
-      </div>
+        <div class="tabuleiro-lado">
+            <h1>Tabuleiro de Recompensas - {{ projeto.nome }}</h1>
+            <p class="sub">Jogue o dado e avance para ganhar recompensas!</p>
 
-      <!-- Painel de Usuários -->
-      <div class="painel-usuarios">
-        <h3>👥 Membros do Projeto</h3>
-        <div class="lista-usuarios" id="lista-usuarios">
-          <div class="sem-dados">Carregando membros...</div>
+            <div id="tabuleiro"
+                 class="tabuleiro"
+                 data-total-casas="100"
+                 data-por-linha="10"
+                 data-username="{{ nome_usuario or 'Jogador' }}">
+                 </div>
         </div>
-      </div>
 
-      <!-- Painel de Ações -->
-      <div class="painel-acoes">
-        <h3>⚡ Ações</h3>
-        <div class="actions">
-          {% if eh_criador %}
-          <button type="button" class="btn" onclick="abrirModal('adicionar')">
-            ➕ Adicionar Recompensa
-          </button>
-          <button type="button" class="btn warn" onclick="abrirModal('editar')">
-            ✏️ Gerenciar Recompensas
-          </button>
-          {% endif %}
-          <button type="button" class="btn secondary" onclick="voltarParaProjeto()">
-            Voltar ao Projeto
-          </button>
-          <button type="button" id="btnRecomecar" class="btn danger" onclick="recomecar()" style="display:none">
-            🔄 Recomeçar Jogo
-          </button>
-        </div>
-      </div>
+        <div class="controles-lado">
+            
+            <div class="painel-dado">
+                <h3>🎲 Seu Dado</h3>
+                <div class="dado-wrap" aria-live="polite">
+                    <div id="dado" class="dado-2d" role="img" aria-label="Face do dado">–</div>
+                    <p class="resultado">Último resultado:</p>
+                    <div class="resultado-numero" id="res-num">–</div>
+                </div>
+                
+                <div class="btn-girar-container">
+                    <button type="button" id="btnGirarDado" class="btn-girar-dado" onclick="rolarDado()">
+                        🎲 Girar Dado
+                    </button>
+                    <div class="saldo-container">
+                        <div class="saldo-label">Saldo:</div>
+                        <div class="saldo-valor" id="saldo-valor">0</div>
+                    </div>
+                </div>
+            </div>
 
-      <!-- Informações do Jogador -->
-      <div class="info-jogador">
-        <h4> Jogador Atual</h4>
-        <div class="jogador-atual" id="nome-jogador-display">
-          {{ nome_usuario or 'Jogador' }}
-        </div>
-        <div class="posicao-atual">
-          Posição: <span id="posicao-atual">1</span> de 100
-        </div>
-        <div class="info-projeto">
-          Projeto: <strong>{{ projeto.nome }}</strong>
-        </div>
-      </div>
+            <div class="painel-usuarios">
+                <h3>👥 Membros do Projeto</h3>
+                <div class="lista-usuarios" id="lista-usuarios">
+                    <div class="sem-dados">Carregando membros...</div>
+                </div>
+            </div>
 
+            <div class="painel-acoes">
+                <h3>⚡ Ações</h3>
+                <div class="actions">
+                    {% if eh_criador %}
+                    <button type="button" class="btn" onclick="abrirModal('adicionar')">
+                        ➕ Adicionar Recompensa
+                    </button>
+                    <button type="button" class="btn warn" onclick="abrirModal('editar')">
+                        ✏️ Gerenciar Recompensas
+                    </button>
+                    {% endif %}
+                    <button type="button" class="btn secondary" onclick="voltarParaProjeto()">
+                        Voltar ao Projeto
+                    </button>
+                    <button type="button" id="btnRecomecar" class="btn danger" onclick="recomecar()" style="display:none">
+                        🔄 Recomeçar Jogo
+                    </button>
+                </div>
+            </div>
+
+            <div class="info-jogador">
+                <h4> Jogador Atual</h4>
+                <div class="jogador-atual" id="nome-jogador-display">
+                    {{ nome_usuario or 'Jogador' }}
+                </div>
+                <div class="posicao-atual">
+                    Posição: <span id="posicao-atual">1</span> de 100
+                </div>
+                <div class="info-projeto">
+                    Projeto: <strong>{{ projeto.nome }}</strong>
+                </div>
+            </div>
+
+        </div>
     </div>
-  </div>
 
-  <!-- Seção de Recompensas Ganhas -->
-  <div class="recompensas-ganhas">
-    <h2>🏆 Recompensas Conquistadas</h2>
-    <div class="grid-recompensas" id="grid-recompensas">
-      <div class="sem-dados">Carregando recompensas conquistadas...</div>
+    <div class="recompensas-ganhas">
+        <h2>🏆 Recompensas Conquistadas</h2>
+        <div class="grid-recompensas" id="grid-recompensas">
+            <div class="sem-dados">Carregando recompensas conquistadas...</div>
+        </div>
     </div>
-  </div>
 
-</div> <!-- FIM DO .page-tabuleiro -->
-
-<!-- ======================================================= -->
-<!--   A PARTIR DAQUI: TODOS OS MODAIS FORA DO CONTAINER     -->
-<!-- ======================================================= -->
-
-<!-- Modal Adicionar Recompensa -->
-{% if eh_criador or usuario_atual_eh_admin %}
+</div> {% if eh_criador or usuario_atual_eh_admin %}
 <div id="modal-adicionar" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="ttl-add">
-  <div class="modal-container">
-    <div class="modal-card compact-modal">
-      <button class="modal-close" data-modal-close>&times;</button>
-      <div class="modal-header">
-        <h3 class="modal-title" id="ttl-add">Adicionar Recompensa</h3>
-      </div>
-      <div class="modal-content">
-        <form method="POST" action="{{ url_for('tabuleiro.adicionar_recompensa', id_projeto=projeto.id_projeto) }}" id="form-adicionar-recompensa">
-          <div class="modal-form compact-form">
-            <div class="form-group">
-              <label class="form-label">Título</label>
-              <input type="text" name="titulo" placeholder="Título da recompensa" required class="form-input compact">
+    <div class="modal-container">
+        <div class="modal-card compact-modal">
+            <button class="modal-close" data-modal-close>&times;</button>
+            <div class="modal-header">
+                <h3 class="modal-title" id="ttl-add">Adicionar Recompensa</h3>
             </div>
-            <div class="form-group">
-              <label class="form-label">Descrição</label>
-              <input type="text" name="descricao" placeholder="Descrição detalhada" required class="form-input compact">
+            <div class="modal-content">
+                <form method="POST" action="{{ url_for('tabuleiro.adicionar_recompensa', id_projeto=projeto.id_projeto) }}" id="form-adicionar-recompensa">
+                    <div class="modal-form compact-form">
+                        <div class="form-group">
+                            <label class="form-label">Título</label>
+                            <input type="text" name="titulo" placeholder="Título da recompensa" required class="form-input compact">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Descrição</label>
+                            <input type="text" name="descricao" placeholder="Descrição detalhada" required class="form-input compact">
+                        </div>
+                        <div class="form-row-compact">
+                            <div class="form-group compact">
+                                <label class="form-label">Casa</label>
+                                <input type="number" name="posicao" id="input-posicao" min="2" max="100" placeholder="Número (2-100)" required class="form-input compact">
+                            </div>
+                        </div>
+                        <small style="color: #666; font-size: 12px; margin-top: -10px; display: block;">
+                            A casa 1 não pode ter recompensa
+                        </small>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn">💾 Salvar</button>
+                        <button type="button" class="btn danger" onclick="fecharModal('adicionar')">❌ Cancelar</button>
+                    </div>
+                </form>
             </div>
-            <div class="form-row-compact">
-              <div class="form-group compact">
-                <label class="form-label">Casa</label>
-                <input type="number" name="posicao" id="input-posicao" min="2" max="100" placeholder="Número (2-100)" required class="form-input compact">
-              </div>
-            </div>
-            <small style="color: #666; font-size: 12px; margin-top: -10px; display: block;">
-              A casa 1 não pode ter recompensa
-            </small>
-          </div>
-          <div class="modal-footer">
-            <button type="submit" class="btn">Salvar</button>
-            <button type="button" class="btn danger" onclick="fecharModal('adicionar')">Cancelar</button>
-          </div>
-        </form>
-      </div>
+        </div>
     </div>
-  </div>
 </div>
 {% endif %}
 
-<!-- Modal Editar Recompensas -->
 {% if eh_criador %}
 <div id="modal-editar" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="ttl-edit">
-  <div class="modal-container">
-    <div class="modal-card">
-      <button class="modal-close" data-modal-close>&times;</button>
-      <div class="modal-header with-counter">
-        <h3 class="modal-title" id="ttl-edit">Editar recompensas</h3>
-        <span class="recompensa-count">{{ recompensas|length }} recompensa(s)</span>
-      </div>
-      <div class="modal-content">
+    <div class="modal-container">
+        <div class="modal-card">
+            <button class="modal-close" data-modal-close>&times;</button>
+            <div class="modal-header with-counter">
+                <h3 class="modal-title" id="ttl-edit">Editar recompensas</h3>
+                <span class="recompensa-count">{{ recompensas|length }} recompensa(s)</span>
+            </div>
+            <div class="modal-content">
 
-        {% if recompensas and recompensas|length > 0 %}
-        <table class="recompensas-table">
-          <thead>
-            <tr>
-              <th>Título</th>
-              <th>Descrição</th>
-              <th style="width: 80px;">Casa</th>
-              <th style="width: 120px;">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
+                {% if recompensas and recompensas|length > 0 %}
+                <table class="recompensas-table">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Descrição</th>
+                            <th style="width: 80px;">Casa</th>
+                            <th style="width: 120px;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
-            {% for r in recompensas %}
-            <tr {% if r.posicao == 100 %}class="premio-final"{% endif %}>
-              <td>
-                <input type="text" name="titulo" value="{{ r.titulo }}" class="table-input" form="form-edit-{{ r.id_recompensa }}">
-              </td>
-              <td>
-                <input type="text" name="descricao" value="{{ r.descricao }}" class="table-input" form="form-edit-{{ r.id_recompensa }}">
-              </td>
-              <td>
-                <input type="number" name="posicao" value="{{ r.posicao }}" min="2" max="100" class="table-input" style="width: 60px;" form="form-edit-{{ r.id_recompensa }}">
-              </td>
-              <td>
-                <div class="table-actions">
-                  <form id="form-edit-{{ r.id_recompensa }}" method="POST" action="{{ url_for('tabuleiro.editar_recompensa', id_projeto=projeto.id_projeto, id_recompensa=r.id_recompensa) }}">
-                    <button type="submit" class="btn-table save">Salvar</button>
-                  </form>
-                  <button type="button" class="btn-table delete" onclick="confirmarExclusao({{ r.id_recompensa }})">Exc.</button>
+                        {% for r in recompensas %}
+                        <tr {% if r.posicao == 100 %}class="premio-final"{% endif %}>
+                            <td>
+                                <input type="text" name="titulo" value="{{ r.titulo }}" class="table-input" form="form-edit-{{ r.id_recompensa }}">
+                            </td>
+                            <td>
+                                <input type="text" name="descricao" value="{{ r.descricao }}" class="table-input" form="form-edit-{{ r.id_recompensa }}">
+                            </td>
+                            <td>
+                                <input type="number" name="posicao" value="{{ r.posicao }}" min="2" max="100" class="table-input" style="width: 60px;" form="form-edit-{{ r.id_recompensa }}">
+                            </td>
+                            <td>
+                                <div class="table-actions">
+                                    <form id="form-edit-{{ r.id_recompensa }}" method="POST" action="{{ url_for('tabuleiro.editar_recompensa', id_projeto=projeto.id_projeto, id_recompensa=r.id_recompensa) }}">
+                                        <button type="submit" class="btn-table save">Salvar</button>
+                                    </form>
+                                    <button type="button" class="btn-table delete" onclick="confirmarExclusao({{ r.id_recompensa }})">Exc.</button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+
+                {% else %}
+                <div class="empty-table">
+                    <div class="empty-icon">🎁</div>
+                    <p>Nenhuma recompensa cadastrada ainda.</p>
+                    <p style="font-size: 12px; margin-top: 5px;">Adicione recompensas para tornar o jogo mais divertido!</p>
                 </div>
-              </td>
-            </tr>
-            {% endfor %}
+                {% endif %}
 
-          </tbody>
-        </table>
-
-        {% else %}
-        <div class="empty-table">
-          <div class="empty-table-icon">🎁</div>
-          <p>Nenhuma recompensa cadastrada ainda.</p>
-          <p style="font-size: 12px; margin-top: 5px;">Adicione recompensas para tornar o jogo mais divertido!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="fecharModal('editar')">Fechar</button>
+            </div>
         </div>
-        {% endif %}
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn" onclick="fecharModal('editar')">Fechar</button>
-      </div>
     </div>
-  </div>
 </div>
 {% endif %}
 
-<!-- Modal Vitória -->
 <div id="modal-ganhou" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="ttl-win">
-  <div class="modal-container">
-    <div class="modal-card win">
-      <button class="modal-close" data-modal-close>&times;</button>
-      <div class="modal-content" style="text-align: center; padding: 30px;">
-        <div class="win-icon">🏆</div>
-        <h3 class="win-title" id="ttl-win">🎉 Parabéns!</h3>
-        <p class="win-desc" id="textoRecompensa">Você ganhou uma recompensa!</p>
-        <div class="win-saldo" id="saldo-ganho">Recompensa conquistada!</div>
-        <p class="win-desc" id="mensagem-recompensa">Continue jogando para ganhar mais recompensas!</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn" onclick="fecharModal('ganhou')">Continuar Jogando</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Casa Info -->
-<div id="modal-casa-info" class="modal-overlay" role="dialog" aria-modal="true">
-  <div class="modal-container">
-    <div class="modal-card casa-info">
-      <button class="modal-close" data-modal-close>&times;</button>
-      <div class="modal-content" style="text-align: center;">
-        <div class="casa-info-icon" id="casa-icon">🏠</div>
-        <h3 class="info-casa-titulo" id="casa-titulo">Casa 1</h3>
-        <div class="info-casa-numero" id="casa-numero">Posição: 1</div>
-        <p class="info-casa-descricao" id="casa-descricao">Esta é uma casa comum do tabuleiro.</p>
-        <div class="casa-status" id="casa-status"></div>
-      </div>
-
-      <div class="modal-footer">
-        {% if eh_criador or usuario_atual_eh_admin %}
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
-          <button type="button" class="btn" id="btnEditarRecompensa" style="display:none" onclick="editarRecompensaCasa()">✏️ Editar Recompensa</button>
-          <button type="button" class="btn" id="btnAdicionarRecompensa" style="display:none" onclick="adicionarRecompensaCasa()">➕ Adicionar Recompensa</button>
-          <button type="button" class="btn danger" id="btnExcluirRecompensa" style="display:none" onclick="excluirRecompensaCasa()">🗑️ Excluir Recompensa</button>
+    <div class="modal-container">
+        <div class="modal-card win">
+            <button class="modal-close" data-modal-close>&times;</button>
+            <div class="modal-content" style="text-align: center; padding: 30px;">
+                <div class="win-icon">🏆</div>
+                <h3 class="win-title" id="ttl-win">🎉 Parabéns!</h3>
+                <p class="win-desc" id="textoRecompensa">Você ganhou uma recompensa!</p>
+                <div class="win-saldo" id="saldo-ganho">Recompensa conquistada!</div>
+                <p class="win-desc" id="mensagem-recompensa">Continue jogando para ganhar mais recompensas!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="fecharModal('ganhou')">Continuar Jogando</button>
+            </div>
         </div>
-        {% endif %}
-        <button type="button" class="btn secondary" onclick="fecharModal('casa-info')">Fechar</button>
-      </div>
-
     </div>
-  </div>
 </div>
 
-<!-- Modal Confirmação -->
+<div id="modal-casa-info" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-container">
+        <div class="modal-card casa-info">
+            <button class="modal-close" data-modal-close>&times;</button>
+            <div class="modal-content" style="text-align: center;">
+                <div class="casa-info-icon" id="casa-icon">🏠</div>
+                <h3 class="info-casa-titulo" id="casa-titulo">Casa 1</h3>
+                <div class="info-casa-numero" id="casa-numero">Posição: 1</div>
+                <p class="info-casa-descricao" id="casa-descricao">Esta é uma casa comum do tabuleiro.</p>
+                <div class="casa-status" id="casa-status"></div>
+            </div>
+
+            <div class="modal-footer">
+                {% if eh_criador or usuario_atual_eh_admin %}
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                    <button type="button" class="btn" id="btnEditarRecompensa" style="display:none" onclick="editarRecompensaCasa()">✏️ Editar Recompensa</button>
+                    <button type="button" class="btn" id="btnAdicionarRecompensa" style="display:none" onclick="adicionarRecompensaCasa()">➕ Adicionar Recompensa</button>
+                    <button type="button" class="btn danger" id="btnExcluirRecompensa" style="display:none" onclick="excluirRecompensaCasa()">🗑️ Excluir Recompensa</button>
+                </div>
+                {% endif %}
+                <button type="button" class="btn secondary" onclick="fecharModal('casa-info')">Fechar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 {% if eh_criador or usuario_atual_eh_admin %}
 <div id="modal-confirmacao" class="modal-overlay" role="dialog" aria-modal="true">
-  <div class="modal-container">
-    <div class="modal-card">
-      <button class="modal-close" data-modal-close>&times;</button>
-      <div class="modal-header">
-        <h3 class="modal-title">Confirmar Exclusão</h3>
-      </div>
-      <div class="modal-content" style="text-align: center;">
-        <p>Tem certeza que deseja excluir esta recompensa?</p>
-      </div>
-      <div class="modal-footer">
-        <form id="form-excluir" method="POST" style="display: inline;">
-          <button type="submit" class="btn danger">Sim, Excluir</button>
-        </form>
-        <button type="button" class="btn secondary" onclick="fecharModal('confirmacao')">Cancelar</button>
-      </div>
+    <div class="modal-container">
+        <div class="modal-card">
+            <button class="modal-close" data-modal-close>&times;</button>
+            <div class="modal-header">
+                <h3 class="modal-title">Confirmar Exclusão</h3>
+            </div>
+            <div class="modal-content" style="text-align: center;">
+                <p>Tem certeza que deseja excluir esta recompensa?</p>
+            </div>
+            <div class="modal-footer">
+                <form id="form-excluir" method="POST" style="display: inline;">
+                    <button type="submit" class="btn danger">Sim, Excluir</button>
+                </form>
+                <button type="button" class="btn secondary" onclick="fecharModal('confirmacao')">Cancelar</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 {% endif %}
-
-<!-- ========================================= -->
-<!--  SCRIPTS DEPOIS DE TODA A ESTRUTURA HTML   -->
-<!-- ========================================= -->
 
 <script>
   window.recompensas = {{ recompensas | tojson }};
@@ -299,6 +273,7 @@
   window.ehCriador = {% if eh_criador or usuario_atual_eh_admin %}true{% else %}false{% endif %};
   window.usuariosOnline = {{ usuarios_online | tojson }};
   window.recompensasGanhas = {{ recompensas_ganhas | tojson }};
+  window.idUsuario = {{ session['user_id'] }}; 
 </script>
 <script src="{{ url_for('static', filename='js/tabuleiro.js') }}"></script>
 

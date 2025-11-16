@@ -7,6 +7,10 @@
   <link rel="icon" href="{{ url_for('static', filename='imagens/robo.png') }}" type="image/png">
 
   <!-- Estilos globais -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
   {% block styles %}{% endblock %}
 </head>
@@ -17,10 +21,45 @@
 
   <!-- Conteúdo principal -->
   <main class="main">
+    
+    <!-- Botão Hamburger para Mobile (controlado pelo CSS) -->
+    <button class="hamburger-btn" aria-label="Abrir menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    
+    <!-- NOVO: Botão de Toggle para Desktop (controlado pelo CSS) -->
+    <button class="sidebar-toggle-btn" aria-label="Esconder menu">
+        <span class="menu-arrow"></span>
+    </button>
+
+    <!-- Bloco onde as páginas (inicio.html, etc.) são injetadas -->
     {% block content %}{% endblock %}
+
+    <!-- Footer Global da Aplicação -->
+    <footer class="app-footer">
+        © 2025 – FofoTechs. Todos os direitos reservados.
+    </footer>
+
   </main>
 
+  <!-- MUDANÇA: Modal de Logout (renomeado para não ter conflito) -->
+  <div class="modal-overlay-global" id="logout-modal" style="display: none;">
+      <div class="modal-content-global">
+          <h3>Confirmar Saída</h3>
+          <p>Você tem certeza que deseja sair da sua conta?</p>
+          <div class="modal-actions-global">
+              <!-- Este botão apenas fecha o modal (veja script.js) -->
+              <button class="btn btn-secondary" id="logout-cancel-btn">Cancelar</button>
+              <!-- Este link executa a ação de sair -->
+              <a href="{{ url_for('auth.logout') }}" class="btn btn-danger" id="logout-confirm-btn">Sim, Sair</a>
+          </div>
+      </div>
+  </div>
+
   <!-- Scripts globais -->
+  <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
   {% block scripts %}{% endblock %}
 
 </body>
