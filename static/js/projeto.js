@@ -146,12 +146,10 @@ function aplicarFiltros() {
     filtrosAtivos.status = filtroStatus;
     filtrosAtivos.responsavel = filtroResponsavel;
     
-    // Usar a classe correta dos cards (task-card-modern)
     const todasTarefas = document.querySelectorAll('.task-card-modern');
     let tarefasVisiveis = 0;
     
     console.log(`Aplicando filtros - Nome: ${filtroNome}, Prioridade: ${filtroPrioridade}, Status: ${filtroStatus}, Responsável: ${filtroResponsavel}`);
-    console.log(`Total de tarefas encontradas: ${todasTarefas.length}`);
     
     todasTarefas.forEach(tarefa => {
         const titulo = tarefa.querySelector('h4').textContent.toLowerCase();
@@ -190,10 +188,10 @@ function aplicarFiltros() {
         }
     });
     
-    // Atualizar contadores das colunas
+    // ATUALIZAR CONTADORES - CHAMADA CORRIGIDA
     atualizarContadoresColunas();
     
-    console.log(`Filtros aplicados: ${tarefasVisiveis} tarefas visíveis`);
+    console.log(`Filtros aplicados: ${tarefasVisiveis} tarefas visíveis no total`);
 }
 
 function limparFiltros() {
@@ -210,16 +208,16 @@ function limparFiltros() {
         responsavel: 'todos'
     };
     
-    // Mostrar todas as tarefas
+    // Mostrar todas as tarefas - REMOVER completamente o style display
     const todasTarefas = document.querySelectorAll('.task-card-modern');
     todasTarefas.forEach(tarefa => {
-        tarefa.style.display = 'block';
+        tarefa.style.display = ''; // Remove o style completamente
     });
     
-    // Restaurar contadores originais
+    // Restaurar contadores originais - CHAMADA CORRIGIDA
     atualizarContadoresColunas();
     
-    console.log('Filtros limpos');
+    console.log('Filtros limpos - mostrando todas as tarefas');
 }
 
 function atualizarContadoresColunas() {
@@ -229,10 +227,11 @@ function atualizarContadoresColunas() {
         const tasksList = coluna.querySelector('.tasks-list');
         const taskCountElement = coluna.querySelector('.task-count');
         
-        // Contar apenas tarefas visíveis com a classe correta
-        const tarefasVisiveis = tasksList.querySelectorAll('.task-card-modern[style="display: block"], .task-card-modern:not([style])').length;
-        
-        if (taskCountElement) {
+        if (tasksList && taskCountElement) {
+            // Contar TODAS as tarefas visíveis (incluindo as que não têm style definido)
+            const tarefasVisiveis = tasksList.querySelectorAll('.task-card-modern:not([style*="display: none"])').length;
+            
+            console.log(`Coluna ${coluna.querySelector('h3').textContent}: ${tarefasVisiveis} tarefas visíveis`);
             taskCountElement.textContent = tarefasVisiveis;
         }
     });
@@ -475,6 +474,15 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         verificarBotoes();
     }, 100);
+    
+    // Inicializar event listeners específicos para tarefas
+    inicializarEventListenersTarefas();
+
+    // INICIALIZAR CONTADORES CORRETAMENTE
+    setTimeout(() => {
+        atualizarContadoresColunas();
+    }, 200);
+    
     
     // Inicializar event listeners específicos para tarefas
     inicializarEventListenersTarefas();
