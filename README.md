@@ -115,3 +115,4 @@ Este projeto possui finalidade exclusivamente acadêmica.
 Para uso, modificação ou redistribuição, entre em contato com os autores.
 
 © 2025 – Equipe FofoTechs. Todos os direitos reservados.
+
