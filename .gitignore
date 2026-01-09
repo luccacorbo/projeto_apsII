@@ -11,5 +11,3 @@ __pycache__/
 # Arquivos temporários do VSCode ou do sistema
 .vscode/
 .DS_Store
-
-docs/**/*.mp4

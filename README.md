@@ -71,7 +71,7 @@ demonstrando as principais funcionalidades do sistema e a lógica de gamificaç�
 
 👉 Clique para assistir:
 
-[![Demonstração do Sistema](docs/prints/capaVideo.png)](docs/prints/PojetoVideo.mp4)
+[![Demonstração do Sistema](docs/prints/capaVideo.png)](https://youtu.be/hiU5Sy9Jf-o)
 
 🧩 Stack Tecnológica
 Camada	Tecnologia
