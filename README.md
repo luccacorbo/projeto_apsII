@@ -1,124 +1,106 @@
-# 🎯 FofoTechs – Gerenciador de Tarefas Gamificado
+# FofoTechs – Gerenciador de Tarefas Gamificado
 
-O **FofoTechs** é uma aplicação web desenvolvida como **Trabalho de Conclusão de Curso (TCC)** no curso de **Análise e Desenvolvimento de Sistemas – UNICID**.
+Aplicação web desenvolvida como **Trabalho de Conclusão de Curso (TCC)** no curso de **Análise e Desenvolvimento de Sistemas – UNICID**.
 
-O projeto propõe uma abordagem inovadora para a **organização de tarefas e gestão de projetos**, utilizando **gamificação** como estratégia para aumentar o engajamento, a produtividade e a disciplina de colaboradores e equipes ágeis.
-
----
-
-## 🧩 Visão Geral
-
-O FofoTechs combina conceitos de:
-
-- Gestão de Projetos (Kanban)
-- Gamificação
-- Análise de Sistemas
-- Modelagem de Dados
-- Desenvolvimento Web Full Stack
-
-A aplicação transforma a execução de tarefas em uma experiência interativa, baseada em:
-
-- Avanço em um **tabuleiro de progresso**
-- Acúmulo de **saldo (rolagem de dado)**
-- Conquista de **recompensas**
+O FofoTechs transforma a rotina de gerenciamento de projetos em uma experiência gamificada. Ao concluir tarefas, colaboradores acumulam saldo, avançam em um tabuleiro de progresso e desbloqueiam recompensas — incentivando constância, foco e engajamento coletivo.
 
 ---
 
-## 🎯 Objetivo Geral
+## Objetivo
 
-Desenvolver uma plataforma de organização de tarefas que motive os usuários por meio de mecânicas de jogo, incentivando o cumprimento de metas e o desenvolvimento de hábitos produtivos no ambiente corporativo.
+Desenvolver uma plataforma de organização de tarefas corporativas que motive equipes por meio de mecânicas de jogo, promovendo o cumprimento de metas e hábitos produtivos no ambiente de trabalho.
 
----
-
-## 🎯 Objetivos Específicos
-
-- **Organização:** criação de projetos, tarefas e equipes  
-- **Produtividade:** redução da procrastinação e melhoria do foco  
-- **Gamificação:** recompensas por conclusão de tarefas  
-- **Engajamento:** aumento da motivação e senso de progresso  
-- **Gestão:** controle claro do fluxo de trabalho para administradores  
+O foco está na integração entre **gestão ágil de projetos** e **gamificação aplicada**, com ênfase em usabilidade, clareza do fluxo de trabalho e senso de progresso para os colaboradores.
 
 ---
 
-## ⚙️ Funcionalidades Implementadas
+## Estrutura do Repositório
 
-| Categoria | Descrição | Status |
-|--------|----------|--------|
-| Autenticação | Cadastro, login e recuperação de senha por e-mail | ✅ |
-| Gestão de Projetos | Criação de projetos e dashboards | ✅ |
-| Gestão de Membros | Convite e gerenciamento de participantes | ✅ |
-| Gestão de Tarefas | Kanban (Todo, Doing, Done), prioridades e responsáveis | ✅ |
-| Gamificação | Tabuleiro, saldo e recompensas por progresso | ✅ |
-| Histórico | Logs de saldo, recompensas e ranking | ✅ |
-
----
-
-## 🎮 Sistema de Gamificação
-
-O principal diferencial do FofoTechs é seu **sistema de gamificação integrado à lógica de tarefas**:
-
-1. O usuário conclui tarefas  
-2. Recebe saldo (moedas)  
-3. Avança posições no tabuleiro do projeto  
-4. Desbloqueia recompensas conforme a posição alcançada  
-
-Esse mecanismo incentiva **constância, foco e colaboração** entre os membros da equipe.
+```
+projeto_apsII/
+├── routes/                    # Blueprints Flask por domínio (auth, projetos, tarefas...)
+├── static/                    # Assets estáticos (CSS, JavaScript, imagens)
+├── templates/                 # Templates HTML
+├── docs/
+│   └── prints/                # Capturas de tela e capa do vídeo de demonstração
+├── app.py                     # Inicialização e configuração da aplicação Flask
+├── database.py                # Conexão e helpers do banco de dados MySQL
+├── requirements.txt           # Dependências Python do projeto
+├── Procfile                   # Configuração de deploy no Railway
+└── README.md                  # Este arquivo
+```
 
 ---
 
-## 🎥 Demonstração em Vídeo
+## Funcionalidades
 
-O vídeo abaixo apresenta o funcionamento do FofoTechs durante o período de implantação do MVP, demonstrando as principais funcionalidades do sistema e a lógica de gamificação.
+### Autenticação
+Cadastro de novos usuários, login com sessão persistente e recuperação de senha por e-mail.
 
-👉 Clique para assistir:
+### Gestão de Projetos
+Criação de projetos com dashboard individual por equipe, acompanhamento de status e visibilidade do progresso coletivo.
+
+### Gestão de Membros
+Convite de colaboradores via e-mail, definição de papéis e controle de acesso por projeto.
+
+### Kanban de Tarefas
+Organização visual das atividades em três colunas — **Pendente → Em andamento → Concluída** — com suporte a prioridades, responsáveis e prazos definidos.
+
+### Sistema de Gamificação
+Ao concluir tarefas, o colaborador recebe uma moeda pela atividade realizada, avança posições no tabuleiro do projeto e desbloqueia recompensas configuradas pelo administrador. O mecanismo cria um ciclo contínuo de motivação e reconhecimento dentro da equipe.
+
+### Histórico e Ranking
+Registro de todas as movimentações de saldo, recompensas conquistadas e posição de cada membro no ranking de desempenho do projeto.
+
+---
+
+## Demonstração
+
+O vídeo abaixo apresenta o FofoTechs em funcionamento durante o período de implantação do MVP, cobrindo as principais funcionalidades e a lógica de gamificação aplicada.
 
 [![Demonstração do Sistema](docs/prints/capaVideo.png)](https://youtu.be/hiU5Sy9Jf-o)
 
 ---
 
-## 🧩 Stack Tecnológica
+## Stack Tecnológica
 
-| Camada | Tecnologia |
-|------|-----------|
-| Front-end | HTML5, CSS3, JavaScript |
-| Back-end | Python (Flask) |
-| Banco de Dados | MySQL |
-| Infraestrutura | Railway (App + Banco) |
-| Ferramentas | Git, VS Code, MySQL Workbench |
+**Back-end:** Python 3 com Flask, organizado em Blueprints por domínio
 
----
+**Front-end:** HTML5, CSS3 e JavaScript
 
-## 🚀 Implantação do MVP
+**Banco de Dados:** MySQL, gerenciado via `database.py` com conexão direta
 
-O FofoTechs foi implantado em ambiente de nuvem durante a fase de **MVP**, com o objetivo de validar o funcionamento completo da aplicação em um cenário real.
+**Infraestrutura:** Railway para hospedagem da aplicação e do banco em nuvem, com deploy via `Procfile`
 
-Atualmente, o ambiente de produção encontra-se **desativado por limitações de hospedagem**, permanecendo este repositório como **registro técnico e acadêmico do projeto**.
+**Ferramentas:** Git, VS Code, MySQL Workbench
 
 ---
 
-## ⚠️ Limitações Conhecidas
+## Implantação do MVP
 
-- O sistema não está ativo em produção no momento  
-- O projeto não possui configuração simplificada para execução local  
-- A estrutura completa do banco de dados não está disponível no repositório por motivos acadêmicos  
+O sistema foi implantado em ambiente de nuvem durante a fase de MVP para validação em cenário real com usuários ativos. O ambiente de produção encontra-se atualmente **desativado por limitações de hospedagem**. Este repositório permanece como registro técnico e acadêmico do projeto.
 
 ---
 
-## 🎓 Contexto Acadêmico
+## Limitações Conhecidas
 
-Projeto desenvolvido como **Trabalho de Conclusão de Curso (TCC)** na disciplina **Análise e Projeto de Sistemas II – UNICID**.
-
-**Documentos produzidos:**
-- TAP (Termo de Abertura do Projeto)  
-- Análise de Requisitos  
-- DER e Modelo Lógico  
-- Registro de Partes Interessadas  
+- O ambiente de produção não está ativo no momento
+- Não há configuração simplificada para execução local (variáveis de ambiente e banco precisam ser configurados manualmente)
+- O schema completo do banco de dados não está disponível no repositório por motivos acadêmicos
 
 ---
 
-## 📜 Licença
+## Contexto Acadêmico
 
-Este projeto possui **finalidade exclusivamente acadêmica**.  
+Projeto desenvolvido como TCC na disciplina **Análise e Projeto de Sistemas II – UNICID**.
+
+Documentos produzidos ao longo do projeto: TAP (Termo de Abertura do Projeto), Análise de Requisitos, DER e Modelo Lógico do Banco de Dados, e Registro de Partes Interessadas.
+
+---
+
+## Licença
+
+Este projeto possui finalidade exclusivamente acadêmica.  
 Para uso, modificação ou redistribuição, entre em contato com os autores.
 
 © 2025 – Equipe FofoTechs. Todos os direitos reservados.
